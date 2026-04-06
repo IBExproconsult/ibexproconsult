@@ -1,0 +1,146 @@
+[
+  {
+    "name": "ELTE – Eötvös Loránd Tudományegyetem",
+    "short": "ELTE",
+    "address": "Egyetem tér 1-3, Budapest V",
+    "students": 32000,
+    "foreign": 3000,
+    "lat": 47.490361,
+    "lon": 19.0582821
+  },
+  {
+    "name": "BME – Budapesti Műszaki és Gazdaságtudományi Egyetem",
+    "short": "BME",
+    "address": "Műegyetem rakpart 3-9, Budapest XI",
+    "students": 24000,
+    "foreign": 2400,
+    "lat": 47.4804902,
+    "lon": 19.0578843
+  },
+  {
+    "name": "Semmelweis Egyetem",
+    "short": "Semmelweis",
+    "address": "Üllői út 26, Budapest VIII",
+    "students": 16445,
+    "foreign": 6107,
+    "lat": 47.4836969,
+    "lon": 19.0818525
+  },
+  {
+    "name": "Budapesti Corvinus Egyetem",
+    "short": "Corvinus",
+    "address": "Fővám tér 8, Budapest V",
+    "students": 11000,
+    "foreign": 1000,
+    "lat": 47.4868789,
+    "lon": 19.057006
+  },
+  {
+    "name": "Nemzeti Közszolgálati Egyetem",
+    "short": "NKE",
+    "address": "Ludovika tér 2, Budapest VIII",
+    "students": 6500,
+    "foreign": 200,
+    "lat": 47.4818551,
+    "lon": 19.0853682
+  },
+  {
+    "name": "Budapesti Gazdasági Egyetem",
+    "short": "BGE",
+    "address": "Záhony utca 7, Budapest XIII",
+    "students": 20000,
+    "foreign": 500,
+    "lat": 47.5086243,
+    "lon": 19.0537594
+  },
+  {
+    "name": "Óbudai Egyetem",
+    "short": "ÓE",
+    "address": "Bécsi út 96/b, Budapest III",
+    "students": 14000,
+    "foreign": 400,
+    "lat": 47.5337863,
+    "lon": 19.0343054
+  },
+  {
+    "name": "Károli Gáspár Református Egyetem",
+    "short": "KRE",
+    "address": "Kálvin tér 9, Budapest V",
+    "students": 9000,
+    "foreign": 100,
+    "lat": 47.4899262,
+    "lon": 19.0616389
+  },
+  {
+    "name": "Pázmány Péter Katolikus Egyetem",
+    "short": "PPKE",
+    "address": "Szentkirályi utca 28, Budapest VIII",
+    "students": 7000,
+    "foreign": 150,
+    "lat": 47.4917027,
+    "lon": 19.0661558
+  },
+  {
+    "name": "Budapesti Metropolitan Egyetem",
+    "short": "METU",
+    "address": "Nagy Lajos király útja 1-9, Budapest XIV",
+    "students": 9500,
+    "foreign": 1000,
+    "lat": 47.5066779,
+    "lon": 19.1347697
+  },
+  {
+    "name": "Állatorvostudományi Egyetem",
+    "short": "ÁTE",
+    "address": "István utca 2, Budapest VII",
+    "students": 2000,
+    "foreign": 300,
+    "lat": 47.5037959,
+    "lon": 19.0773704
+  },
+  {
+    "name": "Andrássy Gyula Német Nyelvű Egyetem",
+    "short": "AUB",
+    "address": "Pollack Mihály tér 3, Budapest VIII",
+    "students": 300,
+    "foreign": 250,
+    "lat": 47.4921593,
+    "lon": 19.0641444
+  },
+  {
+    "name": "Liszt Ferenc Zeneművészeti Egyetem",
+    "short": "LFZE",
+    "address": "Liszt Ferenc tér 8, Budapest VI",
+    "students": 1500,
+    "foreign": 200,
+    "lat": 47.5032503,
+    "lon": 19.0643957
+  },
+  {
+    "name": "Magyar Képzőművészeti Egyetem",
+    "short": "MKE",
+    "address": "Andrássy út 69-71, Budapest VI",
+    "students": 800,
+    "foreign": 100,
+    "lat": 47.5071743,
+    "lon": 19.0670281
+  },
+  {
+    "name": "Moholy-Nagy Művészeti Egyetem",
+    "short": "MOME",
+    "address": "Zugligeti út 9-25, Budapest XII",
+    "students": 2000,
+    "foreign": 250,
+    "lat": 47.5172125,
+    "lon": 18.9901161
+  },
+  {
+    "name": "Színház- és Filmművészeti Egyetem",
+    "short": "SZFE",
+    "address": "Vas utca 2/c, Budapest VIII",
+    "students": 1000,
+    "foreign": 50,
+    "lat": 47.4951628,
+    "lon": 19.0665069
+  }
+]

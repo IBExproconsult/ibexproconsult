@@ -1,0 +1,1672 @@
+<!DOCTYPE html>
+<!--
+  
+  Diáklakás Intelligencia Modul — IB Exproconsult
+  © 2026
+-->
+<html lang="hu" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IB Exproconsult — Diáklakás Intelligencia</title>
+<link rel="stylesheet" href="libs/leaflet.css">
+<script src="libs/leaflet.js"></script>
+<script src="libs/chart.min.js"></script>
+<style>
+:root {
+  --bg: #F5F5F7;
+  --surface: #FFFFFF;
+  --surface-2: #F5F5F7;
+  --surface2: #F5F5F7;
+  --surface-3: #E5E5EA;
+  --border: rgba(0,0,0,0.08);
+  --border-h: rgba(0,0,0,0.14);
+  --accent: #0071E3;
+  --accent-hover: #0077ED;
+  --accent-light: rgba(0,113,227,0.12);
+  --primary: #0071E3;
+  --primary-h: #0077ED;
+  --ib-blue: #0071E3;
+  --ib-blue-h: #0077ED;
+  --ib-blue-glow: rgba(0,113,227,0.15);
+  --gold: #FF9F0A;
+  --green: #34C759;
+  --red: #FF3B30;
+  --orange: #FF9500;
+  --purple: #AF52DE;
+  --teal: #5AC8FA;
+  --cyan: #5AC8FA;
+  --success: #34C759;
+  --warning: #FF9F0A;
+  --danger: #FF3B30;
+  --info: #5AC8FA;
+  --text: #1D1D1F;
+  --text-muted: #6E6E73;
+  --text-dim: #AEAEB2;
+  --text-faint: #AEAEB2;
+  --radius: 10px;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 18px;
+  --shadow: 0 4px 24px rgba(0,0,0,0.4);
+  --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  --text-xs: 10px;
+  --text-sm: 12px;
+  --text-base: 13px;
+  --text-md: 14px;
+  --text-lg: 16px;
+  --text-xl: 20px;
+  --text-2xl: 28px;
+
+      --header-h: 56px;
+      --sidebar-w: 340px;
+    }
+*,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
+html,body { height:100%; background:var(--bg); color:var(--text); font-family:var(--font); font-size:14px; line-height:1.5; overflow-x:hidden; }
+a { color:var(--accent); text-decoration:none; }
+button { cursor:pointer; border:none; font-family:inherit; }
+input,select,textarea { font-family:inherit; }
+.tabular { font-variant-numeric:tabular-nums lining-nums; }
+.page { min-height:100vh; display:flex; flex-direction:column; }
+
+/* NAV */
+.nav {
+  background:var(--surface); border-bottom:1px solid var(--border);
+  padding:0 24px; height:56px; display:flex; align-items:center; gap:16px;
+  position:sticky; top:0; z-index:1000; flex-shrink:0;
+}
+.nav-logo { display:flex; align-items:center; gap:10px; font-weight:700; font-size:15px; color:var(--text); }
+.nav-logo svg { flex-shrink:0; }
+.nav-back {
+  display:flex; align-items:center; gap:6px; font-size:13px; color:var(--text-muted);
+  padding:6px 12px; border-radius:6px; background:var(--surface2);
+  border:1px solid var(--border); transition:all 0.15s;
+}
+.nav-back:hover { color:var(--text); border-color:var(--accent); }
+.nav-spacer { flex:1; }
+.nav-badge {
+  font-size:11px; background:var(--accent-light); color:var(--accent);
+  border:1px solid rgba(0,113,227,0.3); padding:3px 10px; border-radius:20px;
+  font-weight:600; letter-spacing:0.03em;
+}
+.nav-link {
+  display:inline-flex; align-items:center; gap:5px; font-size:12px; font-weight:600;
+  padding:5px 10px; border-radius:6px; text-decoration:none; transition:all 0.15s;
+}
+
+/* MAIN */
+.main-content { flex:1; padding:24px; max-width:1440px; margin:0 auto; width:100%; }
+
+/* TABS */
+.tab-bar {
+  display:flex; gap:4px; background:var(--surface); border:1px solid var(--border);
+  border-radius:var(--radius); padding:4px; margin-bottom:24px; overflow-x:auto;
+}
+.tab-btn {
+  padding:10px 20px; border-radius:8px; font-size:13px; font-weight:600;
+  background:transparent; color:var(--text-muted); white-space:nowrap; transition:all 0.15s;
+}
+.tab-btn:hover { color:var(--text); background:var(--surface2); }
+.tab-btn.active { background:var(--accent); color:#fff; }
+.tab-panel { display:none; }
+.tab-panel.active { display:block; }
+
+/* CARD */
+.card {
+  background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg);
+  padding:20px; box-shadow:var(--shadow); margin-bottom:20px;
+}
+
+/* KPI */
+.kpi-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-bottom:24px; }
+.kpi-card {
+  background:var(--surface); border:1px solid var(--border); border-radius:var(--radius);
+  padding:16px 20px;
+}
+.kpi-label { font-size:11px; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.04em; margin-bottom:4px; }
+.kpi-value { font-size:24px; font-weight:700; font-variant-numeric:tabular-nums; }
+.kpi-sub { font-size:11px; color:var(--text-dim); margin-top:2px; }
+
+/* TABLE */
+.table-wrap { overflow-x:auto; -webkit-overflow-scrolling:touch; }
+table { width:100%; border-collapse:collapse; font-size:13px; }
+thead th {
+  text-align:left; padding:10px 12px; color:var(--text-muted); font-weight:600;
+  border-bottom:1px solid var(--border); white-space:nowrap; font-size:12px;
+  text-transform:uppercase; letter-spacing:0.04em; cursor:pointer;
+}
+thead th:hover { color:var(--text); }
+tbody td { padding:10px 12px; border-bottom:1px solid rgba(45,50,80,0.4); vertical-align:middle; }
+tbody tr:hover { background:rgba(0,113,227,0.04); }
+
+/* BUTTONS */
+.btn {
+  display:inline-flex; align-items:center; gap:6px; padding:8px 16px;
+  border-radius:8px; font-size:13px; font-weight:600; transition:all 0.15s;
+}
+.btn-primary { background:var(--accent); color:#fff; }
+.btn-primary:hover { background:var(--accent-hover); }
+.btn-sm { padding:5px 10px; font-size:12px; }
+.btn-outline { background:transparent; color:var(--text-muted); border:1px solid var(--border); }
+.btn-outline:hover { color:var(--text); border-color:var(--accent); }
+
+/* INPUTS */
+.input,.select-input {
+  background:var(--surface2); border:1px solid var(--border); color:var(--text);
+  padding:8px 12px; border-radius:8px; font-size:13px; outline:none; transition:border 0.15s; width:100%;
+}
+.input:focus,.select-input:focus { border-color:var(--accent); }
+.form-group { display:flex; flex-direction:column; gap:4px; margin-bottom:12px; }
+.form-label { font-size:12px; color:var(--text-muted); font-weight:600; }
+
+/* BADGE */
+.badge {
+  display:inline-block; padding:3px 10px; border-radius:12px; font-size:11px;
+  font-weight:600; letter-spacing:0.03em;
+}
+.badge-green { background:rgba(16,185,129,0.15); color:var(--green); }
+.badge-yellow { background:rgba(245,158,11,0.15); color:var(--gold); }
+.badge-orange { background:rgba(249,115,22,0.15); color:var(--orange); }
+.badge-red { background:rgba(239,68,68,0.15); color:var(--red); }
+.badge-blue { background:rgba(0,113,227,0.15); color:var(--accent); }
+.badge-teal { background:rgba(6,182,212,0.15); color:var(--teal); }
+
+/* SCORE CHIP */
+.score-chip {
+  display:inline-block; padding:2px 10px; border-radius:10px; font-size:12px;
+  font-weight:600; min-width:50px; text-align:center;
+}
+.score-green { background:rgba(16,185,129,0.18); color:#34C759; }
+.score-yellow { background:rgba(245,158,11,0.18); color:#FF9F0A; }
+.score-orange { background:rgba(249,115,22,0.18); color:#FF9500; }
+.score-red { background:rgba(239,68,68,0.18); color:#FF3B30; }
+
+/* CHART CONTAINER */
+.chart-container { position:relative; max-width:100%; }
+
+/* SECTION HEADER */
+.section-header { font-size:18px; font-weight:700; margin-bottom:16px; }
+.section-sub { font-size:16px; font-weight:600; margin:20px 0 12px; }
+
+/* MAP */
+#demand-map { height:500px; border-radius:var(--radius-lg); border:1px solid var(--border); }
+
+/* FEASIBILITY */
+.feas-grid { display:grid; grid-template-columns:35% 65%; gap:24px; }
+.feas-input { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg); padding:20px; }
+.feas-output { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg); padding:20px; }
+.feas-result-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+.feas-metric { background:var(--surface2); border:1px solid var(--border); border-radius:var(--radius); padding:12px; }
+.feas-metric .fm-label { font-size:11px; color:var(--text-muted); text-transform:uppercase; margin-bottom:2px; }
+.feas-metric .fm-value { font-size:20px; font-weight:700; font-variant-numeric:tabular-nums; }
+.feas-metric .fm-sub { font-size:11px; color:var(--text-dim); }
+.slider-row { display:flex; align-items:center; gap:8px; }
+.slider-row input[type="range"] { flex:1; accent-color:var(--accent); }
+.slider-val { min-width:45px; text-align:right; font-size:13px; font-weight:600; color:var(--accent); }
+
+/* CAMPUS CARD */
+.campus-cards { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:12px; }
+.campus-card {
+  background:var(--surface2); border:1px solid var(--border); border-radius:var(--radius);
+  padding:12px; text-align:center;
+}
+.campus-card .cc-name { font-size:12px; font-weight:600; margin-bottom:4px; }
+.campus-card .cc-val { font-size:18px; font-weight:700; }
+.campus-card .cc-sub { font-size:11px; color:var(--text-dim); }
+
+/* DEV CARD */
+.dev-cards { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:16px; }
+.dev-card {
+  background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg);
+  padding:20px; position:relative; overflow:hidden;
+}
+.dev-card .status-bar { position:absolute; top:0; left:0; right:0; height:4px; }
+
+/* FOOTER */
+.footer {
+  text-align:center; padding:16px; border-top:1px solid var(--border);
+  color:var(--text-dim); font-size:12px;
+}
+
+/* RESPONSIVE */
+@media(max-width:900px) {
+  .kpi-grid { grid-template-columns:repeat(2,1fr); }
+  .feas-grid { grid-template-columns:1fr; }
+  .nav { padding:0 12px; gap:8px; overflow-x:auto; }
+}
+@media(max-width:600px) {
+  .kpi-grid { grid-template-columns:1fr; }
+  .tab-btn { padding:8px 12px; font-size:12px; }
+}
+
+/* Sortable arrows */
+th[data-sort]::after { content:'↕'; margin-left:4px; opacity:0.3; font-size:10px; }
+th[data-sort].asc::after { content:'↑'; opacity:0.7; }
+th[data-sort].desc::after { content:'↓'; opacity:0.7; }
+
+/* Filter bar */
+.filter-bar { display:flex; flex-wrap:wrap; gap:12px; margin-bottom:16px; align-items:flex-end; }
+.filter-bar .form-group { margin-bottom:0; min-width:150px; }
+
+/* Partnership cards */
+.partner-cards { display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:16px; }
+.partner-card {
+  background:var(--surface2); border:1px solid var(--border); border-radius:var(--radius);
+  padding:16px;
+}
+.partner-card h4 { font-size:14px; margin-bottom:8px; }
+.partner-card p { font-size:13px; color:var(--text-muted); line-height:1.6; }
+
+/* Collapsible */
+.collapsible-header {
+  cursor:pointer; padding:12px 16px; background:var(--surface2); border:1px solid var(--border);
+  border-radius:var(--radius); font-weight:600; display:flex; justify-content:space-between; align-items:center;
+}
+.collapsible-header:hover { border-color:var(--accent); }
+.collapsible-body { padding:16px 0; }
+
+/* ── Dark mode ──────────────────────────────────────────── */
+[data-theme="dark"] {
+  --bg: #1C1C1E;
+  --surface: #2C2C2E;
+  --surface-2: #3A3A3C;
+  --surface-3: #48484A;
+  --border: rgba(255,255,255,0.10);
+  --text: #F5F5F7;
+  --text-muted: #AEAEB2;
+  --text-dim: #636366;
+  --text-faint: #48484A;
+  --accent: #0A84FF;
+  --primary: #0A84FF;
+  --primary-h: #409CFF;
+  --shadow: 0 4px 24px rgba(0,0,0,0.6);
+}
+
+/* ── Kétszintes nav ── */
+.ib-header-wrap { position:sticky; top:0; z-index:200; }
+.ib-header-top {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:0 20px; height:48px;
+  background:rgba(255,255,255,0.92);
+  border-bottom:1px solid rgba(0,0,0,0.06);
+  backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px);
+}
+.ib-header-nav {
+  display:flex; align-items:center; justify-content:center;
+  flex-wrap:wrap; gap:2px;
+  padding:4px 16px;
+  background:rgba(255,255,255,0.85);
+  border-bottom:1px solid rgba(0,0,0,0.08);
+  backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px);
+}
+[data-theme="dark"] .ib-header-top,
+[data-theme="dark"] .ib-header-nav {
+  background:rgba(28,28,30,0.92);
+  border-color:rgba(255,255,255,0.08);
+}
+
+</style>
+<link rel="stylesheet" href="libs/ib-design-system.css">
+</head>
+<body>
+<div class="page">
+
+  <div class="ib-header-wrap">
+  <div class="ib-header-top">
+    <div style="display:flex;align-items:center;gap:10px;flex-shrink:0;">
+      <div style="width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,#0071E3,#0055B3);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#fff;letter-spacing:-0.5px;flex-shrink:0;">IB</div>
+      <div>
+        <div style="font-size:14px;font-weight:700;color:#1D1D1F;letter-spacing:-0.02em;line-height:1.2;">IB Expro</div>
+        <div style="font-size:10px;color:#6E6E73;letter-spacing:0.03em;line-height:1.2;">Figyelő Platform</div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
+<div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
+    <span id="selected-district-badge" style="font-size:11px;color:#6E6E73;font-weight:500;padding:4px 10px;background:#F5F5F7;border-radius:6px;border:1px solid rgba(0,0,0,0.08);white-space:nowrap;">Összes kerület</span>
+    <button style="width:32px;height:32px;border-radius:8px;background:#F5F5F7;border:1px solid rgba(0,0,0,0.08);color:#6E6E73;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all 0.15s;" data-theme-toggle aria-label="Téma váltás" onmouseover="this.style.borderColor='#0071E3';this.style.color='#0071E3'" onmouseout="this.style.borderColor='rgba(0,0,0,0.08)';this.style.color='#6E6E73'">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+    </button>
+  </div>
+    </div>
+  </div>
+  <nav class="ib-header-nav" id="main-nav">
+    <a href="index.html" class="ib-nav-link">Dashboard</a>
+    <a href="simulator.html" class="ib-nav-link">Szimulátor</a>
+    <a href="development.html" class="ib-nav-link">Fejlesztés</a>
+    <a href="property_mgmt.html" class="ib-nav-link">Kezelés</a>
+    <a href="occupancy.html" class="ib-nav-link">Kihasználtság</a>
+    <a href="investor.html" class="ib-nav-link">Befektetők</a>
+    <a href="investment_calculator.html" class="ib-nav-link">Kalkulátor</a>
+    <a href="apartment_converter.html" class="ib-nav-link">Diáklakás</a>
+    <a href="student_intel.html" class="ib-nav-link active">Diák Intel</a>
+    <a href="parking_intel.html" class="ib-nav-link">Parkoló</a>
+    <a href="property_managers.html" class="ib-nav-link">Kezelők</a>
+    <a href="crm.html" class="ib-nav-link">CRM</a>
+    <a href="memo.html" class="ib-nav-link">Memo</a>
+    <a href="listings.html" class="ib-nav-link">Hirdetések</a>
+    <a href="adatkozpont.html" class="ib-nav-link">Adatközpont</a>
+  </nav>
+</div>
+
+  <!-- MAIN -->
+  <div class="main-content">
+
+    <!-- TAB BAR -->
+    <div class="tab-bar" id="tabBar">
+      <button class="tab-btn active" data-tab="demand">📊 Keresleti térkép</button>
+      <button class="tab-btn" data-tab="competitor">🏢 Kompetitor térkép</button>
+      <button class="tab-btn" data-tab="access">⏱ Elérhetőségi scoring</button>
+      <button class="tab-btn" data-tab="institutional">🌍 Intézményi kapcsolatok</button>
+      <button class="tab-btn" data-tab="feasibility">📐 Feasibility matcher</button>
+    </div>
+
+    <!-- ════════════════════════════════════════════════════════ -->
+    <!-- TAB 1: KERESLETI TÉRKÉP -->
+    <!-- ════════════════════════════════════════════════════════ -->
+    <div class="tab-panel active" id="panel-demand">
+      <div class="card" style="padding:0;overflow:hidden;">
+        <div id="demand-map" style="height:500px;border-radius:var(--radius-lg);"></div>
+      </div>
+
+      <div class="kpi-grid">
+        <div class="kpi-card">
+          <div class="kpi-label">Budapest hallgatók</div>
+          <div class="kpi-value" style="color:var(--accent);">122 240</div>
+          <div class="kpi-sub">Nappali tagozat, 2024/25</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Kollégiumi hiány</div>
+          <div class="kpi-value" style="color:var(--red);">40 000</div>
+          <div class="kpi-sub">férőhely kielégítetlen igény</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Külföldi hallgatók</div>
+          <div class="kpi-value" style="color:var(--gold);">~20 000</div>
+          <div class="kpi-sub">Budapest, becslés</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Stipendium Hungaricum</div>
+          <div class="kpi-value" style="color:var(--teal);">11 169</div>
+          <div class="kpi-sub">aktív ösztöndíjas, 2024</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3 class="section-header">Kerületi hallgatói rangsor</h3>
+        <div class="table-wrap">
+          <table id="district-table">
+            <thead>
+              <tr>
+                <th data-sort="district">Kerület</th>
+                <th data-sort="score">Hallgatói score</th>
+                <th data-sort="transit">Átlag menetidő</th>
+                <th data-sort="comps">Kompetitor koll.</th>
+                <th data-sort="rank">Rang</th>
+              </tr>
+            </thead>
+            <tbody id="district-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════════════════════════ -->
+    <!-- TAB 2: KOMPETITOR TÉRKÉP -->
+    <!-- ════════════════════════════════════════════════════════ -->
+    <div class="tab-panel" id="panel-competitor">
+      <div class="card">
+        <h3 class="section-header">Kompetitor szűrő</h3>
+        <div class="filter-bar">
+          <div class="form-group">
+            <label class="form-label">Kerület</label>
+            <select id="comp-filter-district" class="select-input" onchange="filterCompetitors()">
+              <option value="">Összes</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Üzemeltető</label>
+            <select id="comp-filter-operator" class="select-input" onchange="filterCompetitors()">
+              <option value="">Összes</option>
+            </select>
+          </div>
+          <div class="form-group" style="min-width:250px;">
+            <label class="form-label">Max ár: <span id="comp-price-val">500 000</span> Ft/hó</label>
+            <input type="range" id="comp-filter-price" min="50000" max="500000" step="10000" value="500000" oninput="document.getElementById('comp-price-val').textContent=parseInt(this.value).toLocaleString('hu-HU');filterCompetitors();" style="accent-color:var(--accent);width:100%;">
+          </div>
+          <div class="form-group" style="align-self:flex-end;">
+            <button class="btn btn-outline btn-sm" onclick="exportCompCSV()">📥 Export CSV</button>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table id="comp-table">
+            <thead>
+              <tr>
+                <th data-sort="nev">Név</th>
+                <th data-sort="kerulet">Kerület</th>
+                <th data-sort="uzemelteto">Üzemeltető</th>
+                <th data-sort="ar">Ár (min–max)</th>
+                <th data-sort="kapacitas">Férőhely</th>
+                <th data-sort="tipus">Típus</th>
+                <th>Weboldal</th>
+              </tr>
+            </thead>
+            <tbody id="comp-tbody"></tbody>
+          </table>
+        </div>
+        <div id="comp-count" style="font-size:12px;color:var(--text-muted);margin-top:8px;"></div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+        <div class="card">
+          <h3 class="section-sub" style="margin-top:0;">Kompetitor szám kerületenként</h3>
+          <div class="chart-container" style="height:300px;">
+            <canvas id="chart-comp-district"></canvas>
+          </div>
+        </div>
+        <div class="card">
+          <h3 class="section-sub" style="margin-top:0;">Árkategória megoszlás</h3>
+          <div class="chart-container" style="height:300px;">
+            <canvas id="chart-comp-price"></canvas>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <h3 class="section-sub" style="margin-top:0;">Top üzemeltetők kapacitás szerint</h3>
+        <div class="chart-container" style="height:350px;">
+          <canvas id="chart-comp-operators"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════════════════════════ -->
+    <!-- TAB 3: ELÉRHETŐSÉGI SCORING -->
+    <!-- ════════════════════════════════════════════════════════ -->
+    <div class="tab-panel" id="panel-access">
+      <div class="card">
+        <h3 class="section-header">Campus kiválasztás</h3>
+        <div class="form-group" style="max-width:400px;">
+          <label class="form-label">Kampusz</label>
+          <select id="campus-select" class="select-input" onchange="renderTransitMatrix()">
+            <option value="avg">Budapest átlag (összes campus)</option>
+          </select>
+        </div>
+      </div>
+      <div class="card">
+        <h3 class="section-sub" style="margin-top:0;">Menetidő mátrix</h3>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Kerület</th>
+                <th>Menetidő (perc)</th>
+                <th>Közlekedés</th>
+                <th>Score</th>
+              </tr>
+            </thead>
+            <tbody id="transit-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3 class="section-sub" style="margin-top:0;">Kerületi ranking — Hallgatói score</h3>
+        <div class="chart-container" style="height:500px;">
+          <canvas id="chart-district-rank"></canvas>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3 class="section-header">Campus összehasonlítás — kerületre</h3>
+        <div class="form-group" style="max-width:400px;">
+          <label class="form-label">Válassz kerületet</label>
+          <select id="district-campus-select" class="select-input" onchange="renderCampusComparison()">
+            <option value="">Válassz...</option>
+          </select>
+        </div>
+        <div class="campus-cards" id="campus-cards"></div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════════════════════════ -->
+    <!-- TAB 4: INTÉZMÉNYI KAPCSOLATOK -->
+    <!-- ════════════════════════════════════════════════════════ -->
+    <div class="tab-panel" id="panel-institutional">
+
+      <!-- SH Section -->
+      <div class="card">
+        <h3 class="section-header">Stipendium Hungaricum trend</h3>
+        <div class="kpi-grid" style="grid-template-columns:repeat(3,1fr);">
+          <div class="kpi-card">
+            <div class="kpi-label">Aktív 2024</div>
+            <div class="kpi-value" style="color:var(--teal);">11 169</div>
+            <div class="kpi-sub">ösztöndíjas Magyarországon</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Havi ösztöndíj (BA/MA)</div>
+            <div class="kpi-value" style="color:var(--gold);">43 700 Ft</div>
+            <div class="kpi-sub">+ 40 000 Ft lakhatási hozzájárulás</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Pályázók 2025</div>
+            <div class="kpi-value" style="color:var(--green);">80 000</div>
+            <div class="kpi-sub">rekord számú jelentkező</div>
+          </div>
+        </div>
+        <div class="chart-container" style="height:300px;">
+          <canvas id="chart-sh-trend"></canvas>
+        </div>
+      </div>
+
+      <!-- Erasmus Section -->
+      <div class="card">
+        <h3 class="section-header">Erasmus+ bejövő hallgatók</h3>
+        <div class="kpi-grid" style="grid-template-columns:repeat(3,1fr);">
+          <div class="kpi-card">
+            <div class="kpi-label">Éves bejövő</div>
+            <div class="kpi-value" style="color:var(--accent);">~6 600</div>
+            <div class="kpi-sub">fő/tanév, Magyarország</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Átlag tartózkodás</div>
+            <div class="kpi-value" style="color:var(--gold);">5–6 hó</div>
+            <div class="kpi-sub">jellemzően 1 félév</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">GDP hozzájárulás</div>
+            <div class="kpi-value" style="color:var(--green);">€11,4M</div>
+            <div class="kpi-sub">GVA Magyarország, 2023</div>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+          <div>
+            <h4 class="section-sub" style="margin-top:0;">Top 5 küldő ország</h4>
+            <div class="chart-container" style="height:250px;">
+              <canvas id="chart-erasmus-countries"></canvas>
+            </div>
+          </div>
+          <div>
+            <h4 class="section-sub" style="margin-top:0;">Top tanulmányi területek</h4>
+            <div class="chart-container" style="height:250px;">
+              <canvas id="chart-erasmus-fields"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Planned Campus -->
+      <div class="card">
+        <h3 class="section-header">Tervezett campus fejlesztések</h3>
+        <div class="dev-cards">
+          <div class="dev-card">
+            <div class="status-bar" style="background:var(--green);"></div>
+            <h4 style="margin-top:8px;">🏗 Budapest Diákváros</h4>
+            <p style="font-size:13px;color:var(--text-muted);margin:8px 0;">IX. kerület (Ferencváros) · Atlétikai stadion mellé</p>
+            <div style="display:flex;gap:12px;flex-wrap:wrap;">
+              <span class="badge badge-green">Tervezett</span>
+              <span style="font-size:12px;color:var(--text-dim);">12 000 férőhely</span>
+              <span style="font-size:12px;color:var(--text-dim);">~2027–2028</span>
+            </div>
+          </div>
+          <div class="dev-card">
+            <div class="status-bar" style="background:var(--green);"></div>
+            <h4 style="margin-top:8px;">🎓 PPKE Budapest Campus</h4>
+            <p style="font-size:13px;color:var(--text-muted);margin:8px 0;">VIII. kerület · Magyar Rádió volt épülete</p>
+            <div style="display:flex;gap:12px;flex-wrap:wrap;">
+              <span class="badge badge-green">Tervezett</span>
+              <span style="font-size:12px;color:var(--text-dim);">~2 500 hallgató + 200–300 kollégiumi</span>
+              <span style="font-size:12px;color:var(--text-dim);">2027</span>
+            </div>
+          </div>
+          <div class="dev-card">
+            <div class="status-bar" style="background:var(--gold);"></div>
+            <h4 style="margin-top:8px;">⚖ KRE Ferencváros Campus</h4>
+            <p style="font-size:13px;color:var(--text-muted);margin:8px 0;">IX. kerület · Ráday utca és Üllői út között</p>
+            <div style="display:flex;gap:12px;flex-wrap:wrap;">
+              <span class="badge badge-yellow">Engedélyezés</span>
+              <span style="font-size:12px;color:var(--text-dim);">~2 500 hallgató</span>
+              <span style="font-size:12px;color:var(--text-dim);">2026–2028</span>
+            </div>
+          </div>
+          <div class="dev-card">
+            <div class="status-bar" style="background:var(--red);"></div>
+            <h4 style="margin-top:8px;">🏛 Fudan Egyetem Budapest</h4>
+            <p style="font-size:13px;color:var(--text-muted);margin:8px 0;">XI. kerület · Dél-budai Duna-part</p>
+            <div style="display:flex;gap:12px;flex-wrap:wrap;">
+              <span class="badge badge-red">Felfüggesztve</span>
+              <span style="font-size:12px;color:var(--text-dim);">6 000 hallgató</span>
+              <span style="font-size:12px;color:var(--text-dim);">Határozatlan</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Partnerships -->
+      <div class="card">
+        <h3 class="section-header">Intézményi partnerségi lehetőségek</h3>
+        <div class="partner-cards">
+          <div class="partner-card">
+            <h4>🤝 Guaranteed Occupancy modell</h4>
+            <p>Az egyetem garantált foglaltságot biztosít a magánfejlesztő számára bérleti előszerződés formájában. A hallgatók a NEPTUN rendszeren keresztül igényelhetik. USA modell (pl. Corvias): 30–60 éves koncesszió.</p>
+          </div>
+          <div class="partner-card">
+            <h4>🏗 PPP modell (Public-Private Partnership)</h4>
+            <p>Az állam definiálja az elvárásokat, a magánfél viseli az építési/üzemeltetési kockázatot. Prágai precedens: az Institut pro politiku a společnost 2025-ös elemzése szerint ez az egyetlen fenntartható megoldás.</p>
+          </div>
+          <div class="partner-card">
+            <h4>📋 Bérleti partnerség (Preferred Provider)</h4>
+            <p>A Corvinus-modell: az egyetem „vettéd" partnerként listázza a magánkollégiumot. Nincs garantált foglaltság, de erős informális garanciák. Óbudai Egyetem: saját kollégiumi szabályzat alá eső magán férőhelyek.</p>
+          </div>
+          <div class="partner-card">
+            <h4>⚖ Magyar jogi keret</h4>
+            <p>2011. évi CCIV. törvény a felsőoktatásról: Nftv. 6. § (6)–(8) bek. szerint magán „hallgatói lakóhely" is elláthat kollégiumi funkciókat, ha az intézménnyel megállapodást köt. PPP-modell közbeszerzési eljárást igényelhet.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════════════════════════ -->
+    <!-- TAB 5: FEASIBILITY MATCHER -->
+    <!-- ════════════════════════════════════════════════════════ -->
+    <div class="tab-panel" id="panel-feasibility">
+      <h2 class="section-header">📐 Telek → Kollégium Feasibility Matcher</h2>
+      <div class="feas-grid">
+        <!-- INPUT PANEL -->
+        <div class="feas-input">
+          <h3 style="font-size:15px;font-weight:700;margin-bottom:16px;">Telek paraméterei</h3>
+
+          <div class="form-group">
+            <label class="form-label">Kerület</label>
+            <select id="feas-district" class="select-input"></select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Telek méret (m²)</label>
+            <input type="number" id="feas-m2" class="input" value="800" min="100" max="50000">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Beépíthetőség: <span id="feas-beep-val">40</span>%</label>
+            <div class="slider-row">
+              <input type="range" id="feas-beep" min="30" max="80" value="40" oninput="document.getElementById('feas-beep-val').textContent=this.value;document.getElementById('feas-beep-val2').textContent=this.value;">
+              <span class="slider-val"><span id="feas-beep-val2">40</span>%</span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Épített szintek</label>
+            <input type="number" id="feas-floors" class="input" value="5" min="1" max="15">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Szobatípus mix (össz. = 100%)</label>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+              <div>
+                <span style="font-size:11px;color:var(--text-muted);">Egyágyas: <b id="mix-1-val">30</b>%</span>
+                <input type="range" id="mix-1" min="0" max="100" value="30" oninput="updateMixSliders()" style="width:100%;accent-color:var(--accent);">
+              </div>
+              <div>
+                <span style="font-size:11px;color:var(--text-muted);">Kétágyas: <b id="mix-2-val">40</b>%</span>
+                <input type="range" id="mix-2" min="0" max="100" value="40" oninput="updateMixSliders()" style="width:100%;accent-color:var(--accent);">
+              </div>
+              <div>
+                <span style="font-size:11px;color:var(--text-muted);">Háromágyas: <b id="mix-3-val">20</b>%</span>
+                <input type="range" id="mix-3" min="0" max="100" value="20" oninput="updateMixSliders()" style="width:100%;accent-color:var(--accent);">
+              </div>
+              <div>
+                <span style="font-size:11px;color:var(--text-muted);">Garzon: <b id="mix-g-val">10</b>%</span>
+                <input type="range" id="mix-g" min="0" max="100" value="10" oninput="updateMixSliders()" style="width:100%;accent-color:var(--accent);">
+              </div>
+            </div>
+            <div id="mix-sum" style="font-size:11px;color:var(--green);margin-top:4px;">Összesen: 100%</div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Beruházási ktg/ágy: <span id="feas-cost-val">4 500</span> eFt</label>
+            <div class="slider-row">
+              <input type="range" id="feas-cost" min="3000" max="8000" value="4500" step="100" oninput="document.getElementById('feas-cost-val').textContent=parseInt(this.value).toLocaleString('hu-HU')">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Célpiac</label>
+            <div style="display:flex;gap:12px;">
+              <label style="font-size:13px;cursor:pointer;"><input type="radio" name="feas-target" value="hazai" checked style="accent-color:var(--accent);"> Hazai</label>
+              <label style="font-size:13px;cursor:pointer;"><input type="radio" name="feas-target" value="kulfoldi" style="accent-color:var(--accent);"> Külföldi</label>
+              <label style="font-size:13px;cursor:pointer;"><input type="radio" name="feas-target" value="mix" style="accent-color:var(--accent);"> Mix</label>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Várható átvételi ráta: <span id="feas-occ-val">85</span>%</label>
+            <div class="slider-row">
+              <input type="range" id="feas-occ" min="60" max="95" value="85" oninput="document.getElementById('feas-occ-val').textContent=this.value">
+            </div>
+          </div>
+
+          <button class="btn btn-primary" style="width:100%;justify-content:center;margin-top:8px;" onclick="runFeasibility()">Feasibility számítás →</button>
+        </div>
+
+        <!-- OUTPUT PANEL -->
+        <div class="feas-output" id="feas-output">
+          <div style="text-align:center;padding:60px 20px;color:var(--text-dim);">
+            <p style="font-size:40px;margin-bottom:12px;">📐</p>
+            <p>Válassz kerületet és paramétereket, majd kattints a „Feasibility számítás" gombra.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    
+  </footer>
+
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     EMBEDDED DATA
+     ═══════════════════════════════════════════════════════════════ -->
+<script>
+const COMPETITORS = [{"id":1,"nev":"Garay utcai Magánkollégium","kerulet":"VII.","lat":47.4987,"lng":19.0756,"ar_min":80000,"ar_max":100000,"kapacitas":"10-20 fő (kislétszámú)","uzemelteto":"Magánkollégium Hálózat","cim":"Garay utca (pontos szám nem publikus)","weboldal":"https://magankollegium.hu/kollegium/1-garay-utcai-magankollegium","tipus":"vegyes"},{"id":2,"nev":"Szív utcai Magánkollégium","kerulet":"VI.","lat":47.5045,"lng":19.0618,"ar_min":80000,"ar_max":100000,"kapacitas":"10-20 fő (kislétszámú)","uzemelteto":"Magánkollégium Hálózat","cim":"Szív utca (Podmaniczky felőli rész, pontos szám nem publikus)","weboldal":"https://magankollegium.hu/kollegium/3-sziv-utcai-magankollegium","tipus":"vegyes"},{"id":3,"nev":"Thököly úti Magánkollégium","kerulet":"VII.","lat":47.5012,"lng":19.0813,"ar_min":80000,"ar_max":100000,"kapacitas":"10-20 fő (kislétszámú)","uzemelteto":"Magánkollégium Hálózat","cim":"Thököly út és Dózsa György utca sarok (pontos szám nem publikus)","weboldal":"https://magankollegium.hu","tipus":"vegyes"},{"id":4,"nev":"Fiumei úti Magánkollégium","kerulet":"VIII.","lat":47.498,"lng":19.086,"ar_min":70000,"ar_max":110000,"kapacitas":"10-20 fő (kislétszámú)","uzemelteto":"Magánkollégium Hálózat","cim":"Fiumei út és Alföldi utca sarok","weboldal":"https://magankollegium.hu/kollegium/5-fiumei-uti-magankollegium","tipus":"vegyes"},{"id":5,"nev":"Hernád utcai Magánkollégium","kerulet":"VII.","lat":47.4994,"lng":19.0774,"ar_min":80000,"ar_max":100000,"kapacitas":"10-20 fő (kislétszámú)","uzemelteto":"Magánkollégium Hálózat","cim":"Hernád utca (Garay utca sarok, pontos szám nem publikus)","weboldal":"https://magankollegium.hu/kollegium/6-hernad-utcai-magankollegium","tipus":"vegyes"},{"id":6,"nev":"Grassalkovich úti Magánkollégium","kerulet":"XXIII.","lat":47.3817,"lng":19.0788,"ar_min":80000,"ar_max":80000,"kapacitas":"10-30 fő (becslés)","uzemelteto":"Magánkollégium Hálózat","cim":"Grassalkovich út 64.","weboldal":"https://magankollegium.hu","tipus":"vegyes"},{"id":7,"nev":"Budai Diákhotel","kerulet":"XI.","lat":47.4718,"lng":19.0568,"ar_min":110000,"ar_max":170000,"kapacitas":"50-150 fő (becslés alapján)","uzemelteto":"Budai Diákhotel Kft. (magánberuházás)","cim":"Pontos utca/szám nem publikus a weboldalon; XI. kerület, Gábor Dénes Főiskola mellett","weboldal":"http://www.bdhotel.hu","tipus":"vegyes"},{"id":8,"nev":"Ferenc körúti Magánkollégium (Körúti Magánkollégiumok hálózat)","kerulet":"IX.","lat":47.4849,"lng":19.0698,"ar_min":90000,"ar_max":130000,"kapacitas":"10-25 fő (becslés)","uzemelteto":"Körúti Magán Kollégiumok","cim":"Ferenc körút (IV. emelet, lifttel; pontos szám nem publikus)","weboldal":"https://www.korutimagankollegiumok.hu/ferenc-krt/","tipus":"vegyes"},{"id":9,"nev":"Üllői úti Kollégium / Corvin Kollégium (Körúti Magánkollégiumok hálózat)","kerulet":"VIII.","lat":47.4875,"lng":19.0762,"ar_min":80000,"ar_max":120000,"kapacitas":"10-20 fő (becslés)","uzemelteto":"Körúti Magán Kollégiumok","cim":"Üllői út, Corvin-negyed metróállomás mellett (földszint; pontos szám nem publikus)","weboldal":"https://www.korutimagankollegiumok.hu/corvin/","tipus":"vegyes"},{"id":10,"nev":"Ludovika Kollégium (Körúti Magánkollégiumok hálózat)","kerulet":"VIII.","lat":47.4854,"lng":19.0801,"ar_min":80000,"ar_max":120000,"kapacitas":"10-25 fő (becslés)","uzemelteto":"Körúti Magán Kollégiumok","cim":"Üllői út, Klinikák metróállomás mellett (I. emelet, lift nincs; pontos szám nem publikus)","weboldal":"https://www.korutimagankollegiumok.hu/ludovika/","tipus":"vegyes"},{"id":11,"nev":"Váralja House (Körúti Magánkollégiumok hálózat)","kerulet":"I.","lat":47.4956,"lng":19.0396,"ar_min":113100,"ar_max":142500,"kapacitas":"10-20 fő (becslés)","uzemelteto":"Körúti Magán Kollégiumok","cim":"Váralja utca 3. (TripAdvisor alapján)","weboldal":"https://www.korutimagankollegiumok.hu/varalja/","tipus":"vegyes"},{"id":12,"nev":"Corvin House (Körúti Magánkollégiumok hálózat)","kerulet":"VIII.","lat":47.4872,"lng":19.0768,"ar_min":null,"ar_max":null,"kapacitas":"11 fő","uzemelteto":"Körúti Magán Kollégiumok","cim":"Üllői út, Corvin-negyed metróállomás szomszédságában (pontos szám nem publikus)","weboldal":"https://www.korutimagankollegiumok.hu/corvin2/","tipus":"vegyes"},{"id":13,"nev":"Blaha House (Körúti Magánkollégiumok hálózat)","kerulet":"VIII.","lat":47.4963,"lng":19.0743,"ar_min":109200,"ar_max":140400,"kapacitas":"10-20 fő (becslés)","uzemelteto":"Körúti Magán Kollégiumok","cim":"Budapest VIII. kerület, Blaha Lujza tér közelében (pontos cím nem publikus)","weboldal":"https://www.korutimagankollegiumok.hu","tipus":"vegyes"},{"id":14,"nev":"Prime Magánkollégium","kerulet":"VIII.","lat":47.488,"lng":19.0844,"ar_min":80000,"ar_max":90000,"kapacitas":"20-50 fő (becslés, 4 közös fürdőre utal)","uzemelteto":"Prime Magánkollégium (primekolesz@gmail.com)","cim":"Tavaszmező utca (pontos szám nem publikus)","weboldal":"https://www.prime-magankollegium.hu","tipus":"vegyes"},{"id":15,"nev":"Hotel Galvani / Galvani Kollégium","kerulet":"XI.","lat":47.4725,"lng":19.0446,"ar_min":70000,"ar_max":88000,"kapacitas":"50-100 fő (2013 óta működő, közepes méretű kollégium)","uzemelteto":"Hotel Galvani","cim":"Galvani utca 5.","weboldal":"http://www.galvani.hu","tipus":"vegyes"},{"id":17,"nev":"BeBudget Rooms / Be.Budget.Rooms","kerulet":"IX.","lat":47.482,"lng":19.0632,"ar_min":78000,"ar_max":156000,"kapacitas":"~50-100 fő (több épület/lépcsőház)","uzemelteto":"Be.Budget.Rooms (Lacó Papp, family-owned)","cim":"Ipar utca 21. (volt Zwack Unicum gyár épülete)","weboldal":"https://bebudgetrooms.com","tipus":"vegyes"},{"id":18,"nev":"Korona Albérletház","kerulet":"XVI.","lat":47.5178,"lng":19.142,"ar_min":115000,"ar_max":180000,"kapacitas":"92 szoba (felújított, egyenként ~19 m²)","uzemelteto":"Korona Albérletház","cim":"Koronafürt utca 44.","weboldal":"https://koronaalberlethaz.hu","tipus":"vegyes"},{"id":19,"nev":"Dean's Home Budapest","kerulet":"IX.","lat":47.48,"lng":19.073,"ar_min":null,"ar_max":null,"kapacitas":"132 szoba (Expedia adat)","uzemelteto":"Dean's Home Budapest","cim":"Tűzoltó utca 50-56.","weboldal":"https://deansbudapest.com","tipus":"vegyes"},{"id":20,"nev":"Visit Kollégium","kerulet":"XI.","lat":47.4748,"lng":19.044,"ar_min":null,"ar_max":null,"kapacitas":"30-80 fő (becslés; többemeletes épület)","uzemelteto":"Visit Magánkollégium","cim":"Vásárhelyi Pál utca 2.","weboldal":"https://visitkollegium.hu","tipus":"vegyes"},{"id":21,"nev":"Óbudai Diákszálló","kerulet":"III.","lat":47.534,"lng":19.0445,"ar_min":null,"ar_max":null,"kapacitas":"125 szoba (becslés)","uzemelteto":"Óbudai Diákszálló","cim":"Kunigunda útja 25.","weboldal":"https://www.booking.com/hotel/hu/obudai-diakszallo.hu.html","tipus":"vegyes"},{"id":22,"nev":"IN Budapest Diákapartmanok","kerulet":"VII.","lat":47.5033,"lng":19.0754,"ar_min":null,"ar_max":null,"kapacitas":"201 apartman (A+B+C+D épület)","uzemelteto":"IN GROUP","cim":"Rottenbiller utca (pontos szám nem publikus; VII. ker.)","weboldal":"https://inbudapest.hu","tipus":"vegyes"},{"id":23,"nev":"MP Hostel Budapest","kerulet":"VII.","lat":47.5007,"lng":19.0683,"ar_min":null,"ar_max":null,"kapacitas":"50-100 fő (2, 3, 4 és 12 ágyas szobák)","uzemelteto":"Service4you","cim":"Nyár utca 6.","weboldal":"https://mphostel.service4you.hu/en","tipus":"vegyes"},{"id":24,"nev":"Viola Dormitory / Viola College","kerulet":"IX.","lat":47.4828,"lng":19.068,"ar_min":85000,"ar_max":140000,"kapacitas":"~30-50 fő (300 m², 19 hálószoba, 12 fürdőszoba)","uzemelteto":"Guest Student Company","cim":"Viola utca 23-25.","weboldal":"https://gueststudent.com/property/viola-dormitory/","tipus":"vegyes"},{"id":25,"nev":"Lónyay Dormitory","kerulet":"IX.","lat":47.4876,"lng":19.0598,"ar_min":85000,"ar_max":105000,"kapacitas":"10-25 fő (becslés)","uzemelteto":"Guest Student Company","cim":"Lónyay utca 27.","weboldal":"https://gueststudent.com/properties/","tipus":"vegyes"},{"id":26,"nev":"István 9 Dormitory","kerulet":"VII.","lat":47.5005,"lng":19.0782,"ar_min":70000,"ar_max":90000,"kapacitas":"10-25 fő (becslés)","uzemelteto":"Guest Student Company","cim":"István utca 9.","weboldal":"https://gueststudent.com/properties/","tipus":"vegyes"},{"id":27,"nev":"Erzsébet 13 Dormitory","kerulet":"VII.","lat":47.4987,"lng":19.07,"ar_min":70000,"ar_max":90000,"kapacitas":"10-25 fő (becslés)","uzemelteto":"Guest Student Company","cim":"Erzsébet körút 13.","weboldal":"https://gueststudent.com/properties/","tipus":"vegyes"},{"id":28,"nev":"Népszínház Kollégium (Gueststudent)","kerulet":"VIII.","lat":47.4962,"lng":19.0756,"ar_min":110000,"ar_max":110000,"kapacitas":"4 fő (60 m², 2 hálószoba)","uzemelteto":"Guest Student Company","cim":"Népszínház utca 16.","weboldal":"https://gueststudent.com/property/nepszinhaz-kollegium/","tipus":"vegyes"},{"id":29,"nev":"Reitter Ferenc Dormitory / Kollégium","kerulet":"XIII.","lat":47.5235,"lng":19.0535,"ar_min":65000,"ar_max":80000,"kapacitas":"~400 fő (Facebook oldalon: közel 400 férőhelyes)","uzemelteto":"Guest Student Company / Milton Friedman Egyetem","cim":"Reitter Ferenc utca 39-49.","weboldal":"https://gueststudent.com/property/reitter-ferenc-dormitory/","tipus":"vegyes"},{"id":30,"nev":"Asztalos Sándor utcai Magánkollégium","kerulet":"VIII.","lat":47.4922,"lng":19.0923,"ar_min":60000,"ar_max":100000,"kapacitas":"20-50 fő (becslés)","uzemelteto":"Magánkollégium Budapest","cim":"Asztalos Sándor utca 9.","weboldal":"https://www.facebook.com/p/Mag%C3%A1nkoll%C3%A9gium-Budapest-61578311535602/","tipus":"vegyes"},{"id":31,"nev":"Kollegiuminfo.hu – Váci út 70. Magánkollégium","kerulet":"XIII.","lat":47.5187,"lng":19.0672,"ar_min":null,"ar_max":null,"kapacitas":"15-40 fő (becslés)","uzemelteto":"Ismeretlen (magántulajdon)","cim":"Váci út 70.","weboldal":"https://kollegiuminfo.hu/kollegiumi-informacios-portal-magankollegiumok/22-vaci-uti-magankollegium","tipus":"vegyes"},{"id":32,"nev":"Kollegiuminfo.hu – Dankó utca 42. Magánkollégium (Kajdy Béla ház)","kerulet":"VIII.","lat":47.4935,"lng":19.0738,"ar_min":null,"ar_max":null,"kapacitas":"15-30 fő (becslés)","uzemelteto":"Ismeretlen (magántulajdon)","cim":"Dankó utca 42.","weboldal":"https://kollegiuminfo.hu/index.php/kollegiumi-informacios-portal-magankollegiumok/42-danko-utcai-magankollegium","tipus":"vegyes"},{"id":33,"nev":"Kollegiuminfo.hu – Népszínház utca 29. Magánkollégium","kerulet":"VIII.","lat":47.4957,"lng":19.0762,"ar_min":null,"ar_max":null,"kapacitas":"15-30 fő (becslés)","uzemelteto":"Ismeretlen (magántulajdon)","cim":"Népszínház utca 29.","weboldal":"https://kollegiuminfo.hu/index.php/kollegiumi-informacios-portal-magankollegiumok/48-nepszinhaz-utcai-magankollegium","tipus":"vegyes"},{"id":34,"nev":"Kollegiuminfo.hu – Népszínház utca 21. Magánkollégium","kerulet":"VIII.","lat":47.496,"lng":19.0758,"ar_min":null,"ar_max":null,"kapacitas":"15-30 fő (becslés)","uzemelteto":"Ismeretlen (magántulajdon)","cim":"Népszínház utca 21.","weboldal":"https://kollegiuminfo.hu/index.php/kollegiumi-informacios-portal-magankollegiumok/21-nepszinhaz-utcai-magankollegium2","tipus":"vegyes"},{"id":41,"nev":"Cordia / Corvin Campus – Diák-/Lakópark projekt","kerulet":"VIII.","lat":47.4875,"lng":19.0764,"ar_min":null,"ar_max":null,"kapacitas":"474 apartman (Cordia Park Residence) + fejlesztési lakások","uzemelteto":"Cordia (Futureal Group)","cim":"Kisfaludy utca 32.","weboldal":"https://cordia.hu/lakoparkok/corvin-campus/","tipus":"vegyes"}];
+const CAMPUSES = [{"id":"ELTE_BTK","name":"ELTE BTK/ÁJK","full_name":"ELTE Bölcsészettudományi és Állam- és Jogtudományi Kar","district":"V","address":"Budapest V. kerület, Egyetem tér 1-3","lat":47.4916,"lon":19.0585,"transit_hub":"Ferenciek tere / Astoria (M3, M2)","notes":"M3 Ferenciek tere közvetlen, M2 Astoria 5 perc gyalog"},{"id":"ELTE_TTK","name":"ELTE TTK","full_name":"ELTE Természettudományi Kar","district":"XI","address":"Budapest XI. kerület, Pázmány Péter sétány 1/A","lat":47.4726,"lon":19.0572,"transit_hub":"Etele tér / Móricz Zsigmond körtér (villamos 4, 6, 47, 48)","notes":"Villamos 4/6 Móricz Zsigmond körtér, majd busz 7/8E"},{"id":"BME","name":"BME","full_name":"Budapesti Műszaki és Gazdaságtudományi Egyetem","district":"XI","address":"Budapest XI. kerület, Műegyetem rakpart 3","lat":47.4812,"lon":19.0556,"transit_hub":"Szent Gellért tér (villamos 4, 6, 47, 48, 49)","notes":"Villamos 4/6 közvetlen, M4 Gellért tér 2026-tól"},{"id":"CORVINUS","name":"Corvinus","full_name":"Budapesti Corvinus Egyetem","district":"IX","address":"Budapest IX. kerület, Fővám tér 8","lat":47.4853,"lon":19.0641,"transit_hub":"Fővám tér (M4, villamos 2, 47, 49)","notes":"M4 közvetlen, villamos 2 a Duna-parton"},{"id":"SEMMELWEIS","name":"Semmelweis","full_name":"Semmelweis Egyetem Elméleti Tömb","district":"VIII","address":"Budapest VIII. kerület, Nagyvárad tér","lat":47.4858,"lon":19.0793,"transit_hub":"Nagyvárad tér (M3)","notes":"M3 Nagyvárad tér közvetlen"},{"id":"BGE","name":"BGE","full_name":"Budapesti Gazdasági Egyetem – Külkereskedelmi Kar","district":"III","address":"Budapest III. kerület, Zápor utca 92","lat":47.5601,"lon":19.0441,"transit_hub":"Szépvölgyi út / Bécsi út (busz 106, 160, 260)","notes":"Busz Újpest-központ vagy Batthyány tér felé; HÉV H5 közel"},{"id":"OE","name":"Óbudai Egyetem","full_name":"Óbudai Egyetem – Főépület","district":"III","address":"Budapest III. kerület, Bécsi út 96","lat":47.5497,"lon":19.0348,"transit_hub":"Bécsi út / Kolosy tér (busz 106, 160, HÉV H5)","notes":"HÉV H5 Tímár utca / Filatorigát, busz 106 Batthyány tér felé"},{"id":"MOME","name":"MOME","full_name":"Moholy-Nagy Művészeti Egyetem","district":"XII","address":"Budapest XII. kerület, Zugligeti út 9-25","lat":47.5104,"lon":18.9795,"transit_hub":"Széll Kálmán tér (M2, villamos 59, busz 22, 22A, 222)","notes":"Busz 22/22A Széll Kálmán tér, 22A Buda hegyek; M2 csatlakozás"},{"id":"NKE","name":"NKE","full_name":"Nemzeti Közszolgálati Egyetem","district":"IX","address":"Budapest IX. kerület, Ludovika tér 2","lat":47.4798,"lon":19.0817,"transit_hub":"Klinikák / Nagyvárad tér (M3, villamos 23, 24)","notes":"M3 Klinikák megálló, villamos 23/24"}];
+const DISTRICTS = {"I":{"district":"I","district_name":"Vár/Budavár","student_score":79,"avg_transit_minutes":17.7,"transit_hub":"Batthyány tér (M2), Deák tér (M1/M2/M3)"},"II":{"district":"II","district_name":"Rózsadomb/Pasarét","student_score":74,"avg_transit_minutes":20.8,"transit_hub":"Széll Kálmán tér (M2), Moszkva tér"},"III":{"district":"III","district_name":"Óbuda/Békásmegyer","student_score":62,"avg_transit_minutes":27.8,"transit_hub":"HÉV H5, busz 106/160"},"IV":{"district":"IV","district_name":"Újpest","student_score":65,"avg_transit_minutes":26.0,"transit_hub":"Újpest-központ (M3)"},"V":{"district":"V","district_name":"Belváros/Lipótváros","student_score":81,"avg_transit_minutes":16.1,"transit_hub":"Deák tér (M1/M2/M3), Ferenciek tere (M3)"},"VI":{"district":"VI","district_name":"Terézváros","student_score":75,"avg_transit_minutes":20.2,"transit_hub":"Nyugati tér (M3), Oktogon (M1)"},"VII":{"district":"VII","district_name":"Erzsébetváros","student_score":76,"avg_transit_minutes":19.7,"transit_hub":"Keleti pályaudvar (M2/M4), Blaha Lujza tér (M2)"},"VIII":{"district":"VIII","district_name":"Józsefváros","student_score":77,"avg_transit_minutes":19.0,"transit_hub":"Keleti pu (M2), Klinikák (M3), 4-6-os villamos"},"IX":{"district":"IX","district_name":"Ferencváros","student_score":80,"avg_transit_minutes":16.8,"transit_hub":"Fővám tér (M4), Kálvin tér (M3/M4)"},"X":{"district":"X","district_name":"Kőbánya","student_score":55,"avg_transit_minutes":31.9,"transit_hub":"Kőbánya-Kispest (M3), Kőbánya felső (vasút)"},"XI":{"district":"XI","district_name":"Újbuda/Lágymányos","student_score":74,"avg_transit_minutes":20.7,"transit_hub":"Kelenföld vasútállomás (M4), Móricz Zsigmond körtér (4-6)"},"XII":{"district":"XII","district_name":"Hegyvidék","student_score":73,"avg_transit_minutes":21.0,"transit_hub":"Széll Kálmán tér (M2), busz 22/222"},"XIII":{"district":"XIII","district_name":"Angyalföld/Újlipótváros","student_score":74,"avg_transit_minutes":20.3,"transit_hub":"Lehel tér (M3), Árpád híd (M3)"},"XIV":{"district":"XIV","district_name":"Zugló","student_score":63,"avg_transit_minutes":27.1,"transit_hub":"Örs vezér tere (M2), Hungária körút"},"XV":{"district":"XV","district_name":"Rákospalota/Újpalota","student_score":53,"avg_transit_minutes":33.3,"transit_hub":"Újpest-városkapu (M3), buszok"},"XVI":{"district":"XVI","district_name":"Rákosszentmihály","student_score":45,"avg_transit_minutes":38.1,"transit_hub":"Örs vezér tere (M2) + busz"},"XVII":{"district":"XVII","district_name":"Rákosmente","student_score":30,"avg_transit_minutes":47.1,"transit_hub":"Péceli HÉV (H8)"},"XVIII":{"district":"XVIII","district_name":"Pestszentlőrinc","student_score":44,"avg_transit_minutes":38.6,"transit_hub":"Kőbánya-Kispest (M3) + busz"},"XIX":{"district":"XIX","district_name":"Kispest","student_score":52,"avg_transit_minutes":34.0,"transit_hub":"Kőbánya-Kispest (M3)"},"XX":{"district":"XX","district_name":"Pesterzsébet","student_score":39,"avg_transit_minutes":41.6,"transit_hub":"Pesterzsébet, HÉV vagy busz"},"XXI":{"district":"XXI","district_name":"Csepel","student_score":44,"avg_transit_minutes":38.3,"transit_hub":"HÉV H7 (Közvágóhíd)"},"XXII":{"district":"XXII","district_name":"Budafok-Tétény","student_score":50,"avg_transit_minutes":35.2,"transit_hub":"Kelenföld vasútállomás (M4) + busz"},"XXIII":{"district":"XXIII","district_name":"Soroksár","student_score":28,"avg_transit_minutes":48.2,"transit_hub":"Kőbánya-Kispest (M3) + busz 154"}};
+const TRANSIT = [{"campus":"ELTE BTK/ÁJK","campus_id":"ELTE_BTK","campus_district":"V","campus_address":"Budapest V. kerület, Egyetem tér 1-3","district":"I","district_name":"Vár/Budavár","minutes":12,"transport":"villamos 2/busz","notes":"Duna-part, villamos 2"},{"campus":"ELTE BTK/ÁJK","campus_id":"ELTE_BTK","campus_district":"V","campus_address":"Budapest V. kerület, Egyetem tér 1-3","district":"II","district_name":"Rózsadomb/Pasarét","minutes":20,"transport":"M2+busz","notes":"Deák tér → Széll Kálmán tér M2 + busz"},{"campus":"ELTE BTK/ÁJK","campus_id":"ELTE_BTK","campus_district":"V","campus_address":"Budapest V. kerület, Egyetem tér 1-3","district":"III","district_name":"Óbuda/Békásmegyer","minutes":30,"transport":"M3+busz/HÉV","notes":"Ferenciek tere → Újpest + busz Óbuda"},{"campus":"ELTE BTK/ÁJK","campus_id":"ELTE_BTK","campus_district":"V","campus_address":"Budapest V. kerület, Egyetem tér 1-3","district":"IV","district_name":"Újpest","minutes":18,"transport":"M3","notes":"M3 Újpest-központ irány ~8 megálló"},{"campus":"ELTE BTK/ÁJK","campus_id":"ELTE_BTK","campus_district":"V","campus_address":"Budapest V. kerület, Egyetem tér 1-3","district":"V","district_name":"Belváros/Lipótváros","minutes":3,"transport":"gyalog","notes":"Helyi kampusz"},{"campus":"ELTE BTK/ÁJK","campus_id":"ELTE_BTK","campus_district":"V","campus_address":"Budapest V. kerület, Egyetem tér 1-3","district":"VI","district_name":"Terézváros","minutes":8,"transport":"M1+gyalog","notes":"M1 Oktogon 2 megálló"},{"campus":"ELTE BTK/ÁJK","campus_id":"ELTE_BTK","campus_district":"V","campus_address":"Budapest V. kerület, Egyetem tér 1-3","district":"VII","district_name":"Erzsébetváros","minutes":10,"transport":"M2+gyalog","notes":"M2 Astoria + Keleti, közel"},{"campus":"ELTE BTK/ÁJK","campus_id":"ELTE_BTK","campus_district":"V","campus_address":"Budapest V. kerület, Egyetem tér 1-3","district":"VIII","district_name":"Józsefváros","minutes":10,"transport":"M3","notes":"M3 Klinikák/Keleti irány"},{"campus":"ELTE BTK/ÁJK","campus_id":"ELTE_BTK","campus_district":"V","campus_address":"Budapest V. kerület, Egyetem tér 1-3","district":"IX","district_name":"Ferencváros","minutes":12,"transport":"villamos 2/47/49","notes":"Vámház körút 5-7 perc"},{"campus":"ELTE BTK/ÁJK","campus_id":"ELTE_BTK","campus_district":"V","campus_address":"Budapest V. kerület, Egyetem tér 1-3","district":"X","district_name":"Kőbánya","minutes":28,"transport":"M3+busz","notes":"M3 Kőbánya-Kispest + busz"},{"campus":"ELTE BTK/ÁJK","campus_id":"ELTE_BTK","campus_district":"V","campus_address":"Budapest V. kerület, Egyetem tér 1-3","district":"XI","district_name":"Újbuda/Lágymányos","minutes":22,"transport":"villamos 47/49","notes":"Vámház krt → Móricz Zsigmond körtér"},{"campus":"ELTE BTK/ÁJK","campus_id":"ELTE_BTK","campus_district":"V","campus_address":"Budapest V. kerület, Egyetem tér 1-3","district":"XII","district_name":"Hegyvidék","minutes":25,"transport":"M2+busz 22","notes":"Deák → Széll Kálmán tér M2, busz 22"},{"campus":"ELTE BTK/ÁJK","campus_id":"ELTE_BTK","campus_district":"V","campus_address":"Budapest V. kerület, Egyetem tér 1-3","district":"XIII","district_name":"Angyalföld/Újlipótváros","minutes":15,"transport":"M3","notes":"M3 Lehel tér ~3 megálló"},{"campus":"ELTE BTK/ÁJK","campus_id":"ELTE_BTK","campus_district":"V","campus_address":"Budapest V. kerület, Egyetem tér 1-3","district":"XIV","district_name":"Zugló","minutes":22,"transport":"M2","notes":"M2 Deák → Örs vezér tere"},{"campus":"ELTE BTK/ÁJK","campus_id":"ELTE_BTK","campus_district":"V","campus_address":"Budapest V. kerület, Egyetem tér 1-3","district":"XV","district_name":"Rákospalota/Újpalota","minutes":32,"transport":"M3","notes":"M3 Újpest-városkapu + busz"},{"campus":"ELTE BTK/ÁJK","campus_id":"ELTE_BTK","campus_district":"V","campus_address":"Budapest V. kerület, Egyetem tér 1-3","district":"XVI","district_name":"Rákosszentmihály","minutes":35,"transport":"M2+busz","notes":"Örs vezér tere + busz"},{"campus":"ELTE BTK/ÁJK","campus_id":"ELTE_BTK","campus_district":"V","campus_address":"Budapest V. kerület, Egyetem tér 1-3","district":"XVII","district_name":"Rákosmente","minutes":42,"transport":"M3+HÉV H8","notes":"Kőbánya-Kispest + HÉV"},{"campus":"ELTE BTK/ÁJK","campus_id":"ELTE_BTK","campus_district":"V","campus_address":"Budapest V. kerület, Egyetem tér 1-3","district":"XVIII","district_name":"Pestszentlőrinc","minutes":35,"transport":"M3+busz","notes":"Kőbánya-Kispest + busz"},{"campus":"ELTE BTK/ÁJK","campus_id":"ELTE_BTK","campus_district":"V","campus_address":"Budapest V. kerület, Egyetem tér 1-3","district":"XIX","district_name":"Kispest","minutes":32,"transport":"M3+busz","notes":"Kőbánya-Kispest + rövid busz"},{"campus":"ELTE BTK/ÁJK","campus_id":"ELTE_BTK","campus_district":"V","campus_address":"Budapest V. kerület, Egyetem tér 1-3","district":"XX","district_name":"Pesterzsébet","minutes":38,"transport":"M3+busz","notes":"Kőbánya-Kispest + busz 150E"},{"campus":"ELTE BTK/ÁJK","campus_id":"ELTE_BTK","campus_district":"V","campus_address":"Budapest V. kerület, Egyetem tér 1-3","district":"XXI","district_name":"Csepel","minutes":40,"transport":"villamos 2+HÉV","notes":"Boráros tér → HÉV H7"},{"campus":"ELTE BTK/ÁJK","campus_id":"ELTE_BTK","campus_district":"V","campus_address":"Budapest V. kerület, Egyetem tér 1-3","district":"XXII","district_name":"Budafok-Tétény","minutes":38,"transport":"villamos 49+busz","notes":"Móricz Zsigmond + villamos → Kelenföld"},{"campus":"ELTE BTK/ÁJK","campus_id":"ELTE_BTK","campus_district":"V","campus_address":"Budapest V. kerület, Egyetem tér 1-3","district":"XXIII","district_name":"Soroksár","minutes":45,"transport":"M3+busz","notes":"Kőbánya-Kispest + busz 154"},{"campus":"ELTE TTK","campus_id":"ELTE_TTK","campus_district":"XI","campus_address":"Budapest XI. kerület, Pázmány Péter sétány 1/A","district":"I","district_name":"Vár/Budavár","minutes":20,"transport":"villamos 4/47/49","notes":"Szabadság híd → Budavár"},{"campus":"ELTE TTK","campus_id":"ELTE_TTK","campus_district":"XI","campus_address":"Budapest XI. kerület, Pázmány Péter sétány 1/A","district":"II","district_name":"Rózsadomb/Pasarét","minutes":25,"transport":"busz 8E/7","notes":"Móricz → Széll Kálmán tér M2"},{"campus":"ELTE TTK","campus_id":"ELTE_TTK","campus_district":"XI","campus_address":"Budapest XI. kerület, Pázmány Péter sétány 1/A","district":"III","district_name":"Óbuda/Békásmegyer","minutes":38,"transport":"busz+HÉV","notes":"Hosszabb út Óbudáig"},{"campus":"ELTE TTK","campus_id":"ELTE_TTK","campus_district":"XI","campus_address":"Budapest XI. kerület, Pázmány Péter sétány 1/A","district":"IV","district_name":"Újpest","minutes":35,"transport":"M4+M3","notes":"Kelenföld → M4 → M3 Újpest"},{"campus":"ELTE TTK","campus_id":"ELTE_TTK","campus_district":"XI","campus_address":"Budapest XI. kerület, Pázmány Péter sétány 1/A","district":"V","district_name":"Belváros/Lipótváros","minutes":18,"transport":"villamos 4/6+M4","notes":"Fővám tér M4 → Kálvin tér"},{"campus":"ELTE TTK","campus_id":"ELTE_TTK","campus_district":"XI","campus_address":"Budapest XI. kerület, Pázmány Péter sétány 1/A","district":"VI","district_name":"Terézváros","minutes":25,"transport":"villamos 4/6+M1","notes":"Móricz → Deák → Nyugati M3"},{"campus":"ELTE TTK","campus_id":"ELTE_TTK","campus_district":"XI","campus_address":"Budapest XI. kerület, Pázmány Péter sétány 1/A","district":"VII","district_name":"Erzsébetváros","minutes":22,"transport":"villamos 4/6+M4","notes":"Kálvin tér + busz/gyalog"},{"campus":"ELTE TTK","campus_id":"ELTE_TTK","campus_district":"XI","campus_address":"Budapest XI. kerület, Pázmány Péter sétány 1/A","district":"VIII","district_name":"Józsefváros","minutes":20,"transport":"busz 7/8E","notes":"Direkt busz az egyetem elé"},{"campus":"ELTE TTK","campus_id":"ELTE_TTK","campus_district":"XI","campus_address":"Budapest XI. kerület, Pázmány Péter sétány 1/A","district":"IX","district_name":"Ferencváros","minutes":15,"transport":"villamos 4/6+gyalog","notes":"Fővám tér irány"},{"campus":"ELTE TTK","campus_id":"ELTE_TTK","campus_district":"XI","campus_address":"Budapest XI. kerület, Pázmány Péter sétány 1/A","district":"X","district_name":"Kőbánya","minutes":35,"transport":"busz+M3","notes":"Kőbánya-Kispest → M3"},{"campus":"ELTE TTK","campus_id":"ELTE_TTK","campus_district":"XI","campus_address":"Budapest XI. kerület, Pázmány Péter sétány 1/A","district":"XI","district_name":"Újbuda/Lágymányos","minutes":5,"transport":"gyalog/busz","notes":"Helyi kampusz, Lágymányos"},{"campus":"ELTE TTK","campus_id":"ELTE_TTK","campus_district":"XI","campus_address":"Budapest XI. kerület, Pázmány Péter sétány 1/A","district":"XII","district_name":"Hegyvidék","minutes":18,"transport":"busz 7/7A","notes":"Móricz Zsigmond → Szell Kálmán"},{"campus":"ELTE TTK","campus_id":"ELTE_TTK","campus_district":"XI","campus_address":"Budapest XI. kerület, Pázmány Péter sétány 1/A","district":"XIII","district_name":"Angyalföld/Újlipótváros","minutes":28,"transport":"villamos 4/6+M3","notes":"Fővám tér → M3 felső"},{"campus":"ELTE TTK","campus_id":"ELTE_TTK","campus_district":"XI","campus_address":"Budapest XI. kerület, Pázmány Péter sétány 1/A","district":"XIV","district_name":"Zugló","minutes":32,"transport":"villamos 4/6+M2","notes":"Kálvin tér → M2 Örs vezér tere"},{"campus":"ELTE TTK","campus_id":"ELTE_TTK","campus_district":"XI","campus_address":"Budapest XI. kerület, Pázmány Péter sétány 1/A","district":"XV","district_name":"Rákospalota/Újpalota","minutes":42,"transport":"M4+M3","notes":"Kelenföld → M4 → M3"},{"campus":"ELTE TTK","campus_id":"ELTE_TTK","campus_district":"XI","campus_address":"Budapest XI. kerület, Pázmány Péter sétány 1/A","district":"XVI","district_name":"Rákosszentmihály","minutes":42,"transport":"M4/M2+busz","notes":"Örs vezér tere + busz"},{"campus":"ELTE TTK","campus_id":"ELTE_TTK","campus_district":"XI","campus_address":"Budapest XI. kerület, Pázmány Péter sétány 1/A","district":"XVII","district_name":"Rákosmente","minutes":50,"transport":"M4+HÉV","notes":"Hosszú út"},{"campus":"ELTE TTK","campus_id":"ELTE_TTK","campus_district":"XI","campus_address":"Budapest XI. kerület, Pázmány Péter sétány 1/A","district":"XVIII","district_name":"Pestszentlőrinc","minutes":38,"transport":"busz+M3","notes":"Kelenföld → Kőbánya-Kispest + busz"},{"campus":"ELTE TTK","campus_id":"ELTE_TTK","campus_district":"XI","campus_address":"Budapest XI. kerület, Pázmány Péter sétány 1/A","district":"XIX","district_name":"Kispest","minutes":35,"transport":"M4+busz","notes":"Kelenföld → Kőbánya-Kispest"},{"campus":"ELTE TTK","campus_id":"ELTE_TTK","campus_district":"XI","campus_address":"Budapest XI. kerület, Pázmány Péter sétány 1/A","district":"XX","district_name":"Pesterzsébet","minutes":42,"transport":"M4+busz","notes":"Kelenföld → Kőbánya-Kispest + busz"},{"campus":"ELTE TTK","campus_id":"ELTE_TTK","campus_district":"XI","campus_address":"Budapest XI. kerület, Pázmány Péter sétány 1/A","district":"XXI","district_name":"Csepel","minutes":35,"transport":"villamos 49+HÉV","notes":"Kelenföld → HÉV H7 Csepel"},{"campus":"ELTE TTK","campus_id":"ELTE_TTK","campus_district":"XI","campus_address":"Budapest XI. kerület, Pázmány Péter sétány 1/A","district":"XXII","district_name":"Budafok-Tétény","minutes":20,"transport":"busz/villamos","notes":"Kelenföld, közvetlen Budafok"},{"campus":"ELTE TTK","campus_id":"ELTE_TTK","campus_district":"XI","campus_address":"Budapest XI. kerület, Pázmány Péter sétány 1/A","district":"XXIII","district_name":"Soroksár","minutes":48,"transport":"M4+busz 154","notes":"Kőbánya-Kispest + busz Soroksárra"},{"campus":"BME","campus_id":"BME","campus_district":"XI","campus_address":"Budapest XI. kerület, Műegyetem rakpart 3","district":"I","district_name":"Vár/Budavár","minutes":12,"transport":"villamos 19/41","notes":"Gellért tér → Budavár, Batthyány"},{"campus":"BME","campus_id":"BME","campus_district":"XI","campus_address":"Budapest XI. kerület, Műegyetem rakpart 3","district":"II","district_name":"Rózsadomb/Pasarét","minutes":22,"transport":"busz 7/7A/8E","notes":"Móricz Zsigmond → Széll Kálmán tér M2"},{"campus":"BME","campus_id":"BME","campus_district":"XI","campus_address":"Budapest XI. kerület, Műegyetem rakpart 3","district":"III","district_name":"Óbuda/Békásmegyer","minutes":40,"transport":"busz+HÉV","notes":"Hosszabb út, lassabb kapcsolat"},{"campus":"BME","campus_id":"BME","campus_district":"XI","campus_address":"Budapest XI. kerület, Műegyetem rakpart 3","district":"IV","district_name":"Újpest","minutes":35,"transport":"M4+M3","notes":"Kelenföld → M4 → M3 Újpest"},{"campus":"BME","campus_id":"BME","campus_district":"XI","campus_address":"Budapest XI. kerület, Műegyetem rakpart 3","district":"V","district_name":"Belváros/Lipótváros","minutes":15,"transport":"M4+gyalog","notes":"Gellért tér M4 → Fővám tér → Kálvin"},{"campus":"BME","campus_id":"BME","campus_district":"XI","campus_address":"Budapest XI. kerület, Műegyetem rakpart 3","district":"VI","district_name":"Terézváros","minutes":22,"transport":"villamos 4/6+M1","notes":"Móricz → Deák → Nyugati"},{"campus":"BME","campus_id":"BME","campus_district":"XI","campus_address":"Budapest XI. kerület, Műegyetem rakpart 3","district":"VII","district_name":"Erzsébetváros","minutes":20,"transport":"M4+M2","notes":"Fővám → Kálvin M4 → Keleti M2"},{"campus":"BME","campus_id":"BME","campus_district":"XI","campus_address":"Budapest XI. kerület, Műegyetem rakpart 3","district":"VIII","district_name":"Józsefváros","minutes":18,"transport":"villamos 4/6+M3","notes":"Fővám tér → M4 → Kálvin → M3 Klinikák"},{"campus":"BME","campus_id":"BME","campus_district":"XI","campus_address":"Budapest XI. kerület, Műegyetem rakpart 3","district":"IX","district_name":"Ferencváros","minutes":10,"transport":"villamos 4/6/47","notes":"Közvetlen, Fővám tér"},{"campus":"BME","campus_id":"BME","campus_district":"XI","campus_address":"Budapest XI. kerület, Műegyetem rakpart 3","district":"X","district_name":"Kőbánya","minutes":32,"transport":"M4+busz","notes":"Kelenföld vasút → M4 → M3"},{"campus":"BME","campus_id":"BME","campus_district":"XI","campus_address":"Budapest XI. kerület, Műegyetem rakpart 3","district":"XI","district_name":"Újbuda/Lágymányos","minutes":3,"transport":"gyalog","notes":"Helyi kampusz"},{"campus":"BME","campus_id":"BME","campus_district":"XI","campus_address":"Budapest XI. kerület, Műegyetem rakpart 3","district":"XII","district_name":"Hegyvidék","minutes":18,"transport":"busz 7/7A","notes":"Móricz Zsigmond körtér → Széll Kálmán tér"},{"campus":"BME","campus_id":"BME","campus_district":"XI","campus_address":"Budapest XI. kerület, Műegyetem rakpart 3","district":"XIII","district_name":"Angyalföld/Újlipótváros","minutes":28,"transport":"villamos 4/6+M3","notes":"Fővám → M3 felső irány"},{"campus":"BME","campus_id":"BME","campus_district":"XI","campus_address":"Budapest XI. kerület, Műegyetem rakpart 3","district":"XIV","district_name":"Zugló","minutes":30,"transport":"M4+M2","notes":"Kálvin → M4 → M2 Örs vezér tere"},{"campus":"BME","campus_id":"BME","campus_district":"XI","campus_address":"Budapest XI. kerület, Műegyetem rakpart 3","district":"XV","district_name":"Rákospalota/Újpalota","minutes":40,"transport":"M4+M3","notes":"Kelenföld → M4 → M3 Újpest-városkapu"},{"campus":"BME","campus_id":"BME","campus_district":"XI","campus_address":"Budapest XI. kerület, Műegyetem rakpart 3","district":"XVI","district_name":"Rákosszentmihály","minutes":42,"transport":"M4+M2+busz","notes":"Örs vezér tere + busz XVI. ker."},{"campus":"BME","campus_id":"BME","campus_district":"XI","campus_address":"Budapest XI. kerület, Műegyetem rakpart 3","district":"XVII","district_name":"Rákosmente","minutes":52,"transport":"M4+HÉV H8","notes":"Kőbánya-Kispest + HÉV"},{"campus":"BME","campus_id":"BME","campus_district":"XI","campus_address":"Budapest XI. kerület, Műegyetem rakpart 3","district":"XVIII","district_name":"Pestszentlőrinc","minutes":40,"transport":"M4+M3+busz","notes":"Kelenföld → M3 → busz"},{"campus":"BME","campus_id":"BME","campus_district":"XI","campus_address":"Budapest XI. kerület, Műegyetem rakpart 3","district":"XIX","district_name":"Kispest","minutes":35,"transport":"M4+busz","notes":"Kelenföld → Kőbánya-Kispest"},{"campus":"BME","campus_id":"BME","campus_district":"XI","campus_address":"Budapest XI. kerület, Műegyetem rakpart 3","district":"XX","district_name":"Pesterzsébet","minutes":42,"transport":"M4+busz","notes":"Kelenföld → Kőbánya-Kispest + busz"},{"campus":"BME","campus_id":"BME","campus_district":"XI","campus_address":"Budapest XI. kerület, Műegyetem rakpart 3","district":"XXI","district_name":"Csepel","minutes":28,"transport":"villamos 49+HÉV","notes":"Gellért → Közvágóhíd HÉV H7"},{"campus":"BME","campus_id":"BME","campus_district":"XI","campus_address":"Budapest XI. kerület, Műegyetem rakpart 3","district":"XXII","district_name":"Budafok-Tétény","minutes":18,"transport":"busz/vasút","notes":"Közvetlen Budafok irány, Kelenföld"},{"campus":"BME","campus_id":"BME","campus_district":"XI","campus_address":"Budapest XI. kerület, Műegyetem rakpart 3","district":"XXIII","district_name":"Soroksár","minutes":48,"transport":"M4+busz","notes":"Hosszú út Soroksárra"},{"campus":"Corvinus","campus_id":"CORVINUS","campus_district":"IX","campus_address":"Budapest IX. kerület, Fővám tér 8","district":"I","district_name":"Vár/Budavár","minutes":15,"transport":"villamos 2/47+gyalog","notes":"Duna-part, Fővám tér → Várhegy"},{"campus":"Corvinus","campus_id":"CORVINUS","campus_district":"IX","campus_address":"Budapest IX. kerület, Fővám tér 8","district":"II","district_name":"Rózsadomb/Pasarét","minutes":25,"transport":"M4+M2+busz","notes":"Kálvin → Széll Kálmán M2 → busz"},{"campus":"Corvinus","campus_id":"CORVINUS","campus_district":"IX","campus_address":"Budapest IX. kerület, Fővám tér 8","district":"III","district_name":"Óbuda/Békásmegyer","minutes":35,"transport":"M4+M3+busz","notes":"M3 Újpest + busz Óbuda"},{"campus":"Corvinus","campus_id":"CORVINUS","campus_district":"IX","campus_address":"Budapest IX. kerület, Fővám tér 8","district":"IV","district_name":"Újpest","minutes":25,"transport":"M4+M3","notes":"Kálvin → M4 → M3 Újpest"},{"campus":"Corvinus","campus_id":"CORVINUS","campus_district":"IX","campus_address":"Budapest IX. kerület, Fővám tér 8","district":"V","district_name":"Belváros/Lipótváros","minutes":10,"transport":"M4+gyalog","notes":"M4 Kálvin tér → Fővám tér, 1 megálló"},{"campus":"Corvinus","campus_id":"CORVINUS","campus_district":"IX","campus_address":"Budapest IX. kerület, Fővám tér 8","district":"VI","district_name":"Terézváros","minutes":18,"transport":"M4+M3/M1","notes":"Kálvin → Deák → M1/M3"},{"campus":"Corvinus","campus_id":"CORVINUS","campus_district":"IX","campus_address":"Budapest IX. kerület, Fővám tér 8","district":"VII","district_name":"Erzsébetváros","minutes":15,"transport":"M4+M2","notes":"Kálvin → M4 → Keleti M2"},{"campus":"Corvinus","campus_id":"CORVINUS","campus_district":"IX","campus_address":"Budapest IX. kerület, Fővám tér 8","district":"VIII","district_name":"Józsefváros","minutes":12,"transport":"M4+M3 / villamos","notes":"Kálvin → M3 Klinikák"},{"campus":"Corvinus","campus_id":"CORVINUS","campus_district":"IX","campus_address":"Budapest IX. kerület, Fővám tér 8","district":"IX","district_name":"Ferencváros","minutes":3,"transport":"gyalog","notes":"Helyi kampusz"},{"campus":"Corvinus","campus_id":"CORVINUS","campus_district":"IX","campus_address":"Budapest IX. kerület, Fővám tér 8","district":"X","district_name":"Kőbánya","minutes":30,"transport":"M4+M3+busz","notes":"Kálvin → M3 Kőbánya-Kispest + busz"},{"campus":"Corvinus","campus_id":"CORVINUS","campus_district":"IX","campus_address":"Budapest IX. kerület, Fővám tér 8","district":"XI","district_name":"Újbuda/Lágymányos","minutes":12,"transport":"villamos 47/49","notes":"Szabadság híd → Móricz / Kelenföld"},{"campus":"Corvinus","campus_id":"CORVINUS","campus_district":"IX","campus_address":"Budapest IX. kerület, Fővám tér 8","district":"XII","district_name":"Hegyvidék","minutes":22,"transport":"M4+busz 22","notes":"Kálvin → Deák M4 → Széll Kálmán M2 → busz 22"},{"campus":"Corvinus","campus_id":"CORVINUS","campus_district":"IX","campus_address":"Budapest IX. kerület, Fővám tér 8","district":"XIII","district_name":"Angyalföld/Újlipótváros","minutes":22,"transport":"M4+M3","notes":"Kálvin → M3 felső"},{"campus":"Corvinus","campus_id":"CORVINUS","campus_district":"IX","campus_address":"Budapest IX. kerület, Fővám tér 8","district":"XIV","district_name":"Zugló","minutes":25,"transport":"M4+M2","notes":"Kálvin → M4/M2 → Örs vezér tere"},{"campus":"Corvinus","campus_id":"CORVINUS","campus_district":"IX","campus_address":"Budapest IX. kerület, Fővám tér 8","district":"XV","district_name":"Rákospalota/Újpalota","minutes":35,"transport":"M4+M3","notes":"M3 Újpest-városkapu"},{"campus":"Corvinus","campus_id":"CORVINUS","campus_district":"IX","campus_address":"Budapest IX. kerület, Fővám tér 8","district":"XVI","district_name":"Rákosszentmihály","minutes":38,"transport":"M4+M2+busz","notes":"M2 Örs vezér tere + busz"},{"campus":"Corvinus","campus_id":"CORVINUS","campus_district":"IX","campus_address":"Budapest IX. kerület, Fővám tér 8","district":"XVII","district_name":"Rákosmente","minutes":45,"transport":"M4+HÉV H8","notes":"Kőbánya-Kispest + HÉV Rákos"},{"campus":"Corvinus","campus_id":"CORVINUS","campus_district":"IX","campus_address":"Budapest IX. kerület, Fővám tér 8","district":"XVIII","district_name":"Pestszentlőrinc","minutes":35,"transport":"M4+M3+busz","notes":"Kőbánya-Kispest + busz"},{"campus":"Corvinus","campus_id":"CORVINUS","campus_district":"IX","campus_address":"Budapest IX. kerület, Fővám tér 8","district":"XIX","district_name":"Kispest","minutes":30,"transport":"M4+M3","notes":"Kőbánya-Kispest 2 megálló"},{"campus":"Corvinus","campus_id":"CORVINUS","campus_district":"IX","campus_address":"Budapest IX. kerület, Fővám tér 8","district":"XX","district_name":"Pesterzsébet","minutes":38,"transport":"M4+busz","notes":"Kőbánya-Kispest + busz"},{"campus":"Corvinus","campus_id":"CORVINUS","campus_district":"IX","campus_address":"Budapest IX. kerület, Fővám tér 8","district":"XXI","district_name":"Csepel","minutes":25,"transport":"villamos 2+HÉV","notes":"Boráros tér → HÉV H7 Csepel"},{"campus":"Corvinus","campus_id":"CORVINUS","campus_district":"IX","campus_address":"Budapest IX. kerület, Fővám tér 8","district":"XXII","district_name":"Budafok-Tétény","minutes":30,"transport":"villamos 49+busz","notes":"Szabadság híd → Kelenföld → busz"},{"campus":"Corvinus","campus_id":"CORVINUS","campus_district":"IX","campus_address":"Budapest IX. kerület, Fővám tér 8","district":"XXIII","district_name":"Soroksár","minutes":42,"transport":"M4+M3+busz 154","notes":"Kőbánya-Kispest + busz Soroksár"},{"campus":"Semmelweis","campus_id":"SEMMELWEIS","campus_district":"VIII","campus_address":"Budapest VIII. kerület, Nagyvárad tér","district":"I","district_name":"Vár/Budavár","minutes":20,"transport":"busz/M3+tram","notes":"M3 → Astoria → busz Budavár"},{"campus":"Semmelweis","campus_id":"SEMMELWEIS","campus_district":"VIII","campus_address":"Budapest VIII. kerület, Nagyvárad tér","district":"II","district_name":"Rózsadomb/Pasarét","minutes":22,"transport":"M3+M2+busz","notes":"Keleti → M2 Széll Kálmán → busz"},{"campus":"Semmelweis","campus_id":"SEMMELWEIS","campus_district":"VIII","campus_address":"Budapest VIII. kerület, Nagyvárad tér","district":"III","district_name":"Óbuda/Békásmegyer","minutes":32,"transport":"M3+busz/HÉV","notes":"M3 Újpest + busz Óbuda"},{"campus":"Semmelweis","campus_id":"SEMMELWEIS","campus_district":"VIII","campus_address":"Budapest VIII. kerület, Nagyvárad tér","district":"IV","district_name":"Újpest","minutes":22,"transport":"M3","notes":"M3 Újpest-központ ~7 megálló"},{"campus":"Semmelweis","campus_id":"SEMMELWEIS","campus_district":"VIII","campus_address":"Budapest VIII. kerület, Nagyvárad tér","district":"V","district_name":"Belváros/Lipótváros","minutes":12,"transport":"M3","notes":"M3 Ferenciek tere ~2 megálló"},{"campus":"Semmelweis","campus_id":"SEMMELWEIS","campus_district":"VIII","campus_address":"Budapest VIII. kerület, Nagyvárad tér","district":"VI","district_name":"Terézváros","minutes":12,"transport":"M3","notes":"M3 Nyugati tér ~3 megálló"},{"campus":"Semmelweis","campus_id":"SEMMELWEIS","campus_district":"VIII","campus_address":"Budapest VIII. kerület, Nagyvárad tér","district":"VII","district_name":"Erzsébetváros","minutes":10,"transport":"M3+busz","notes":"M3 Keleti pályaudvar közel"},{"campus":"Semmelweis","campus_id":"SEMMELWEIS","campus_district":"VIII","campus_address":"Budapest VIII. kerület, Nagyvárad tér","district":"VIII","district_name":"Józsefváros","minutes":3,"transport":"gyalog","notes":"Helyi kampusz, Klinikák negyede"},{"campus":"Semmelweis","campus_id":"SEMMELWEIS","campus_district":"VIII","campus_address":"Budapest VIII. kerület, Nagyvárad tér","district":"IX","district_name":"Ferencváros","minutes":10,"transport":"M3+gyalog","notes":"M3 Klinikák → Kálvin tér, villamos 23/24"},{"campus":"Semmelweis","campus_id":"SEMMELWEIS","campus_district":"VIII","campus_address":"Budapest VIII. kerület, Nagyvárad tér","district":"X","district_name":"Kőbánya","minutes":22,"transport":"M3","notes":"M3 Kőbánya-Kispest ~4 megálló"},{"campus":"Semmelweis","campus_id":"SEMMELWEIS","campus_district":"VIII","campus_address":"Budapest VIII. kerület, Nagyvárad tér","district":"XI","district_name":"Újbuda/Lágymányos","minutes":22,"transport":"M3+villamos","notes":"Kálvin tér → villamos 47/49 Újbuda"},{"campus":"Semmelweis","campus_id":"SEMMELWEIS","campus_district":"VIII","campus_address":"Budapest VIII. kerület, Nagyvárad tér","district":"XII","district_name":"Hegyvidék","minutes":28,"transport":"M3+M2+busz 22","notes":"Keleti M2 → Széll Kálmán → busz 22"},{"campus":"Semmelweis","campus_id":"SEMMELWEIS","campus_district":"VIII","campus_address":"Budapest VIII. kerület, Nagyvárad tér","district":"XIII","district_name":"Angyalföld/Újlipótváros","minutes":12,"transport":"M3","notes":"M3 Lehel tér ~2 megálló"},{"campus":"Semmelweis","campus_id":"SEMMELWEIS","campus_district":"VIII","campus_address":"Budapest VIII. kerület, Nagyvárad tér","district":"XIV","district_name":"Zugló","minutes":15,"transport":"M3","notes":"M3 Örs vezér tere irány ~4 megálló"},{"campus":"Semmelweis","campus_id":"SEMMELWEIS","campus_district":"VIII","campus_address":"Budapest VIII. kerület, Nagyvárad tér","district":"XV","district_name":"Rákospalota/Újpalota","minutes":28,"transport":"M3","notes":"M3 Újpest-városkapu + busz"},{"campus":"Semmelweis","campus_id":"SEMMELWEIS","campus_district":"VIII","campus_address":"Budapest VIII. kerület, Nagyvárad tér","district":"XVI","district_name":"Rákosszentmihály","minutes":32,"transport":"M3+busz","notes":"Örs vezér tere + busz XVI."},{"campus":"Semmelweis","campus_id":"SEMMELWEIS","campus_district":"VIII","campus_address":"Budapest VIII. kerület, Nagyvárad tér","district":"XVII","district_name":"Rákosmente","minutes":40,"transport":"M3+HÉV H8","notes":"Kőbánya-Kispest + HÉV"},{"campus":"Semmelweis","campus_id":"SEMMELWEIS","campus_district":"VIII","campus_address":"Budapest VIII. kerület, Nagyvárad tér","district":"XVIII","district_name":"Pestszentlőrinc","minutes":28,"transport":"M3+busz","notes":"Kőbánya-Kispest + busz"},{"campus":"Semmelweis","campus_id":"SEMMELWEIS","campus_district":"VIII","campus_address":"Budapest VIII. kerület, Nagyvárad tér","district":"XIX","district_name":"Kispest","minutes":25,"transport":"M3+busz","notes":"Kőbánya-Kispest rövid busz"},{"campus":"Semmelweis","campus_id":"SEMMELWEIS","campus_district":"VIII","campus_address":"Budapest VIII. kerület, Nagyvárad tér","district":"XX","district_name":"Pesterzsébet","minutes":32,"transport":"M3+busz 150E","notes":"Kőbánya-Kispest + busz"},{"campus":"Semmelweis","campus_id":"SEMMELWEIS","campus_district":"VIII","campus_address":"Budapest VIII. kerület, Nagyvárad tér","district":"XXI","district_name":"Csepel","minutes":35,"transport":"M3+HÉV H7","notes":"Kőbánya-Kispest → HÉV Csepel"},{"campus":"Semmelweis","campus_id":"SEMMELWEIS","campus_district":"VIII","campus_address":"Budapest VIII. kerület, Nagyvárad tér","district":"XXII","district_name":"Budafok-Tétény","minutes":40,"transport":"M3+villamos","notes":"Kálvin → villamos 49 → Kelenföld busz"},{"campus":"Semmelweis","campus_id":"SEMMELWEIS","campus_district":"VIII","campus_address":"Budapest VIII. kerület, Nagyvárad tér","district":"XXIII","district_name":"Soroksár","minutes":40,"transport":"M3+busz 154","notes":"Kőbánya-Kispest + busz Soroksár"},{"campus":"BGE","campus_id":"BGE","campus_district":"III","campus_address":"Budapest III. kerület, Zápor utca 92","district":"I","district_name":"Vár/Budavár","minutes":22,"transport":"HÉV H5+gyalog","notes":"HÉV → Batthyány tér, busz Budavár"},{"campus":"BGE","campus_id":"BGE","campus_district":"III","campus_address":"Budapest III. kerület, Zápor utca 92","district":"II","district_name":"Rózsadomb/Pasarét","minutes":18,"transport":"HÉV H5+busz","notes":"HÉV → Batthyány tér + busz"},{"campus":"BGE","campus_id":"BGE","campus_district":"III","campus_address":"Budapest III. kerület, Zápor utca 92","district":"III","district_name":"Óbuda/Békásmegyer","minutes":5,"transport":"gyalog/busz","notes":"Helyi kampusz, Óbuda"},{"campus":"BGE","campus_id":"BGE","campus_district":"III","campus_address":"Budapest III. kerület, Zápor utca 92","district":"IV","district_name":"Újpest","minutes":22,"transport":"busz+M3","notes":"Busz → Újpest-Városkapu M3"},{"campus":"BGE","campus_id":"BGE","campus_district":"III","campus_address":"Budapest III. kerület, Zápor utca 92","district":"V","district_name":"Belváros/Lipótváros","minutes":28,"transport":"HÉV H5+M2","notes":"HÉV Batthyány tér → M2 Deák tér"},{"campus":"BGE","campus_id":"BGE","campus_district":"III","campus_address":"Budapest III. kerület, Zápor utca 92","district":"VI","district_name":"Terézváros","minutes":32,"transport":"HÉV H5+M2+M3","notes":"Batthyány → M2 → Deák → M3 Nyugati"},{"campus":"BGE","campus_id":"BGE","campus_district":"III","campus_address":"Budapest III. kerület, Zápor utca 92","district":"VII","district_name":"Erzsébetváros","minutes":32,"transport":"HÉV H5+M2","notes":"Batthyány → M2 Keleti"},{"campus":"BGE","campus_id":"BGE","campus_district":"III","campus_address":"Budapest III. kerület, Zápor utca 92","district":"VIII","district_name":"Józsefváros","minutes":35,"transport":"HÉV H5+M3","notes":"Batthyány → M2 → Deák → M3 Klinikák"},{"campus":"BGE","campus_id":"BGE","campus_district":"III","campus_address":"Budapest III. kerület, Zápor utca 92","district":"IX","district_name":"Ferencváros","minutes":35,"transport":"HÉV H5+M4","notes":"Batthyány → M2 → Deák → M4 Fővám"},{"campus":"BGE","campus_id":"BGE","campus_district":"III","campus_address":"Budapest III. kerület, Zápor utca 92","district":"X","district_name":"Kőbánya","minutes":42,"transport":"HÉV H5+M3","notes":"Hosszú út, Keleti → Kőbánya"},{"campus":"BGE","campus_id":"BGE","campus_district":"III","campus_address":"Budapest III. kerület, Zápor utca 92","district":"XI","district_name":"Újbuda/Lágymányos","minutes":42,"transport":"HÉV H5+villamos","notes":"Batthyány → villamos Újbuda"},{"campus":"BGE","campus_id":"BGE","campus_district":"III","campus_address":"Budapest III. kerület, Zápor utca 92","district":"XII","district_name":"Hegyvidék","minutes":25,"transport":"busz 160/60","notes":"Busz 60 Szépvölgyi út → Széll Kálmán"},{"campus":"BGE","campus_id":"BGE","campus_district":"III","campus_address":"Budapest III. kerület, Zápor utca 92","district":"XIII","district_name":"Angyalföld/Újlipótváros","minutes":20,"transport":"busz 106","notes":"Busz 106 Újpest-Városkapu / Árpád híd irány"},{"campus":"BGE","campus_id":"BGE","campus_district":"III","campus_address":"Budapest III. kerület, Zápor utca 92","district":"XIV","district_name":"Zugló","minutes":38,"transport":"busz 106+M2/busz","notes":"Árpád híd → M3 → M2 Örs vezér"},{"campus":"BGE","campus_id":"BGE","campus_district":"III","campus_address":"Budapest III. kerület, Zápor utca 92","district":"XV","district_name":"Rákospalota/Újpalota","minutes":28,"transport":"busz 106+M3","notes":"Árpád híd → M3 Újpest-városkapu"},{"campus":"BGE","campus_id":"BGE","campus_district":"III","campus_address":"Budapest III. kerület, Zápor utca 92","district":"XVI","district_name":"Rákosszentmihály","minutes":45,"transport":"busz+M2+busz","notes":"Hosszú átszállós út"},{"campus":"BGE","campus_id":"BGE","campus_district":"III","campus_address":"Budapest III. kerület, Zápor utca 92","district":"XVII","district_name":"Rákosmente","minutes":55,"transport":"HÉV+M3+HÉV H8","notes":"Nehéz elérhetőség"},{"campus":"BGE","campus_id":"BGE","campus_district":"III","campus_address":"Budapest III. kerület, Zápor utca 92","district":"XVIII","district_name":"Pestszentlőrinc","minutes":50,"transport":"HÉV H5+M3+busz","notes":"Hosszú út"},{"campus":"BGE","campus_id":"BGE","campus_district":"III","campus_address":"Budapest III. kerület, Zápor utca 92","district":"XIX","district_name":"Kispest","minutes":45,"transport":"HÉV H5+M3+busz","notes":"Kőbánya-Kispest + busz"},{"campus":"BGE","campus_id":"BGE","campus_district":"III","campus_address":"Budapest III. kerület, Zápor utca 92","district":"XX","district_name":"Pesterzsébet","minutes":52,"transport":"HÉV H5+M3+busz","notes":"Hosszú út Pesterzsébetre"},{"campus":"BGE","campus_id":"BGE","campus_district":"III","campus_address":"Budapest III. kerület, Zápor utca 92","district":"XXI","district_name":"Csepel","minutes":50,"transport":"HÉV H5+villamos+HÉV H7","notes":"Nagyon hosszú út"},{"campus":"BGE","campus_id":"BGE","campus_district":"III","campus_address":"Budapest III. kerület, Zápor utca 92","district":"XXII","district_name":"Budafok-Tétény","minutes":50,"transport":"HÉV H5+M4+busz","notes":"Hosszú út Budafokra"},{"campus":"BGE","campus_id":"BGE","campus_district":"III","campus_address":"Budapest III. kerület, Zápor utca 92","district":"XXIII","district_name":"Soroksár","minutes":60,"transport":"HÉV H5+M3+busz","notes":"Leghosszabb távolság"},{"campus":"Óbudai Egyetem","campus_id":"OE","campus_district":"III","campus_address":"Budapest III. kerület, Bécsi út 96","district":"I","district_name":"Vár/Budavár","minutes":20,"transport":"HÉV H5+busz","notes":"HÉV Batthyány tér → Budavár"},{"campus":"Óbudai Egyetem","campus_id":"OE","campus_district":"III","campus_address":"Budapest III. kerület, Bécsi út 96","district":"II","district_name":"Rózsadomb/Pasarét","minutes":15,"transport":"HÉV H5 / busz 160","notes":"HÉV → Batthyány tér, busz II. ker."},{"campus":"Óbudai Egyetem","campus_id":"OE","campus_district":"III","campus_address":"Budapest III. kerület, Bécsi út 96","district":"III","district_name":"Óbuda/Békásmegyer","minutes":3,"transport":"gyalog","notes":"Helyi kampusz"},{"campus":"Óbudai Egyetem","campus_id":"OE","campus_district":"III","campus_address":"Budapest III. kerület, Bécsi út 96","district":"IV","district_name":"Újpest","minutes":20,"transport":"busz 160+M3","notes":"Árpád híd → M3 Újpest-városkapu"},{"campus":"Óbudai Egyetem","campus_id":"OE","campus_district":"III","campus_address":"Budapest III. kerület, Bécsi út 96","district":"V","district_name":"Belváros/Lipótváros","minutes":25,"transport":"HÉV H5+M2","notes":"Batthyány → M2 Deák"},{"campus":"Óbudai Egyetem","campus_id":"OE","campus_district":"III","campus_address":"Budapest III. kerület, Bécsi út 96","district":"VI","district_name":"Terézváros","minutes":30,"transport":"HÉV H5+M3","notes":"Batthyány → Deák → M3 Nyugati"},{"campus":"Óbudai Egyetem","campus_id":"OE","campus_district":"III","campus_address":"Budapest III. kerület, Bécsi út 96","district":"VII","district_name":"Erzsébetváros","minutes":32,"transport":"HÉV H5+M2","notes":"Batthyány → M2 Keleti"},{"campus":"Óbudai Egyetem","campus_id":"OE","campus_district":"III","campus_address":"Budapest III. kerület, Bécsi út 96","district":"VIII","district_name":"Józsefváros","minutes":35,"transport":"HÉV H5+M3","notes":"Batthyány → Deák → M3 Klinikák"},{"campus":"Óbudai Egyetem","campus_id":"OE","campus_district":"III","campus_address":"Budapest III. kerület, Bécsi út 96","district":"IX","district_name":"Ferencváros","minutes":35,"transport":"HÉV H5+M4","notes":"Batthyány → Deák → M4 Fővám"},{"campus":"Óbudai Egyetem","campus_id":"OE","campus_district":"III","campus_address":"Budapest III. kerület, Bécsi út 96","district":"X","district_name":"Kőbánya","minutes":42,"transport":"HÉV H5+M3","notes":"Hosszú út Kőbányáig"},{"campus":"Óbudai Egyetem","campus_id":"OE","campus_district":"III","campus_address":"Budapest III. kerület, Bécsi út 96","district":"XI","district_name":"Újbuda/Lágymányos","minutes":40,"transport":"HÉV H5+villamos","notes":"Batthyány → villamos Újbuda"},{"campus":"Óbudai Egyetem","campus_id":"OE","campus_district":"III","campus_address":"Budapest III. kerület, Bécsi út 96","district":"XII","district_name":"Hegyvidék","minutes":22,"transport":"busz 60/160","notes":"Busz Szépvölgyi út → Széll Kálmán"},{"campus":"Óbudai Egyetem","campus_id":"OE","campus_district":"III","campus_address":"Budapest III. kerület, Bécsi út 96","district":"XIII","district_name":"Angyalföld/Újlipótváros","minutes":18,"transport":"busz 106/160","notes":"Busz 106 Árpád híd M3 irány"},{"campus":"Óbudai Egyetem","campus_id":"OE","campus_district":"III","campus_address":"Budapest III. kerület, Bécsi út 96","district":"XIV","district_name":"Zugló","minutes":35,"transport":"busz+M2","notes":"Árpád híd → M3/M2 Örs vezér"},{"campus":"Óbudai Egyetem","campus_id":"OE","campus_district":"III","campus_address":"Budapest III. kerület, Bécsi út 96","district":"XV","district_name":"Rákospalota/Újpalota","minutes":25,"transport":"busz 160+M3","notes":"Árpád híd → M3 Újpest"},{"campus":"Óbudai Egyetem","campus_id":"OE","campus_district":"III","campus_address":"Budapest III. kerület, Bécsi út 96","district":"XVI","district_name":"Rákosszentmihály","minutes":42,"transport":"HÉV+M2+busz","notes":"Hosszú út XVI. ker."},{"campus":"Óbudai Egyetem","campus_id":"OE","campus_district":"III","campus_address":"Budapest III. kerület, Bécsi út 96","district":"XVII","district_name":"Rákosmente","minutes":52,"transport":"HÉV+M3+HÉV H8","notes":"Nehéz elérhetőség"},{"campus":"Óbudai Egyetem","campus_id":"OE","campus_district":"III","campus_address":"Budapest III. kerület, Bécsi út 96","district":"XVIII","district_name":"Pestszentlőrinc","minutes":48,"transport":"HÉV H5+M3+busz","notes":"Hosszú út"},{"campus":"Óbudai Egyetem","campus_id":"OE","campus_district":"III","campus_address":"Budapest III. kerület, Bécsi út 96","district":"XIX","district_name":"Kispest","minutes":42,"transport":"HÉV H5+M3+busz","notes":"Kőbánya-Kispest + busz"},{"campus":"Óbudai Egyetem","campus_id":"OE","campus_district":"III","campus_address":"Budapest III. kerület, Bécsi út 96","district":"XX","district_name":"Pesterzsébet","minutes":50,"transport":"HÉV H5+M3+busz","notes":"Hosszú út Pesterzsébetre"},{"campus":"Óbudai Egyetem","campus_id":"OE","campus_district":"III","campus_address":"Budapest III. kerület, Bécsi út 96","district":"XXI","district_name":"Csepel","minutes":50,"transport":"HÉV H5+villamos+HÉV","notes":"Csepel nagyon messze"},{"campus":"Óbudai Egyetem","campus_id":"OE","campus_district":"III","campus_address":"Budapest III. kerület, Bécsi út 96","district":"XXII","district_name":"Budafok-Tétény","minutes":48,"transport":"HÉV H5+M4+busz","notes":"Hosszú út Budafokra"},{"campus":"Óbudai Egyetem","campus_id":"OE","campus_district":"III","campus_address":"Budapest III. kerület, Bécsi út 96","district":"XXIII","district_name":"Soroksár","minutes":58,"transport":"HÉV H5+M3+busz","notes":"Soroksár nehezen elérhető"},{"campus":"MOME","campus_id":"MOME","campus_district":"XII","campus_address":"Budapest XII. kerület, Zugligeti út 9-25","district":"I","district_name":"Vár/Budavár","minutes":18,"transport":"busz 22+M2","notes":"Széll Kálmán → Batthyány / busz"},{"campus":"MOME","campus_id":"MOME","campus_district":"XII","campus_address":"Budapest XII. kerület, Zugligeti út 9-25","district":"II","district_name":"Rózsadomb/Pasarét","minutes":15,"transport":"busz 22/222","notes":"Busz Széll Kálmán → II. ker."},{"campus":"MOME","campus_id":"MOME","campus_district":"XII","campus_address":"Budapest XII. kerület, Zugligeti út 9-25","district":"III","district_name":"Óbuda/Békásmegyer","minutes":35,"transport":"M2+HÉV/busz","notes":"Batthyány tér → HÉV Óbuda"},{"campus":"MOME","campus_id":"MOME","campus_district":"XII","campus_address":"Budapest XII. kerület, Zugligeti út 9-25","district":"IV","district_name":"Újpest","minutes":35,"transport":"M2+M3","notes":"M2 → Deák → M3 Újpest"},{"campus":"MOME","campus_id":"MOME","campus_district":"XII","campus_address":"Budapest XII. kerület, Zugligeti út 9-25","district":"V","district_name":"Belváros/Lipótváros","minutes":22,"transport":"M2+gyalog","notes":"Széll Kálmán M2 → Deák → 5 perc gyalog"},{"campus":"MOME","campus_id":"MOME","campus_district":"XII","campus_address":"Budapest XII. kerület, Zugligeti út 9-25","district":"VI","district_name":"Terézváros","minutes":20,"transport":"M2","notes":"Széll Kálmán → M2 Nyugati/Oktogon"},{"campus":"MOME","campus_id":"MOME","campus_district":"XII","campus_address":"Budapest XII. kerület, Zugligeti út 9-25","district":"VII","district_name":"Erzsébetváros","minutes":22,"transport":"M2","notes":"Széll Kálmán → M2 Keleti"},{"campus":"MOME","campus_id":"MOME","campus_district":"XII","campus_address":"Budapest XII. kerület, Zugligeti út 9-25","district":"VIII","district_name":"Józsefváros","minutes":28,"transport":"M2+M3","notes":"Keleti → M3 Klinikák"},{"campus":"MOME","campus_id":"MOME","campus_district":"XII","campus_address":"Budapest XII. kerület, Zugligeti út 9-25","district":"IX","district_name":"Ferencváros","minutes":28,"transport":"M2+M4","notes":"Deák → M4 Fővám tér"},{"campus":"MOME","campus_id":"MOME","campus_district":"XII","campus_address":"Budapest XII. kerület, Zugligeti út 9-25","district":"X","district_name":"Kőbánya","minutes":38,"transport":"M2+M3","notes":"M2 Keleti → M3 Kőbánya"},{"campus":"MOME","campus_id":"MOME","campus_district":"XII","campus_address":"Budapest XII. kerület, Zugligeti út 9-25","district":"XI","district_name":"Újbuda/Lágymányos","minutes":22,"transport":"busz 22+villamos","notes":"Széll Kálmán → villamos Újbuda"},{"campus":"MOME","campus_id":"MOME","campus_district":"XII","campus_address":"Budapest XII. kerület, Zugligeti út 9-25","district":"XII","district_name":"Hegyvidék","minutes":3,"transport":"gyalog","notes":"Helyi kampusz"},{"campus":"MOME","campus_id":"MOME","campus_district":"XII","campus_address":"Budapest XII. kerület, Zugligeti út 9-25","district":"XIII","district_name":"Angyalföld/Újlipótváros","minutes":25,"transport":"M2+M3","notes":"Deák → M3 Lehel tér"},{"campus":"MOME","campus_id":"MOME","campus_district":"XII","campus_address":"Budapest XII. kerület, Zugligeti út 9-25","district":"XIV","district_name":"Zugló","minutes":25,"transport":"M2","notes":"Széll Kálmán → M2 Örs vezér tere"},{"campus":"MOME","campus_id":"MOME","campus_district":"XII","campus_address":"Budapest XII. kerület, Zugligeti út 9-25","district":"XV","district_name":"Rákospalota/Újpalota","minutes":42,"transport":"M2+M3","notes":"M3 Újpest-városkapu"},{"campus":"MOME","campus_id":"MOME","campus_district":"XII","campus_address":"Budapest XII. kerület, Zugligeti út 9-25","district":"XVI","district_name":"Rákosszentmihály","minutes":35,"transport":"M2+busz","notes":"M2 Örs vezér tere + busz"},{"campus":"MOME","campus_id":"MOME","campus_district":"XII","campus_address":"Budapest XII. kerület, Zugligeti út 9-25","district":"XVII","district_name":"Rákosmente","minutes":48,"transport":"M2+HÉV H8","notes":"Kőbánya-Kispest + HÉV"},{"campus":"MOME","campus_id":"MOME","campus_district":"XII","campus_address":"Budapest XII. kerület, Zugligeti út 9-25","district":"XVIII","district_name":"Pestszentlőrinc","minutes":45,"transport":"M2+M3+busz","notes":"Kőbánya-Kispest + busz"},{"campus":"MOME","campus_id":"MOME","campus_district":"XII","campus_address":"Budapest XII. kerület, Zugligeti út 9-25","district":"XIX","district_name":"Kispest","minutes":40,"transport":"M2+M3+busz","notes":"Kőbánya-Kispest + busz"},{"campus":"MOME","campus_id":"MOME","campus_district":"XII","campus_address":"Budapest XII. kerület, Zugligeti út 9-25","district":"XX","district_name":"Pesterzsébet","minutes":48,"transport":"M2+M3+busz","notes":"Kőbánya-Kispest + busz"},{"campus":"MOME","campus_id":"MOME","campus_district":"XII","campus_address":"Budapest XII. kerület, Zugligeti út 9-25","district":"XXI","district_name":"Csepel","minutes":50,"transport":"M2+HÉV H7","notes":"Keleti/Boráros + HÉV Csepel"},{"campus":"MOME","campus_id":"MOME","campus_district":"XII","campus_address":"Budapest XII. kerület, Zugligeti út 9-25","district":"XXII","district_name":"Budafok-Tétény","minutes":35,"transport":"busz 22+villamos","notes":"Széll Kálmán → villamos → Kelenföld"},{"campus":"MOME","campus_id":"MOME","campus_district":"XII","campus_address":"Budapest XII. kerület, Zugligeti út 9-25","district":"XXIII","district_name":"Soroksár","minutes":55,"transport":"M2+M3+busz","notes":"Leghosszabb út"},{"campus":"NKE","campus_id":"NKE","campus_district":"IX","campus_address":"Budapest IX. kerület, Ludovika tér 2","district":"I","district_name":"Vár/Budavár","minutes":20,"transport":"busz/villamos 2","notes":"Kálvin → duna-part gyalog/villamos"},{"campus":"NKE","campus_id":"NKE","campus_district":"IX","campus_address":"Budapest IX. kerület, Ludovika tér 2","district":"II","district_name":"Rózsadomb/Pasarét","minutes":25,"transport":"M3+M2+busz","notes":"Keleti → M2 Széll Kálmán → busz"},{"campus":"NKE","campus_id":"NKE","campus_district":"IX","campus_address":"Budapest IX. kerület, Ludovika tér 2","district":"III","district_name":"Óbuda/Békásmegyer","minutes":32,"transport":"M3+busz/HÉV","notes":"M3 Újpest + busz Óbuda"},{"campus":"NKE","campus_id":"NKE","campus_district":"IX","campus_address":"Budapest IX. kerület, Ludovika tér 2","district":"IV","district_name":"Újpest","minutes":22,"transport":"M3","notes":"M3 Újpest-központ ~6 megálló"},{"campus":"NKE","campus_id":"NKE","campus_district":"IX","campus_address":"Budapest IX. kerület, Ludovika tér 2","district":"V","district_name":"Belváros/Lipótváros","minutes":12,"transport":"M3+gyalog","notes":"M3 Kálvin tér ~ közel"},{"campus":"NKE","campus_id":"NKE","campus_district":"IX","campus_address":"Budapest IX. kerület, Ludovika tér 2","district":"VI","district_name":"Terézváros","minutes":15,"transport":"M3","notes":"M3 Nyugati tér ~3 megálló"},{"campus":"NKE","campus_id":"NKE","campus_district":"IX","campus_address":"Budapest IX. kerület, Ludovika tér 2","district":"VII","district_name":"Erzsébetváros","minutes":14,"transport":"M3+M2","notes":"Keleti pályaudvar közel"},{"campus":"NKE","campus_id":"NKE","campus_district":"IX","campus_address":"Budapest IX. kerület, Ludovika tér 2","district":"VIII","district_name":"Józsefváros","minutes":10,"transport":"villamos 23/24+M3","notes":"Klinikák negyede közel"},{"campus":"NKE","campus_id":"NKE","campus_district":"IX","campus_address":"Budapest IX. kerület, Ludovika tér 2","district":"IX","district_name":"Ferencváros","minutes":3,"transport":"gyalog","notes":"Helyi kampusz"},{"campus":"NKE","campus_id":"NKE","campus_district":"IX","campus_address":"Budapest IX. kerület, Ludovika tér 2","district":"X","district_name":"Kőbánya","minutes":18,"transport":"M3","notes":"M3 Kőbánya-Kispest irány ~3 megálló"},{"campus":"NKE","campus_id":"NKE","campus_district":"IX","campus_address":"Budapest IX. kerület, Ludovika tér 2","district":"XI","district_name":"Újbuda/Lágymányos","minutes":18,"transport":"M4/villamos 23/24","notes":"Kálvin tér → villamos Újbuda"},{"campus":"NKE","campus_id":"NKE","campus_district":"IX","campus_address":"Budapest IX. kerület, Ludovika tér 2","district":"XII","district_name":"Hegyvidék","minutes":28,"transport":"M3+M2+busz","notes":"Keleti → M2 Széll Kálmán → busz 22"},{"campus":"NKE","campus_id":"NKE","campus_district":"IX","campus_address":"Budapest IX. kerület, Ludovika tér 2","district":"XIII","district_name":"Angyalföld/Újlipótváros","minutes":15,"transport":"M3","notes":"M3 Lehel tér ~3 megálló"},{"campus":"NKE","campus_id":"NKE","campus_district":"IX","campus_address":"Budapest IX. kerület, Ludovika tér 2","district":"XIV","district_name":"Zugló","minutes":22,"transport":"M3+M2","notes":"Keleti M2 → Örs vezér tere"},{"campus":"NKE","campus_id":"NKE","campus_district":"IX","campus_address":"Budapest IX. kerület, Ludovika tér 2","district":"XV","district_name":"Rákospalota/Újpalota","minutes":28,"transport":"M3","notes":"M3 Újpest-városkapu + busz"},{"campus":"NKE","campus_id":"NKE","campus_district":"IX","campus_address":"Budapest IX. kerület, Ludovika tér 2","district":"XVI","district_name":"Rákosszentmihály","minutes":32,"transport":"M3+busz","notes":"Örs vezér tere + busz"},{"campus":"NKE","campus_id":"NKE","campus_district":"IX","campus_address":"Budapest IX. kerület, Ludovika tér 2","district":"XVII","district_name":"Rákosmente","minutes":40,"transport":"M3+HÉV H8","notes":"Kőbánya-Kispest + HÉV"},{"campus":"NKE","campus_id":"NKE","campus_district":"IX","campus_address":"Budapest IX. kerület, Ludovika tér 2","district":"XVIII","district_name":"Pestszentlőrinc","minutes":28,"transport":"M3+busz","notes":"Kőbánya-Kispest + busz"},{"campus":"NKE","campus_id":"NKE","campus_district":"IX","campus_address":"Budapest IX. kerület, Ludovika tér 2","district":"XIX","district_name":"Kispest","minutes":22,"transport":"M3+busz","notes":"Kőbánya-Kispest rövid busz"},{"campus":"NKE","campus_id":"NKE","campus_district":"IX","campus_address":"Budapest IX. kerület, Ludovika tér 2","district":"XX","district_name":"Pesterzsébet","minutes":32,"transport":"M3+busz","notes":"Kőbánya-Kispest + busz 150E"},{"campus":"NKE","campus_id":"NKE","campus_district":"IX","campus_address":"Budapest IX. kerület, Ludovika tér 2","district":"XXI","district_name":"Csepel","minutes":32,"transport":"M3+HÉV H7","notes":"Kőbánya-Kispest → HÉV Csepel"},{"campus":"NKE","campus_id":"NKE","campus_district":"IX","campus_address":"Budapest IX. kerület, Ludovika tér 2","district":"XXII","district_name":"Budafok-Tétény","minutes":38,"transport":"villamos+busz","notes":"Kálvin → villamos 49 → Kelenföld + busz"},{"campus":"NKE","campus_id":"NKE","campus_district":"IX","campus_address":"Budapest IX. kerület, Ludovika tér 2","district":"XXIII","district_name":"Soroksár","minutes":38,"transport":"M3+busz 154","notes":"Kőbánya-Kispest + busz Soroksár"}];
+const STATE_DORMS = [{"name":"ELTE – Ajtósi Dürer sori Kollégium","short":"ADK","university":"ELTE","address":"Ajtósi Dürer sor 23, Budapest XIV","capacity":274,"room_type":"2 ágyas","price_from":17650,"price_to":17650,"currency":"HUF","unit":"Ft/hó/fő (állami)","url":"https://www.elte.hu/kollegiumok/ajtosi","lat":47.5103756,"lon":19.0910089},{"name":"ELTE – Damjanich Utcai Kollégium","short":"DUK","university":"ELTE","address":"Damjanich utca 41-43, Budapest VII","capacity":151,"room_type":"3 ágyas","price_from":15320,"price_to":15320,"currency":"HUF","unit":"Ft/hó/fő (állami)","url":"https://www.elte.hu/kollegiumok","lat":47.508582,"lon":19.0812027},{"name":"ELTE – Erdős Pál Kollégium","short":"EPK","university":"ELTE","address":"Nagytétényi út 162-164, Budapest XI","capacity":798,"room_type":"2-3 ágyas","price_from":19320,"price_to":21475,"currency":"HUF","unit":"Ft/hó/fő (állami)","url":"https://www.elte.hu/kollegiumok","lat":47.4093814,"lon":19.0169947},{"name":"ELTE – Kőrösi Csoma Sándor Kollégium","short":"KCSSK","university":"ELTE","address":"Dayka Gábor utca 4, Budapest XI","capacity":1147,"room_type":"2-3 ágyas","price_from":21320,"price_to":21320,"currency":"HUF","unit":"Ft/hó/fő (állami)","url":"https://www.elte.hu/kollegiumok","lat":47.471386,"lon":19.0188661},{"name":"ELTE – Márton Áron Kollégium","short":"MÁK","university":"ELTE","address":"Kunigunda útja 35, Budapest III","capacity":917,"room_type":"2 ágyas","price_from":23475,"price_to":23475,"currency":"HUF","unit":"Ft/hó/fő (állami)","url":"https://www.elte.hu/kollegiumok","lat":47.5529427,"lon":19.0351395},{"name":"ELTE – Nándorfejérvári Kollégium","short":"NFK","university":"ELTE","address":"Nándorfejérvári út 13, Budapest XI","capacity":96,"room_type":"3 ágyas","price_from":17650,"price_to":17650,"currency":"HUF","unit":"Ft/hó/fő (állami)","url":"https://www.elte.hu/kollegiumok","lat":47.4635557,"lon":19.0459338},{"name":"ELTE – Vezér Úti Kollégium","short":"VUK","university":"ELTE","address":"Vezér út 112, Budapest XIV","capacity":240,"room_type":"2-3 ágyas","price_from":15320,"price_to":15320,"currency":"HUF","unit":"Ft/hó/fő (állami)","url":"https://www.elte.hu/kollegiumok","lat":47.5193637,"lon":19.1263604},{"name":"BME – Baross Gábor Kollégium","short":"BGK","university":"BME","address":"Bartók Béla út 15, Budapest XI","capacity":600,"room_type":"1-4 ágyas","price_from":9320,"price_to":23300,"currency":"HUF","unit":"Ft/hó/fő (állami)","url":"https://www.bme.hu/kollegiumok","lat":47.4813317,"lon":19.0520479},{"name":"BME – Bercsényi Kollégium","short":"BCK","university":"BME","address":"Bercsényi utca 28-30, Budapest XI","capacity":280,"room_type":"2 ágyas","price_from":11650,"price_to":23300,"currency":"HUF","unit":"Ft/hó/fő (állami)","url":"https://www.bme.hu/kollegiumok","lat":47.4751639,"lon":19.0505664},{"name":"BME – Kármán Tódor Kollégium","short":"KTK","university":"BME","address":"Stoczek utca 5-7, Budapest XI","capacity":600,"room_type":"2 ágyas","price_from":11650,"price_to":23300,"currency":"HUF","unit":"Ft/hó/fő (állami)","url":"https://www.bme.hu/kollegiumok","lat":47.477932,"lon":19.055927},{"name":"BME – Martos Flóra Kollégium","short":"MFK","university":"BME","address":"Stoczek utca 1-7, Budapest XI","capacity":550,"room_type":"2 ágyas","price_from":11650,"price_to":23300,"currency":"HUF","unit":"Ft/hó/fő (állami)","url":"https://www.bme.hu/kollegiumok","lat":47.4787511,"lon":19.0556664},{"name":"BME – Schönherz Kollégium","short":"SCH","university":"BME","address":"Irinyi József utca 42, Budapest XI","capacity":980,"room_type":"4 ágyas","price_from":9320,"price_to":20970,"currency":"HUF","unit":"Ft/hó/fő (állami)","url":"https://www.bme.hu/kollegiumok","lat":47.4729283,"lon":19.0531429},{"name":"BME – Vásárhelyi Pál Kollégium","short":"VPK","university":"BME","address":"Kruspér utca 2, Budapest XI","capacity":500,"room_type":"2-4 ágyas","price_from":9320,"price_to":23300,"currency":"HUF","unit":"Ft/hó/fő (állami)","url":"https://www.bme.hu/kollegiumok","lat":47.4781124,"lon":19.0553172},{"name":"BME – Wigner Jenő Kollégium","short":"WJK","university":"BME","address":"Budafoki út 14, Budapest XI","capacity":330,"room_type":"3 ágyas","price_from":9320,"price_to":20970,"currency":"HUF","unit":"Ft/hó/fő (állami)","url":"https://www.bme.hu/kollegiumok","lat":47.4782806,"lon":19.0541151},{"name":"Corvinus – Gellért Campus Kollégium","short":"GCK","university":"Corvinus","address":"Villányi út 11-13, Budapest XI","capacity":320,"room_type":"2-4 ágyas","price_from":17475,"price_to":80000,"currency":"HUF","unit":"Ft/hó/fő","url":"https://www.uni-corvinus.hu/accommodation","lat":47.4786939,"lon":19.0431913},{"name":"Corvinus – Kinizsi Kollégium","short":"KIN","university":"Corvinus","address":"Kinizsi utca 2-6, Budapest IX","capacity":350,"room_type":"1-5 ágyas","price_from":9300,"price_to":42400,"currency":"HUF","unit":"Ft/hó/fő (állami)","url":"https://www.uni-corvinus.hu/accommodation","lat":47.4840984,"lon":19.0622579},{"name":"Corvinus – Ráday Kollégium","short":"RDK","university":"Corvinus","address":"Ráday utca 43-45, Budapest IX","capacity":280,"room_type":"2-4 ágyas","price_from":11650,"price_to":60100,"currency":"HUF","unit":"Ft/hó/fő","url":"https://www.uni-corvinus.hu/accommodation","lat":47.4836141,"lon":19.0651131},{"name":"Corvinus – Tarkaréti Kollégium","short":"TRK","university":"Corvinus","address":"Tarkaréti út 16, Budapest XI","capacity":178,"room_type":"3 ágyas","price_from":9300,"price_to":40300,"currency":"HUF","unit":"Ft/hó/fő","url":"https://www.uni-corvinus.hu/accommodation","lat":47.48,"lon":19.06},{"name":"Semmelweis – Balassa János Kollégium","short":"BJK","university":"Semmelweis","address":"Balassa János utca 6, Budapest VIII","capacity":366,"room_type":"3 ágyas","price_from":15000,"price_to":40000,"currency":"HUF","unit":"Ft/hó/fő","url":"https://semmelweis.hu/kollegiumok","lat":47.4846395,"lon":19.0815715},{"name":"Semmelweis – Markusovszky Kollégium","short":"MKK","university":"Semmelweis","address":"Üllői út 22, Budapest VIII","capacity":250,"room_type":"2-3 ágyas","price_from":15000,"price_to":40000,"currency":"HUF","unit":"Ft/hó/fő","url":"https://semmelweis.hu/kollegiumok","lat":47.4880618,"lon":19.0656824},{"name":"Semmelweis – Bókay Kollégium","short":"BOK","university":"Semmelweis","address":"Bókay János utca 53, Budapest VIII","capacity":200,"room_type":"2-3 ágyas","price_from":15000,"price_to":40000,"currency":"HUF","unit":"Ft/hó/fő","url":"https://semmelweis.hu/kollegiumok","lat":47.4840682,"lon":19.078151},{"name":"Semmelweis – Kátai Gábor Kollégium","short":"KGK","university":"Semmelweis","address":"Korányi Sándor utca 2, Budapest VIII","capacity":180,"room_type":"2-3 ágyas","price_from":15000,"price_to":40000,"currency":"HUF","unit":"Ft/hó/fő","url":"https://semmelweis.hu/kollegiumok","lat":47.4828224,"lon":19.0833962},{"name":"BGE – Mária utcai Kollégium","short":"BGE-M","university":"BGE","address":"Mária utca 9, Budapest VIII","capacity":200,"room_type":"2-3 ágyas","price_from":12000,"price_to":25000,"currency":"HUF","unit":"Ft/hó/fő (állami)","url":"https://www.bge.hu/kollegium","lat":47.4919736,"lon":19.0688632},{"name":"BGE – Alkotás utcai Kollégium","short":"BGE-A","university":"BGE","address":"Alkotás utca 39-41, Budapest XII","capacity":300,"room_type":"2-4 ágyas","price_from":12000,"price_to":25000,"currency":"HUF","unit":"Ft/hó/fő (állami)","url":"https://www.bge.hu/kollegium","lat":47.5008044,"lon":19.0239183},{"name":"ÓE – Bécsi úti Kandó Kálmán Kollégium","short":"KKK","university":"ÓE","address":"Bécsi út 92, Budapest III","capacity":390,"room_type":"2-3 ágyas","price_from":10000,"price_to":20000,"currency":"HUF","unit":"Ft/hó/fő (állami)","url":"https://www.uni-obuda.hu/kollegium","lat":47.53272,"lon":19.0357382},{"name":"ÓE – Bánki Donát Kollégium","short":"BDK","university":"ÓE","address":"Tavaszmező utca 15-17, Budapest VIII","capacity":374,"room_type":"2-3 ágyas","price_from":10000,"price_to":20000,"currency":"HUF","unit":"Ft/hó/fő (állami)","url":"https://www.uni-obuda.hu/kollegium","lat":47.4908397,"lon":19.078579}];
+const PLANNED_CAMPUS = [{"nev":"Budapest Diákváros (Student City)","kerulet":"IX. kerület (Ferencváros) valószínű","hallgatok":"12000","befejezes":"2028 (legkésőbb 3 éven belül a 2025 decemberi bejelentéstől számítva)","allapot":"tervezett","lat":47.475,"lng":19.06},{"nev":"Pázmány Péter Katolikus Egyetem Budapest Campus","kerulet":"VIII. kerület (Józsefváros, Palotanegyed)","hallgatok":"~2500 (Bölcsészettudományi Kar + Jog- és Államtudományi Kar + ITK), kollégium: 200–300 fő","befejezes":"2027 (őszi félévtől tervezett megnyitó)","allapot":"tervezett","lat":47.475,"lng":19.06},{"nev":"Károli Gáspár Református Egyetem (KRE) — Ferencvárosi Campus","kerulet":"IX. kerület (Ferencváros)","hallgatok":"~2500 (Jogi Kar + Pszichológia Intézet)","befejezes":"2026–2028 (tervezési verseny 2024-ben lezárult, kivitelező kiválasztás folyamatban)","allapot":"tervezett","lat":47.475,"lng":19.06},{"nev":"Fudan Egyetem Budapest Campus","kerulet":"XI. kerület (korábbi tervek szerint)","hallgatok":"~6000 (tervezett)","befejezes":"Határozatlan — a projekt 2021-es budapesti tiltakozások után politikailag felfüggesztett állapotban van. 2025-ig nincs konkrét újraindítási bejelentés.","allapot":"FELFÜGGESZTETT / BIZONYTALAN","lat":47.475,"lng":19.06}];
+</script>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     MAIN APPLICATION LOGIC
+     ═══════════════════════════════════════════════════════════════ -->
+<script>
+// ── Utility ─────────────────────────────────────────
+const fmt = n => typeof n === 'number' ? n.toLocaleString('hu-HU') : n;
+const fmtM = n => {
+  if (n >= 1e9) return (n/1e9).toFixed(1).replace('.',',') + ' Mrd Ft';
+  if (n >= 1e6) return (n/1e6).toFixed(1).replace('.',',') + ' M Ft';
+  return fmt(Math.round(n)) + ' Ft';
+};
+let chartInstances = {};
+function getOrDestroyChart(id) {
+  if (chartInstances[id]) { chartInstances[id].destroy(); delete chartInstances[id]; }
+  return document.getElementById(id)?.getContext('2d');
+}
+
+// ── Tab switching ───────────────────────────────────
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('panel-' + btn.dataset.tab).classList.add('active');
+    // Init tabs on first view
+    if (btn.dataset.tab === 'demand' && !window._demandInit) initDemandMap();
+    if (btn.dataset.tab === 'competitor' && !window._compInit) initCompetitorTab();
+    if (btn.dataset.tab === 'access' && !window._accessInit) initAccessTab();
+    if (btn.dataset.tab === 'institutional' && !window._instInit) initInstitutionalTab();
+    if (btn.dataset.tab === 'feasibility' && !window._feasInit) initFeasibilityTab();
+  });
+});
+
+// ══════════════════════════════════════════════════════════════
+// TAB 1: DEMAND MAP
+// ══════════════════════════════════════════════════════════════
+let demandMap, choroplethLayer, compMarkerLayer, dormMarkerLayer, campusMarkerLayer;
+
+function initDemandMap() {
+  if (window._demandInit) return;
+  window._demandInit = true;
+
+  demandMap = L.map('demand-map').setView([47.497, 19.04], 12);
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+    attribution: '&copy; CARTO', maxZoom: 18
+  }).addTo(demandMap);
+
+  // District score lookup
+  const districtScoreLookup = {};
+  Object.entries(DISTRICTS).forEach(([k,v]) => { districtScoreLookup[k] = v; });
+
+  // Load GeoJSON
+  fetch('geo/districts.geojson')
+    .then(r => r.json())
+    .then(geojson => {
+      choroplethLayer = L.geoJSON(geojson, {
+        style: feature => {
+          const dName = feature.properties.name || '';
+          // Find district key: extract roman numeral
+          let dKey = '';
+          const match = dName.match(/([IVXLCDM]+)\.?\s/);
+          if (match) dKey = match[1];
+          const dInfo = districtScoreLookup[dKey];
+          const score = dInfo ? dInfo.student_score : 0;
+          return {
+            fillColor: getScoreColor(score),
+            weight: 1.5,
+            color: '#3a3f5c',
+            fillOpacity: 0.55,
+          };
+        },
+        onEachFeature: (feature, layer) => {
+          const dName = feature.properties.name || '';
+          let dKey = '';
+          const match = dName.match(/([IVXLCDM]+)\.?\s/);
+          if (match) dKey = match[1];
+          const dInfo = districtScoreLookup[dKey];
+          if (dInfo) {
+            layer.bindTooltip(
+              `<b>${dKey}. kerület — ${dInfo.district_name}</b><br>Hallgatói score: ${dInfo.student_score}/100<br>Átlag menetidő: ${dInfo.avg_transit_minutes} perc`,
+              { sticky: true, className: 'dark-tooltip' }
+            );
+          }
+        }
+      }).addTo(demandMap);
+    });
+
+  // Competitor markers (orange circles)
+  compMarkerLayer = L.layerGroup();
+  COMPETITORS.forEach(c => {
+    L.circleMarker([c.lat, c.lng], {
+      radius: 8, fillColor: '#FF9500', color: '#fff', weight: 1.5, fillOpacity: 0.85
+    }).bindPopup(`<b>${c.nev}</b><br>${c.cim}, ${c.kerulet}<br>Ár: ${fmt(c.ar_min)}–${fmt(c.ar_max)} Ft/hó<br>Kapacitás: ${c.kapacitas}<br>Üzemeltető: ${c.uzemelteto}`).addTo(compMarkerLayer);
+  });
+
+  // State dorm markers (blue)
+  dormMarkerLayer = L.layerGroup();
+  STATE_DORMS.forEach(d => {
+    if (d.lat && d.lon) {
+      L.circleMarker([d.lat, d.lon], {
+        radius: 6, fillColor: '#0077ED', color: '#fff', weight: 1.5, fillOpacity: 0.85
+      }).bindPopup(`<b>${d.name}</b><br>${d.address}<br>Kapacitás: ${d.capacity} fő<br>${d.university}`).addTo(dormMarkerLayer);
+    }
+  });
+
+  // Planned campus markers (purple stars)
+  campusMarkerLayer = L.layerGroup();
+  PLANNED_CAMPUS.forEach(p => {
+    if (p.lat && p.lng) {
+      L.circleMarker([p.lat, p.lng], {
+        radius: 10, fillColor: '#a855f7', color: '#fff', weight: 2, fillOpacity: 0.9
+      }).bindPopup(`<b>${p.nev}</b><br>Kerület: ${p.kerulet}<br>Hallgatók: ${p.hallgatok}<br>Tervezett: ${p.befejezes}`).addTo(campusMarkerLayer);
+    }
+  });
+
+  // Layer control
+  const overlays = {
+    '🟠 Magánkollégiumok': compMarkerLayer,
+    '🔵 Állami kollégiumok': dormMarkerLayer,
+    '🟣 Új campus fejlesztések': campusMarkerLayer
+  };
+  L.control.layers(null, overlays, { position: 'topright' }).addTo(demandMap);
+  compMarkerLayer.addTo(demandMap);
+  dormMarkerLayer.addTo(demandMap);
+  campusMarkerLayer.addTo(demandMap);
+
+  // Build district table
+  buildDistrictTable();
+}
+
+function getScoreColor(score) {
+  if (score >= 75) return '#34C759';
+  if (score >= 65) return '#14b8a6';
+  if (score >= 50) return '#0077ED';
+  if (score >= 30) return '#93c5fd';
+  return '#9ca3af';
+}
+
+function buildDistrictTable() {
+  const distArr = Object.entries(DISTRICTS).map(([k,v]) => ({...v, key: k}));
+  // Count competitors per district
+  const compCount = {};
+  COMPETITORS.forEach(c => { compCount[c.kerulet] = (compCount[c.kerulet]||0) + 1; });
+
+  distArr.sort((a,b) => b.student_score - a.student_score);
+  const tbody = document.getElementById('district-tbody');
+  tbody.innerHTML = distArr.map((d, i) => {
+    const ker = d.key + '.';
+    const cc = compCount[ker] || compCount[d.key+'. ker.'] || compCount[d.key] || 0;
+    // Also try matching
+    let compN = 0;
+    COMPETITORS.forEach(c => {
+      if (c.kerulet.replace(/\s/g,'').replace('.','') === d.key.replace(/\s/g,'').replace('.','') ||
+          c.kerulet.includes(d.key + '.') || c.kerulet === d.key + '.') compN++;
+    });
+    return `<tr>
+      <td><b>${d.key}. kerület</b> — ${d.district_name}</td>
+      <td><span class="score-chip ${d.student_score>=65?'score-green':d.student_score>=50?'score-yellow':d.student_score>=35?'score-orange':'score-red'}">${d.student_score}/100</span></td>
+      <td>${d.avg_transit_minutes} perc</td>
+      <td>${compN} db</td>
+      <td>#${i+1}</td>
+    </tr>`;
+  }).join('');
+}
+
+// ══════════════════════════════════════════════════════════════
+// TAB 2: COMPETITOR INTELLIGENCE
+// ══════════════════════════════════════════════════════════════
+let compSortCol = null, compSortAsc = true;
+
+function initCompetitorTab() {
+  if (window._compInit) return;
+  window._compInit = true;
+
+  // Populate filter dropdowns
+  const districts = [...new Set(COMPETITORS.map(c => c.kerulet))].sort();
+  const operators = [...new Set(COMPETITORS.map(c => c.uzemelteto))].sort();
+  const distSel = document.getElementById('comp-filter-district');
+  districts.forEach(d => { const o = document.createElement('option'); o.value = d; o.textContent = d; distSel.appendChild(o); });
+  const opSel = document.getElementById('comp-filter-operator');
+  operators.forEach(d => { const o = document.createElement('option'); o.value = d; o.textContent = d; opSel.appendChild(o); });
+
+  // Sortable headers
+  document.querySelectorAll('#comp-table thead th[data-sort]').forEach(th => {
+    th.addEventListener('click', () => {
+      const col = th.dataset.sort;
+      if (compSortCol === col) compSortAsc = !compSortAsc;
+      else { compSortCol = col; compSortAsc = true; }
+      document.querySelectorAll('#comp-table thead th').forEach(t => t.classList.remove('asc','desc'));
+      th.classList.add(compSortAsc ? 'asc' : 'desc');
+      filterCompetitors();
+    });
+  });
+
+  filterCompetitors();
+  renderCompCharts();
+}
+
+function filterCompetitors() {
+  const dist = document.getElementById('comp-filter-district').value;
+  const oper = document.getElementById('comp-filter-operator').value;
+  const maxPrice = parseInt(document.getElementById('comp-filter-price').value);
+
+  let filtered = COMPETITORS.filter(c => {
+    if (dist && c.kerulet !== dist) return false;
+    if (oper && c.uzemelteto !== oper) return false;
+    if (c.ar_max > maxPrice && c.ar_max > 0) return false;
+    return true;
+  });
+
+  // Sort
+  if (compSortCol) {
+    filtered.sort((a,b) => {
+      let va, vb;
+      switch(compSortCol) {
+        case 'nev': va = a.nev; vb = b.nev; break;
+        case 'kerulet': va = a.kerulet; vb = b.kerulet; break;
+        case 'uzemelteto': va = a.uzemelteto; vb = b.uzemelteto; break;
+        case 'ar': va = a.ar_min; vb = b.ar_min; break;
+        case 'kapacitas': va = typeof a.kapacitas==='number'?a.kapacitas:0; vb = typeof b.kapacitas==='number'?b.kapacitas:0; break;
+        default: va = a.nev; vb = b.nev;
+      }
+      if (typeof va === 'string') return compSortAsc ? va.localeCompare(vb,'hu') : vb.localeCompare(va,'hu');
+      return compSortAsc ? va-vb : vb-va;
+    });
+  }
+
+  const tbody = document.getElementById('comp-tbody');
+  tbody.innerHTML = filtered.map(c => `<tr>
+    <td><b>${c.nev}</b></td>
+    <td>${c.kerulet}</td>
+    <td>${c.uzemelteto}</td>
+    <td>${fmt(c.ar_min)}–${fmt(c.ar_max)} Ft</td>
+    <td>${c.kapacitas}</td>
+    <td>${c.tipus}</td>
+    <td>${c.weboldal ? '<a href="'+c.weboldal+'" target="_blank" rel="noopener">🔗</a>' : '—'}</td>
+  </tr>`).join('');
+  document.getElementById('comp-count').textContent = `${filtered.length} / ${COMPETITORS.length} kompetitor`;
+}
+
+function exportCompCSV() {
+  const rows = [['Név','Kerület','Üzemeltető','Ár min','Ár max','Kapacitás','Típus','Weboldal']];
+  COMPETITORS.forEach(c => rows.push([c.nev, c.kerulet, c.uzemelteto, c.ar_min, c.ar_max, c.kapacitas, c.tipus, c.weboldal]));
+  const csv = rows.map(r => r.map(v => '"'+(v||'').toString().replace(/"/g,'""')+'"').join(',')).join('\n');
+  const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = 'kompetitor_kollegiumok.csv';
+  link.click();
+}
+
+function renderCompCharts() {
+  // Bar: Competitor count by district
+  const distCount = {};
+  COMPETITORS.forEach(c => { distCount[c.kerulet] = (distCount[c.kerulet]||0)+1; });
+  const distLabels = Object.keys(distCount).sort();
+  const distValues = distLabels.map(k => distCount[k]);
+  const ctx1 = getOrDestroyChart('chart-comp-district');
+  if (ctx1) {
+    chartInstances['chart-comp-district'] = new Chart(ctx1, {
+      type: 'bar',
+      data: { labels: distLabels, datasets: [{ label: 'Kompetitor szám', data: distValues, backgroundColor: '#FF9500' }] },
+      options: { responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}},
+        scales:{ y:{ beginAtZero:true, grid:{color:'rgba(255,255,255,0.06)'}, ticks:{color:'#6E6E73'} }, x:{ ticks:{color:'#6E6E73'} } }
+      }
+    });
+  }
+
+  // Bar: Price distribution
+  const priceRanges = {'<100k':0, '100-150k':0, '150-200k':0, '>200k':0};
+  COMPETITORS.forEach(c => {
+    const avg = (c.ar_min + c.ar_max) / 2;
+    if (avg < 100000) priceRanges['<100k']++;
+    else if (avg < 150000) priceRanges['100-150k']++;
+    else if (avg < 200000) priceRanges['150-200k']++;
+    else priceRanges['>200k']++;
+  });
+  const ctx2 = getOrDestroyChart('chart-comp-price');
+  if (ctx2) {
+    chartInstances['chart-comp-price'] = new Chart(ctx2, {
+      type: 'bar',
+      data: { labels: Object.keys(priceRanges), datasets: [{ label: 'Darab', data: Object.values(priceRanges), backgroundColor: ['#34C759','#0077ED','#FF9F0A','#FF3B30'] }] },
+      options: { responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}},
+        scales:{ y:{ beginAtZero:true, grid:{color:'rgba(255,255,255,0.06)'}, ticks:{color:'#6E6E73'} }, x:{ ticks:{color:'#6E6E73'} } }
+      }
+    });
+  }
+
+  // Horizontal bar: Top operators by capacity
+  const opCap = {};
+  COMPETITORS.forEach(c => {
+    const cap = typeof c.kapacitas === 'number' ? c.kapacitas : parseInt(String(c.kapacitas)) || 0;
+    opCap[c.uzemelteto] = (opCap[c.uzemelteto]||0) + cap;
+  });
+  const opEntries = Object.entries(opCap).sort((a,b) => b[1]-a[1]).slice(0,10);
+  const ctx3 = getOrDestroyChart('chart-comp-operators');
+  if (ctx3) {
+    chartInstances['chart-comp-operators'] = new Chart(ctx3, {
+      type: 'bar',
+      data: { labels: opEntries.map(e=>e[0]), datasets: [{ label: 'Kapacitás', data: opEntries.map(e=>e[1]), backgroundColor: '#0071E3' }] },
+      options: { indexAxis:'y', responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}},
+        scales:{ x:{ beginAtZero:true, grid:{color:'rgba(255,255,255,0.06)'}, ticks:{color:'#6E6E73'} }, y:{ ticks:{color:'#6E6E73'} } }
+      }
+    });
+  }
+}
+
+// ══════════════════════════════════════════════════════════════
+// TAB 3: ACCESSIBILITY SCORING
+// ══════════════════════════════════════════════════════════════
+function initAccessTab() {
+  if (window._accessInit) return;
+  window._accessInit = true;
+
+  const sel = document.getElementById('campus-select');
+  CAMPUSES.forEach(c => {
+    const o = document.createElement('option');
+    o.value = c.id;
+    o.textContent = c.name + ' (' + c.district + '. ker.)';
+    sel.appendChild(o);
+  });
+
+  const dSel = document.getElementById('district-campus-select');
+  Object.entries(DISTRICTS).forEach(([k,v]) => {
+    const o = document.createElement('option');
+    o.value = k;
+    o.textContent = k + '. kerület — ' + v.district_name;
+    dSel.appendChild(o);
+  });
+
+  renderTransitMatrix();
+  renderDistrictRankChart();
+}
+
+function renderTransitMatrix() {
+  const campus = document.getElementById('campus-select').value;
+  const tbody = document.getElementById('transit-tbody');
+
+  if (campus === 'avg') {
+    // Average across all campuses per district
+    const distAvg = {};
+    TRANSIT.forEach(t => {
+      if (!distAvg[t.district]) distAvg[t.district] = { total: 0, count: 0, name: t.district_name };
+      distAvg[t.district].total += t.minutes;
+      distAvg[t.district].count++;
+    });
+    const rows = Object.entries(distAvg).map(([k,v]) => ({
+      district: k, name: v.name, minutes: Math.round(v.total/v.count*10)/10, transport: 'átlag'
+    }));
+    rows.sort((a,b) => a.minutes - b.minutes);
+    tbody.innerHTML = rows.map(r => `<tr>
+      <td><b>${r.district}. kerület</b> — ${r.name}</td>
+      <td>${r.minutes} perc</td>
+      <td>${r.transport}</td>
+      <td>${getScoreChip(r.minutes)}</td>
+    </tr>`).join('');
+  } else {
+    const records = TRANSIT.filter(t => t.campus_id === campus);
+    records.sort((a,b) => a.minutes - b.minutes);
+    tbody.innerHTML = records.map(r => `<tr>
+      <td><b>${r.district}. kerület</b> — ${r.district_name}</td>
+      <td>${r.minutes} perc</td>
+      <td>${r.transport}</td>
+      <td>${getScoreChip(r.minutes)}</td>
+    </tr>`).join('');
+  }
+}
+
+function getScoreChip(minutes) {
+  if (minutes < 20) return '<span class="score-chip score-green">' + minutes + ' p</span>';
+  if (minutes < 35) return '<span class="score-chip score-yellow">' + minutes + ' p</span>';
+  if (minutes < 50) return '<span class="score-chip score-orange">' + minutes + ' p</span>';
+  return '<span class="score-chip score-red">' + minutes + ' p</span>';
+}
+
+function renderDistrictRankChart() {
+  const distArr = Object.entries(DISTRICTS).map(([k,v]) => ({key:k,...v}));
+  distArr.sort((a,b) => a.student_score - b.student_score);
+  const labels = distArr.map(d => d.key + '. ker.');
+  const values = distArr.map(d => d.student_score);
+  const colors = distArr.map((d,i) => {
+    if (i >= distArr.length-5) return '#34C759'; // top 5
+    if (i < 5) return '#FF3B30'; // bottom 5
+    return '#0071E3';
+  });
+  const ctx = getOrDestroyChart('chart-district-rank');
+  if (ctx) {
+    chartInstances['chart-district-rank'] = new Chart(ctx, {
+      type: 'bar',
+      data: { labels, datasets: [{ label: 'Hallgatói score', data: values, backgroundColor: colors }] },
+      options: { indexAxis:'y', responsive:true, maintainAspectRatio:false,
+        plugins:{legend:{display:false}},
+        scales:{ x:{ beginAtZero:true, max:100, grid:{color:'rgba(255,255,255,0.06)'}, ticks:{color:'#6E6E73'} }, y:{ ticks:{color:'#6E6E73', font:{size:11} } } }
+      }
+    });
+  }
+}
+
+function renderCampusComparison() {
+  const distKey = document.getElementById('district-campus-select').value;
+  const container = document.getElementById('campus-cards');
+  if (!distKey) { container.innerHTML = ''; return; }
+
+  const records = TRANSIT.filter(t => t.district === distKey);
+  records.sort((a,b) => a.minutes - b.minutes);
+  container.innerHTML = records.map(r => `<div class="campus-card">
+    <div class="cc-name">${r.campus}</div>
+    <div class="cc-val" style="color:${r.minutes<20?'var(--green)':r.minutes<35?'var(--gold)':r.minutes<50?'var(--orange)':'var(--red)'}">${r.minutes} perc</div>
+    <div class="cc-sub">${r.transport}</div>
+  </div>`).join('');
+}
+
+// ══════════════════════════════════════════════════════════════
+// TAB 4: INSTITUTIONAL
+// ══════════════════════════════════════════════════════════════
+function initInstitutionalTab() {
+  if (window._instInit) return;
+  window._instInit = true;
+
+  // SH trend line chart
+  const shData = { 2019: 9035, 2020: 10759, 2021: 11738, 2022: 11947, 2023: 11666, 2024: 11169 };
+  const ctx1 = getOrDestroyChart('chart-sh-trend');
+  if (ctx1) {
+    chartInstances['chart-sh-trend'] = new Chart(ctx1, {
+      type: 'line',
+      data: {
+        labels: Object.keys(shData),
+        datasets: [{
+          label: 'Aktív SH ösztöndíjasok',
+          data: Object.values(shData),
+          borderColor: '#5AC8FA',
+          backgroundColor: 'rgba(6,182,212,0.15)',
+          fill: true,
+          tension: 0.3,
+          pointRadius: 5,
+          pointBackgroundColor: '#5AC8FA'
+        }]
+      },
+      options: {
+        responsive:true, maintainAspectRatio:false,
+        plugins:{ legend:{ labels:{color:'#6E6E73'} } },
+        scales:{ y:{ beginAtZero:false, grid:{color:'rgba(255,255,255,0.06)'}, ticks:{color:'#6E6E73'} }, x:{ ticks:{color:'#6E6E73'} } }
+      }
+    });
+  }
+
+  // Erasmus countries
+  const erasmusCountries = [
+    {ország:'Románia', arany:20},
+    {ország:'Franciaország', arany:14},
+    {ország:'Németország', arany:13},
+    {ország:'Spanyolország', arany:10},
+    {ország:'Olaszország', arany:7}
+  ];
+  const ctx2 = getOrDestroyChart('chart-erasmus-countries');
+  if (ctx2) {
+    chartInstances['chart-erasmus-countries'] = new Chart(ctx2, {
+      type: 'bar',
+      data: {
+        labels: erasmusCountries.map(c => c.ország),
+        datasets: [{ label: 'Arány %', data: erasmusCountries.map(c => c.arany), backgroundColor: '#0071E3' }]
+      },
+      options: { indexAxis:'y', responsive:true, maintainAspectRatio:false,
+        plugins:{legend:{display:false}},
+        scales:{ x:{ beginAtZero:true, grid:{color:'rgba(255,255,255,0.06)'}, ticks:{color:'#6E6E73'} }, y:{ ticks:{color:'#6E6E73'} } }
+      }
+    });
+  }
+
+  // Erasmus fields
+  const erasmusFields = [
+    {t:'Üzleti/jogi', a:32}, {t:'Humán tud.', a:18},
+    {t:'Természettud.', a:10}, {t:'Egészségügy', a:10}, {t:'Mérnöki', a:10}
+  ];
+  const ctx3 = getOrDestroyChart('chart-erasmus-fields');
+  if (ctx3) {
+    chartInstances['chart-erasmus-fields'] = new Chart(ctx3, {
+      type: 'bar',
+      data: {
+        labels: erasmusFields.map(f => f.t),
+        datasets: [{ label: '%', data: erasmusFields.map(f => f.a), backgroundColor: ['#FF9F0A','#34C759','#0077ED','#FF3B30','#a855f7'] }]
+      },
+      options: { responsive:true, maintainAspectRatio:false,
+        plugins:{legend:{display:false}},
+        scales:{ y:{ beginAtZero:true, grid:{color:'rgba(255,255,255,0.06)'}, ticks:{color:'#6E6E73'} }, x:{ ticks:{color:'#6E6E73'} } }
+      }
+    });
+  }
+}
+
+// ══════════════════════════════════════════════════════════════
+// TAB 5: FEASIBILITY MATCHER
+// ══════════════════════════════════════════════════════════════
+function initFeasibilityTab() {
+  if (window._feasInit) return;
+  window._feasInit = true;
+
+  const sel = document.getElementById('feas-district');
+  Object.entries(DISTRICTS).forEach(([k,v]) => {
+    const o = document.createElement('option');
+    o.value = k;
+    o.textContent = k + '. kerület — ' + v.district_name;
+    sel.appendChild(o);
+  });
+}
+
+function updateMixSliders() {
+  const vals = ['mix-1','mix-2','mix-3','mix-g'].map(id => parseInt(document.getElementById(id).value));
+  vals.forEach((v,i) => document.getElementById(['mix-1-val','mix-2-val','mix-3-val','mix-g-val'][i]).textContent = v);
+  const sum = vals.reduce((a,b) => a+b, 0);
+  const el = document.getElementById('mix-sum');
+  el.textContent = 'Összesen: ' + sum + '%';
+  el.style.color = sum === 100 ? 'var(--green)' : 'var(--red)';
+}
+
+function runFeasibility() {
+  const distKey = document.getElementById('feas-district').value;
+  if (!distKey) { alert('Válassz kerületet!'); return; }
+
+  const mixVals = ['mix-1','mix-2','mix-3','mix-g'].map(id => parseInt(document.getElementById(id).value));
+  const mixSum = mixVals.reduce((a,b) => a+b, 0);
+  if (mixSum !== 100) { alert('A szobatípus mix összege 100% kell legyen! Jelenleg: ' + mixSum + '%'); return; }
+
+  const dInfo = DISTRICTS[distKey];
+  const telekM2 = parseInt(document.getElementById('feas-m2').value) || 800;
+  const beep = parseInt(document.getElementById('feas-beep').value) / 100;
+  const floors = parseInt(document.getElementById('feas-floors').value) || 5;
+  const costPerBed = parseInt(document.getElementById('feas-cost').value) * 1000; // eFt -> Ft
+  const occRate = parseInt(document.getElementById('feas-occ').value) / 100;
+  const target = document.querySelector('input[name="feas-target"]:checked').value;
+
+  // Calculations
+  const grossM2 = telekM2 * beep * floors;
+  const usableM2 = grossM2 * 0.85; // minus 15% corridors
+  
+  // Room types: egyágyas 18m², kétágyas 14m²/fő, háromágyas 11m²/fő, garzon 28m²
+  const m2PerBed = { 1: 18, 2: 14, 3: 11, g: 28 };
+  const bedsPerRoom = { 1: 1, 2: 2, 3: 3, g: 1 };
+  const pcts = { 1: mixVals[0]/100, 2: mixVals[1]/100, 3: mixVals[2]/100, g: mixVals[3]/100 };
+  
+  // Weighted average m2 per bed
+  let totalBeds = 0;
+  ['1','2','3','g'].forEach(t => {
+    const m2ForType = usableM2 * pcts[t];
+    const beds = Math.floor(m2ForType / m2PerBed[t]);
+    totalBeds += beds;
+  });
+
+  // District median price from competitors
+  const distComp = COMPETITORS.filter(c => c.kerulet.includes(distKey + '.') || c.kerulet.replace(/[\s.]/g,'') === distKey);
+  let medianPrice;
+  if (distComp.length > 0) {
+    const prices = distComp.map(c => (c.ar_min + c.ar_max) / 2).sort((a,b) => a-b);
+    medianPrice = prices[Math.floor(prices.length/2)];
+  } else {
+    // Citywide median
+    const allPrices = COMPETITORS.map(c => (c.ar_min + c.ar_max) / 2).sort((a,b) => a-b);
+    medianPrice = allPrices[Math.floor(allPrices.length/2)];
+  }
+
+  // Premium multiplier
+  const premiumMult = (dInfo.student_score / 100) * 1.3;
+  const targetMult = target === 'hazai' ? 1.0 : target === 'kulfoldi' ? 1.5 : 1.25;
+  const adjustedPrice = Math.round(medianPrice * premiumMult * targetMult);
+  const monthlyRevenue = totalBeds * adjustedPrice;
+  const annualRevenue = monthlyRevenue * occRate * 12;
+  const investmentTotal = totalBeds * costPerBed;
+  const opex = 0.30; // 30% OPEX
+  const annualNet = annualRevenue * (1 - opex);
+  const paybackYears = investmentTotal / annualNet;
+  const grossYield = (annualRevenue / investmentTotal) * 100;
+  const netYield = (annualNet / investmentTotal) * 100;
+
+  // Recommendation
+  let recommendation, recColor;
+  if (netYield > 8) { recommendation = 'Erősen ajánlott'; recColor = 'var(--green)'; }
+  else if (netYield > 5) { recommendation = 'Ajánlott'; recColor = '#34C759'; }
+  else if (netYield > 3) { recommendation = 'Elfogadható'; recColor = 'var(--gold)'; }
+  else { recommendation = 'Nem javasolt'; recColor = 'var(--red)'; }
+
+  // Sensitivity table: ±10% price, ±10% occupancy
+  const sensData = [];
+  [-10, 0, 10].forEach(pDelta => {
+    const row = [];
+    [-10, 0, 10].forEach(oDelta => {
+      const p = adjustedPrice * (1 + pDelta/100);
+      const o = occRate * (1 + oDelta/100);
+      const rev = totalBeds * p * o * 12 * (1-opex);
+      row.push(((rev / investmentTotal) * 100).toFixed(1));
+    });
+    sensData.push(row);
+  });
+
+  // Market gap analysis
+  const totalCompCap = distComp.reduce((s,c) => s + (typeof c.kapacitas==='number'?c.kapacitas:parseInt(String(c.kapacitas))||0), 0);
+  const marketStatus = distComp.length < 3 ? 'Alulszolgált' : 'Telített';
+  const marketColor = distComp.length < 3 ? 'var(--green)' : 'var(--red)';
+
+  const output = document.getElementById('feas-output');
+  output.innerHTML = `
+    <h3 style="font-size:16px;font-weight:700;margin-bottom:16px;">📊 Feasibility eredmény — ${distKey}. kerület</h3>
+    
+    <div class="feas-result-grid">
+      <div class="feas-metric"><div class="fm-label">Max hasznos m²</div><div class="fm-value">${fmt(Math.round(usableM2))}</div><div class="fm-sub">${fmt(Math.round(grossM2))} bruttó − 15% közös</div></div>
+      <div class="feas-metric"><div class="fm-label">Optimális ágyszám</div><div class="fm-value">${fmt(totalBeds)}</div><div class="fm-sub">${floors} szint · ${telekM2} m² telek</div></div>
+      <div class="feas-metric"><div class="fm-label">Havi bevétel (teli ház)</div><div class="fm-value" style="color:var(--green);">${fmtM(monthlyRevenue)}</div><div class="fm-sub">${fmt(adjustedPrice)} Ft/ágy/hó</div></div>
+      <div class="feas-metric"><div class="fm-label">Éves nettó bevétel</div><div class="fm-value" style="color:var(--green);">${fmtM(annualNet)}</div><div class="fm-sub">${occRate*100}% kihasználtság · 70% nettó</div></div>
+      <div class="feas-metric"><div class="fm-label">Beruházási összeg</div><div class="fm-value">${fmtM(investmentTotal)}</div><div class="fm-sub">${fmt(costPerBed/1000)} eFt/ágy</div></div>
+      <div class="feas-metric"><div class="fm-label">Megtérülési idő</div><div class="fm-value">${paybackYears.toFixed(1)} év</div><div class="fm-sub">éves nettó / beruházás</div></div>
+      <div class="feas-metric"><div class="fm-label">Gross yield</div><div class="fm-value" style="color:var(--gold);">${grossYield.toFixed(1)}%</div><div class="fm-sub">éves bruttó / beruházás</div></div>
+      <div class="feas-metric"><div class="fm-label">Net yield</div><div class="fm-value" style="color:${recColor};">${netYield.toFixed(1)}%</div><div class="fm-sub">éves nettó / beruházás</div></div>
+    </div>
+
+    <div style="margin:20px 0;padding:16px;border-radius:var(--radius);border:2px solid ${recColor};background:rgba(0,0,0,0.2);">
+      <div style="font-size:12px;color:var(--text-muted);text-transform:uppercase;margin-bottom:4px;">Javaslat</div>
+      <div style="font-size:22px;font-weight:700;color:${recColor};">${recommendation}</div>
+      <div style="font-size:13px;color:var(--text-muted);margin-top:4px;">Nettó hozam: ${netYield.toFixed(1)}% | Megtérülés: ${paybackYears.toFixed(1)} év | Célpiac: ${target}</div>
+    </div>
+
+    <h4 style="font-size:14px;font-weight:600;margin:16px 0 8px;">📊 Érzékenység vizsgálat (Nettó yield %)</h4>
+    <div class="table-wrap">
+      <table style="font-size:12px;">
+        <thead>
+          <tr><th>Ár \ Kihasználtság</th><th>${Math.round(occRate*90)}%</th><th>${Math.round(occRate*100)}%</th><th>${Math.round(occRate*110)>95?95:Math.round(occRate*110)}%</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>−10% (${fmt(Math.round(adjustedPrice*0.9))} Ft)</td><td>${sensData[0][0]}%</td><td>${sensData[0][1]}%</td><td>${sensData[0][2]}%</td></tr>
+          <tr style="background:rgba(0,113,227,0.08);"><td>Alap (${fmt(adjustedPrice)} Ft)</td><td>${sensData[1][0]}%</td><td style="font-weight:700;color:var(--accent);">${sensData[1][1]}%</td><td>${sensData[1][2]}%</td></tr>
+          <tr><td>+10% (${fmt(Math.round(adjustedPrice*1.1))} Ft)</td><td>${sensData[2][0]}%</td><td>${sensData[2][1]}%</td><td>${sensData[2][2]}%</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h4 style="font-size:14px;font-weight:600;margin:20px 0 8px;">🏢 Kerületi kompetitorok (${distKey}. ker.)</h4>
+    ${distComp.length > 0 ? '<div class="table-wrap"><table style="font-size:12px;"><thead><tr><th>Név</th><th>Ár</th><th>Kapacitás</th></tr></thead><tbody>' +
+      distComp.map(c => '<tr><td>'+c.nev+'</td><td>'+fmt(c.ar_min)+'–'+fmt(c.ar_max)+' Ft</td><td>'+c.kapacitas+'</td></tr>').join('') +
+      '</tbody></table></div>' : '<p style="color:var(--text-dim);font-size:13px;">Nincs ismert kompetitor ebben a kerületben.</p>'}
+
+    <div style="margin-top:20px;padding:16px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);">
+      <div style="font-size:12px;color:var(--text-muted);text-transform:uppercase;margin-bottom:4px;">Piaci rés elemzés</div>
+      <div style="display:flex;gap:20px;flex-wrap:wrap;">
+        <div><span style="font-size:13px;color:var(--text-muted);">Magánkollégiumok:</span> <b>${distComp.length} db</b></div>
+        <div><span style="font-size:13px;color:var(--text-muted);">Össz. kapacitás:</span> <b>${fmt(totalCompCap)} fő</b></div>
+        <div><span style="font-size:13px;color:var(--text-muted);">Piaci státusz:</span> <b style="color:${marketColor};">${marketStatus}</b></div>
+      </div>
+    </div>
+  `;
+}
+
+// ── Init first tab ──────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  initDemandMap();
+});
+
+// ── Tooltip style ───────────────────────────────────
+const tooltipStyle = document.createElement('style');
+tooltipStyle.textContent = `.dark-tooltip { background:var(--surface)!important; color:var(--text)!important; border:1px solid var(--border)!important; border-radius:8px!important; padding:8px 12px!important; font-size:13px!important; box-shadow:0 4px 12px rgba(0,0,0,0.5)!important; }
+.dark-tooltip .leaflet-tooltip-tip { display:none; }`;
+document.head.appendChild(tooltipStyle);
+</script>
+<!-- IB Assistant Chat Widget -->
+<script>
+(function(){
+/* ── Styles ───────────────────────────────────────────── */
+var css = document.createElement('style');
+css.textContent = `
+@keyframes ibPulse{0%{box-shadow:0 0 0 0 rgba(0,113,227,.55)}70%{box-shadow:0 0 0 18px rgba(0,113,227,0)}100%{box-shadow:0 0 0 0 rgba(0,113,227,0)}}
+@keyframes ibDot{0%,80%,100%{transform:scale(0)}40%{transform:scale(1)}}
+#ib-chat-btn{position:fixed;bottom:28px;right:28px;z-index:9999;width:56px;height:56px;border-radius:50%;background:#0071E3;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(0,113,227,.45);animation:ibPulse 2s ease-out 3;transition:transform .2s}
+#ib-chat-btn:hover{transform:scale(1.08)}
+#ib-chat-btn svg{width:28px;height:28px;fill:#fff}
+#ib-chat-btn .ib-badge{position:absolute;top:-2px;right:-2px;background:#FF9F0A;color:#F5F5F7;font-size:11px;font-weight:800;width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center}
+#ib-chat-panel{position:fixed;bottom:96px;right:28px;z-index:9999;width:380px;height:520px;background:#FFFFFF;border:1px solid rgba(0,113,227,.25);border-radius:16px;display:none;flex-direction:column;overflow:hidden;box-shadow:0 12px 48px rgba(0,0,0,.55);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif}
+#ib-chat-panel.open{display:flex}
+.ib-header{background:linear-gradient(135deg,#0071E3 0%,#3a5fcc 100%);padding:16px 18px;display:flex;align-items:center;justify-content:space-between}
+.ib-header-left h3{margin:0;font-size:15px;font-weight:700;color:#fff}
+.ib-header-left p{margin:2px 0 0;font-size:11px;color:rgba(255,255,255,.7)}
+.ib-close{background:none;border:none;color:rgba(255,255,255,.8);font-size:22px;cursor:pointer;padding:0 4px;line-height:1}
+.ib-close:hover{color:#fff}
+.ib-messages{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px}
+.ib-messages::-webkit-scrollbar{width:5px}
+.ib-messages::-webkit-scrollbar-thumb{background:#333;border-radius:4px}
+.ib-msg{max-width:88%;padding:10px 14px;border-radius:14px;font-size:13px;line-height:1.55;color:#1D1D1F;word-wrap:break-word}
+.ib-msg.bot{align-self:flex-start;background:#F5F5F7;border-bottom-left-radius:4px}
+.ib-msg.user{align-self:flex-end;background:#0071E3;color:#fff;border-bottom-right-radius:4px}
+.ib-msg .ib-ts{display:block;font-size:10px;color:rgba(255,255,255,.35);margin-top:5px}
+.ib-msg.bot .ib-ts{color:rgba(255,255,255,.3)}
+.ib-chips{display:flex;flex-wrap:wrap;gap:6px;padding:0 14px 10px}
+.ib-chip{background:#F5F5F7;border:1px solid rgba(0,113,227,.3);color:#6E6E73;font-size:11px;padding:6px 12px;border-radius:20px;cursor:pointer;transition:all .15s}
+.ib-chip:hover{background:#0071E3;color:#fff;border-color:#0071E3}
+.ib-typing{align-self:flex-start;display:flex;gap:4px;padding:10px 18px;background:#F5F5F7;border-radius:14px;border-bottom-left-radius:4px}
+.ib-typing span{width:7px;height:7px;background:#0071E3;border-radius:50%;animation:ibDot 1.4s infinite ease-in-out both}
+.ib-typing span:nth-child(1){animation-delay:-.32s}
+.ib-typing span:nth-child(2){animation-delay:-.16s}
+.ib-input-bar{display:flex;padding:10px;gap:8px;border-top:1px solid rgba(255,255,255,.07);background:#F5F5F7}
+.ib-input-bar input{flex:1;background:#F5F5F7;border:1px solid rgba(255,255,255,.1);border-radius:24px;padding:10px 16px;color:#1D1D1F;font-size:13px;outline:none}
+.ib-input-bar input::placeholder{color:#555}
+.ib-input-bar input:focus{border-color:#0071E3}
+.ib-send{background:#0071E3;border:none;border-radius:50%;width:38px;height:38px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s}
+.ib-send:hover{background:#3a5fcc}
+.ib-send svg{width:18px;height:18px;fill:#fff}
+`;
+document.head.appendChild(css);
+
+/* ── Knowledge Base ───────────────────────────────────── */
+var KB = [
+  // Navigation
+  {k:['szimulátor','szimulator','simulator','kalkulátor'],a:'A Szimulátor (simulator.html) 18 különböző kalkulátor tabot tartalmaz. A navigációs sávban a „Szimulátor" gombra kattintva éred el. Tartalmaz: ingatlan elemzés, fordított keresés, portfólió, cash-flow, kollégium, parkolóház, adózás, makro szcenáriók, befektetői mérőszámok, bérlői eszközök és még sok más modult.'},
+  {k:['land residual','telekérték','telek residual','residual módszer'],a:'A Land Residual (maradékérték) módszer a telek maximális vételárát határozza meg. Képlet: GDV (bruttó fejlesztési érték) – építési költség – soft költségek – finanszírozás – célprofit = maximális telekár. Megtalálod a development.html „📍 F2 · Telekszerzés" tabján.'},
+  {k:['pro forma','proforma','pénzügyi terv'],a:'A Pro Forma kalkulátor a fejlesztési projekt teljes pénzügyi modelljét készíti el. Tartalmaz: bevétel-előrejelzés, költségbecslés, hozamszámítás (ROI, IRR, cash-on-cash yield). Megtalálod a development.html „💰 Pro Forma" tabján.'},
+  {k:['bérleti díj','albérlet','bérleti','hol vannak a bérleti'],a:'A bérleti díj adatokat több helyen is megtalálod:\n• index.html: interaktív koropletikus térkép kerületenkénti átlagokkal\n• simulator.html: részletes elemzés és összehasonlítás\nAz adatok a rent_detailed.json fájlból származnak, forrásuk a negyzetmeterarak.hu.'},
+  {k:['oték','otk','övezeti','övezet','zóna besorolás'],a:'Az OTÉK (Országos Településrendezési és Építési Követelmények) meghatározza az egyes kerületek építési paramétereit: szintterületi mutató (SZM), maximális beépítési arány, emeletszám és parkolási norma. Az OTÉK elemzőt a development.html „🔍 F1 · Piackutatás" tabjában találod.'},
+  {k:['due diligence','dd checklist','átvilágítás'],a:'A Due Diligence (átvilágítási) checklist 22 ellenőrzési pontot tartalmaz 4 kategóriában: Jogi (6), Területhasználat (6), Műszaki (6), Pénzügyi (4). A kitöltöttségi állapot automatikusan mentődik. Megtalálod a development.html „📍 F2 · Telekszerzés" tabján.'},
+  {k:['mi ez a rendszer','mi ez az oldal','platform','dashboard','mire való'],a:'Ez az IB Exproconsult Budapest Ingatlanelemzési Platform — 12 HTML modulból álló komplex elemző rendszer. Tartalmaz: piaci adatok (index.html), szimulátorok (simulator.html), fejlesztési tracker (development.html), CRM (crm.html), befektetői memo (memo.html), kihasználtsági elemzés, hirdetésfigyelő, diáklakás elemző, ingatlankezelés, parkolóház elemző és lakásátalakító modult.'},
+
+  // Calculators
+  {k:['hozam számol','hozamot','hozamszámítás','yield','mekkora a hozam'],a:'Hozamszámításhoz használd a simulator.html „Ingatlan Elemzés" (forward) tabját. Add meg a vételárat, bérleti díjat, költségeket — és azonnal látod a bruttó/nettó hozamot, cap rate-et és cash-on-cash metrikai mutatókat. A fejlesztési hozamhoz a development.html Pro Forma kalkulátorát ajánlom.'},
+  {k:['melyik kerület','kerületbe érdemes','hová érdemes','befektetés hol','beruházni','beruház'],a:'A „Fordított Keresés" (simulator.html 2. tab) segít megtalálni a legjobb kerületet. Add meg az elvárásaidat (hozam, büdzsé, típus) és a rendszer rangsorolja a kerületeket. Emellett a „🔍 F1 · Piackutatás" tab (development.html) piaci rés elemzőjében látod az összes kerület bruttó hozamát összehasonlítva.'},
+  {k:['jelzálog','hitel','mortgage','törlesztő','hitelkalkul'],a:'A Hitelkalkulátor a simulator.html-ben található. Megadhatod a hitelt összeget, futamidőt, kamatot és a kalkulátor kiszámolja a havi törlesztőt, teljes visszafizetést és a hitel költségét. A „Cash-flow Előrejelzés" tabbal kombinálva láthatod a hitel hatását a pénzáramlásra.'},
+  {k:['adó','áfa','szja','adózás','illeték','tax'],a:'Adózási kalkulátort két helyen is találsz:\n• simulator.html „Adózás" tab: SZJA, szocho, önkormányzati adó, áfa kalkulátor befektetők számára\n• development.html F7 tab: fejlesztési projekt adózási elemzés\nMindkettő tartalmazza a hatályos magyar adókulcsokat.'},
+  {k:['exit','eladás','mikor adjam el','exit stratégia','kiszállás'],a:'Az Exit Stratégia kalkulátort a development.html-ben találod. Segít eldönteni a legjobb kiszállási időpontot a projekt hozam görbéje alapján. Figyelembe veszi a piaci ciklusokat, SZJA kedvezményeket (5 év tartás után) és az alternatív költséget.'},
+  {k:['cash flow','pénzáramlás','cashflow','cf előrejelzés'],a:'A Cash-flow Előrejelzés a simulator.html-ben található. 10 éves előrejelzést készít havi bontásban: bérleti bevétel, üzemeltetési költségek, hiteltörlesztés, adók, nettó pénzáramlás. Grafikonon is megjeleníti a trendeket.'},
+
+  // Data
+  {k:['vásárlási ár','eladási ár','purchase','ingatlanárak','négyzetméterár'],a:'A vásárlási árak adatait a purchase_prices.json fájl tartalmazza kerületenkénti bontásban. Az index.html főoldalon interaktív térképen és táblázatban is megtekintheted. A simulator.html-ben részletes szűrési és összehasonlítási lehetőségek vannak.'},
+  {k:['kollégium','diák','student','diáklakás','kollégiumi'],a:'A diáklakás/kollégium elemzést két modulban találod:\n• student_intel.html: Egyetemek körüli kereslet-elemzés, hallgatói statisztikák\n• apartment_converter.html: Lakás → diákszálló átalakítási kalkulátor\nA simulator.html „Kollégium" tabja is tartalmaz releváns kalkulátorokat.'},
+  {k:['parkoló','parking','parkolóház','garázs'],a:'A parkolóház elemzést a parking_intel.html modulban találod. Tartalmaz: kerületenkénti parkolóhely kereslet, árszintek, fejlesztési potenciál, ROI kalkulátor. A simulator.html „Parkolóház" tabja is tartalmaz parkolóház-specifikus kalkulátort.'},
+  {k:['engedély','építési engedély','engedélyezés','hatóság','permitting'],a:'Az építési engedélyezés nyomon követését a development.html „F4 · Engedélyezés" tabján találod. Tartalmazza a teljes engedélyezési folyamatot, határidőket, szükséges dokumentumokat és a hatósági eljárás lépéseit.'},
+  {k:['közmű','elmű','víz','gáz','csatorna','kapacitás','közműkapacitás'],a:'A közmű kapacitás ellenőrzést a development.html-ben találod (Közmű Kapacitás tab). Segít felmérni a villamos (ELMŰ-ÉMÁSZ), gáz, víz és csatornahálózat kapacitását a tervezett fejlesztéshez. Fontos a land due diligence részeként!'},
+  {k:['telek','telekár','telek ár','telekszim','telekszerzés'],a:'Telekkel kapcsolatos elemzések:\n• simulator.html „Telek Szimulátor" tab: telekérték és fejlesztési potenciál\n• development.html „📍 F2 · Telekszerzés": Land Residual módszer, telekár benchmark 23 kerületre, Due Diligence checklist'},
+
+  // Business lines
+  {k:['ingatlankezelés','property management','kezelés','üzemeltetés','propertymanagement'],a:'Az Ingatlankezelés modult a property_mgmt.html oldalon találod. Tartalmaz: bérlői nyilvántartás, karbantartási naptár, pénzügyi kimutatások, tulajdonosi riportok, automatikus figyelmeztetések lejáró szerződésekre.'},
+  {k:['fejlesztés','development','projekt tracker','fejlesztési projekt'],a:'A Fejlesztési Projekt Tracker (development.html) a teljes ingatlanfejlesztési folyamatot lefedi 8+ fázisban: Piackutatás (F1), Telekszerzés (F2), Tervezés (F3), Engedélyezés (F4), Kivitelezés, Közmű, Adózás, Exit stratégia. Minden fázishoz kalkulátor és checklist tartozik.'},
+
+  // General
+  {k:['frissítés','update','mikor frissül','adat frissítés','frissülnek az adatok'],a:'Az adatok félévente frissülnek: szeptember 15. és március 15. Az aktuális adatok a legutóbbi frissítési ciklusból származnak. A bérleti díjak és vásárlási árak a negyzetmeterarak.hu, ingatlan.com és KSH forrásokból származnak.'},
+  {k:['crm','bérlő kezelés','ügyfél','bérlői crm'],a:'A bérlői CRM rendszert a crm.html oldalon találod. Funkciók: bérlői adatbázis, szerződés kezelés, fizetési nyomon követés, kommunikációs napló, automatikus emlékeztetők, bérlő értékelés.'},
+  {k:['export','csv','letöltés','mentés'],a:'Szinte minden oldalon elérhető CSV export funkció. A táblázatok felett vagy mellett keresd az „Export" vagy „CSV" gombot. A teljes adatkészlet letölthető további elemzéshez Excelben vagy más eszközben.'},
+  {k:['memo','befektetői memo','investor memo'],a:'A Befektetői Memo generátort a memo.html oldalon találod. Automatikusan összeállít egy professzionális befektetői prezentációt a projekt adataiból: piaci összefoglaló, pénzügyi mutatók, kockázatelemzés, exit stratégia.'},
+  {k:['listing','hirdetés','hirdetésfigyelő'],a:'A Hirdetésfigyelő modult a listings.html oldalon találod. Valós idejű hirdetés adatokat gyűjt és elemez: árszint monitoring, piacra kerülési idő, ár/m² összehasonlítás kerületenként.'},
+  {k:['kihasználtság','occupancy','üresedés','vacancy'],a:'A Kihasználtsági Elemzést az occupancy.html oldalon találod. Nyomon követi a bérleti kihasználtságot, üresedési rátákat, szezonális trendeket és segít optimalizálni a bérleti stratégiát.'},
+  {k:['lakásátalakító','converter','átalakítás','apartment converter'],a:'A Lakásátalakító kalkulátort az apartment_converter.html oldalon találod. Kiszámolja a lakás → diákszálló/airbnb átalakítás költségeit, megtérülését és a szükséges engedélyeket.'},
+  {k:['portfólió','portfolio'],a:'A Portfólió Elemző a simulator.html-ben található. Lehetővé teszi több ingatlanból álló portfólió összesített elemzését: diverzifikáció, kockázat, összesített hozam, értékváltozás tracking.'},
+  {k:['makro','gdp','infláció','kamat','gazdaság','makrogazdaság','szcenárió'],a:'A Makro Szcenáriók modult a simulator.html-ben találod. Három szcenáriót modellez (optimista, bázis, pesszimista) a magyar makrogazdasági mutatók alapján: GDP, infláció, jegybanki alapkamat, munkanélküliség, és ezek hatása az ingatlanpiacra.'},
+  {k:['rezsi','közös költség','villany','fűtés','üzemeltetési költség','utility'],a:'A Rezsi Benchmark-ot a simulator.html „🏠 Bérlői & Vásárlói eszközök" tabjában találod (Rezsi Benchmark al-tab). 23 kerület rezsiadatait tartalmazza: villany, gáz, víz, távfűtés, közös költség — összehasonlítható és szűrhető.'},
+  {k:['minőség','neighbourhood','szomszédság','kerület minőség','quality'],a:'A Lakókörnyezet Minőségi Index a simulator.html „🏠 Bérlői & Vásárlói eszközök" tabjában érhető el (Kerületi Minőség al-tab). 6 dimenzióban értékeli a kerületeket: közlekedés, zöldterület, szolgáltatások, biztonság, oktatás, egészségügy.'},
+  {k:['rent vs buy','bérlés vagy vásárlás','break even','megtérülés','bérelni vagy venni'],a:'A „Bérlés vs. Vásárlás" Break-even kalkulátort a simulator.html „🏠 Bérlői & Vásárlói eszközök" tabjában találod. Kiszámolja, hány év után térül meg a vásárlás a bérléshez képest, figyelembe véve: áremelkedés, bérleti díj növekedés, hitelköltség, alternatív befektetési hozam.'},
+  {k:['segítség','help','hogyan','útmutató','használat'],a:'Üdvözöllek! A rendszer 12 modulból áll:\n1. Főoldal (index.html) — piaci áttekintés\n2. Szimulátor — 18 kalkulátor\n3. Fejlesztés — projekt tracker\n4. CRM — bérlő kezelés\n5. Befektetői oldal — investor tools\n6. Memo — befektetői memo\n7. Kihasználtság — occupancy\n8. Hirdetések — listings\n9. Diáklakás — student intel\n10. Ingatlankezelés — property mgmt\n11. Parkoló — parking intel\n12. Átalakító — converter\nKérdezz bátran bármelyikről!'}
+];
+
+function getAssistantResponse(q) {
+  var ql = q.toLowerCase().replace(/[?!.,]/g, '');
+  var best = null, bestScore = 0;
+  for (var i = 0; i < KB.length; i++) {
+    var score = 0;
+    for (var j = 0; j < KB[i].k.length; j++) {
+      if (ql.indexOf(KB[i].k[j]) !== -1) {
+        score += KB[i].k[j].length;
+      }
+    }
+    if (score > bestScore) { bestScore = score; best = KB[i]; }
+  }
+  if (best) return best.a;
+  // Fallback — try to suggest relevant pages
+  var suggestions = [];
+  if (/kerület|district/.test(ql)) suggestions.push('index.html (piaci áttekintés)', 'simulator.html (fordított keresés)');
+  if (/pénz|cost|ár|price/.test(ql)) suggestions.push('simulator.html (kalkulátorok)', 'development.html (pro forma)');
+  if (/bérl|rent/.test(ql)) suggestions.push('index.html (bérleti térkép)', 'crm.html (bérlő kezelés)');
+  if (/fejleszt|build|épít/.test(ql)) suggestions.push('development.html (fejlesztési tracker)');
+  if (suggestions.length > 0) {
+    return 'Ezt a kérdést nem találom az adatbázisomban, de lehet, hogy ezeken az oldalakon megtalálod, amit keresel:\n• ' + suggestions.join('\n• ') + '\nPróbáld pontosítani a kérdést!';
+  }
+  return 'Ezt a kérdést nem találom az adatbázisomban. Próbáld pontosítani, vagy kérdezz rá a következő témákra: szimulátor, bérleti díjak, hozamszámítás, adózás, fejlesztés, OTÉK, due diligence, CRM, parkoló, kollégium, ingatlankezelés.';
+}
+
+/* ── Build DOM ────────────────────────────────────────── */
+// Floating button
+var btn = document.createElement('button');
+btn.id = 'ib-chat-btn';
+btn.setAttribute('aria-label', 'IB Assistant megnyitása');
+btn.innerHTML = '<svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H5.2L4 17.2V4h16v12z"/><path d="M7 9h10v2H7zm0-3h10v2H7z"/></svg><span class="ib-badge">?</span>';
+document.body.appendChild(btn);
+
+// Chat panel
+var panel = document.createElement('div');
+panel.id = 'ib-chat-panel';
+panel.innerHTML = '<div class="ib-header"><div class="ib-header-left"><h3>IB Assistant</h3><p>Hogyan segíthetek?</p></div><button class="ib-close" aria-label="Bezárás">&times;</button></div><div class="ib-messages" id="ib-msgs"></div><div class="ib-chips" id="ib-chips"></div><div class="ib-input-bar"><input id="ib-input" type="text" placeholder="Kérdezz valamit..." autocomplete="off"/><button class="ib-send" aria-label="Küldés"><svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg></button></div>';
+document.body.appendChild(panel);
+
+var msgs = document.getElementById('ib-msgs');
+var input = document.getElementById('ib-input');
+var chips = document.getElementById('ib-chips');
+var closeBtn = panel.querySelector('.ib-close');
+var sendBtn = panel.querySelector('.ib-send');
+var isOpen = false;
+var chipsShown = true;
+
+// Init chat history store
+if (typeof window._APP_STORE === 'undefined') window._APP_STORE = {};
+if (!window._APP_STORE.chatHistory) window._APP_STORE.chatHistory = [];
+
+var SUGGESTED = [
+  'Hogyan számolok fejlesztési hozamot?',
+  'Melyik kerületbe érdemes beruházni?',
+  'Hol találom az adózási kalkulátort?',
+  'Mi a Land Residual módszer?',
+  'Hogyan működik a közmű kapacitás ellenőrzés?',
+  'Mikor frissülnek az adatok?'
+];
+
+// Render chips
+SUGGESTED.forEach(function(txt) {
+  var c = document.createElement('button');
+  c.className = 'ib-chip';
+  c.textContent = txt;
+  c.addEventListener('click', function() { sendMessage(txt); });
+  chips.appendChild(c);
+});
+
+function ts() {
+  var d = new Date();
+  return (d.getHours() < 10 ? '0' : '') + d.getHours() + ':' + (d.getMinutes() < 10 ? '0' : '') + d.getMinutes();
+}
+
+function addMsg(text, who) {
+  var div = document.createElement('div');
+  div.className = 'ib-msg ' + who;
+  div.innerHTML = text.replace(/\n/g, '<br>') + '<span class="ib-ts">' + ts() + '</span>';
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+  window._APP_STORE.chatHistory.push({who: who, text: text, time: ts()});
+}
+
+function showTyping() {
+  var t = document.createElement('div');
+  t.className = 'ib-typing';
+  t.id = 'ib-typing';
+  t.innerHTML = '<span></span><span></span><span></span>';
+  msgs.appendChild(t);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function hideTyping() {
+  var t = document.getElementById('ib-typing');
+  if (t) t.remove();
+}
+
+function sendMessage(text) {
+  if (!text || !text.trim()) return;
+  addMsg(text.trim(), 'user');
+  input.value = '';
+  // Hide chips after first user message
+  if (chipsShown) { chips.style.display = 'none'; chipsShown = false; }
+  // Typing indicator
+  showTyping();
+  setTimeout(function() {
+    hideTyping();
+    var answer = getAssistantResponse(text.trim());
+    addMsg(answer, 'bot');
+  }, 600);
+}
+
+// Toggle panel
+btn.addEventListener('click', function() {
+  isOpen = !isOpen;
+  if (isOpen) {
+    panel.classList.add('open');
+    btn.querySelector('.ib-badge').style.display = 'none';
+    input.focus();
+    // Restore previous messages
+    if (msgs.children.length === 0 && window._APP_STORE.chatHistory.length === 0) {
+      addMsg('Üdvözöllek! 👋 Az IB Assistant vagyok. Kérdezz bátran a Budapest Dashboard rendszerről — segítek eligazodni a modulok, kalkulátorok és adatok között.', 'bot');
+    }
+  } else {
+    panel.classList.remove('open');
+  }
+});
+
+closeBtn.addEventListener('click', function() {
+  isOpen = false;
+  panel.classList.remove('open');
+});
+
+// Send on Enter or click
+input.addEventListener('keydown', function(e) { if (e.key === 'Enter') sendMessage(input.value); });
+sendBtn.addEventListener('click', function() { sendMessage(input.value); });
+
+})();
+</script>
+</body>
+</html>

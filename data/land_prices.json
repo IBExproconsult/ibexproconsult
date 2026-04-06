@@ -1,0 +1,127 @@
+{
+  "meta": {
+    "title": "Budapest Telekár Adatok",
+    "description": "Telekárak kerületenként, zónánként és felhasználási típus szerint – Budapest 2025-2026",
+    "last_updated": "2026-03-15",
+    "sources": [
+      "MNB Lakáspiaci Monitor 2025 Q3",
+      "CBRE Budapest Development Sites 2025",
+      "ingatlan.com telekeladások",
+      "Colliers International Budapest 2025",
+      "Cushman & Wakefield CEE Land Market 2025"
+    ],
+    "note": "Valós tranzakciós adatok a MNB tranzakciós adatbázisból (TAKARNET) nem nyilvánosan elérhetők granulárisan. Az itt szereplő adatok piaci becslések és nyilvános hirdetési adatok alapján."
+  },
+  "residential_land": {
+    "description": "Lakóövezeti telek, társasházi fejlesztésre alkalmas",
+    "zones": [
+      {
+        "zone": "Prémium belváros",
+        "districts": ["V", "I", "VI", "XII"],
+        "price_eur_per_m2_min": 150,
+        "price_eur_per_m2_max": 400,
+        "price_huf_per_m2_min": 58500000,
+        "price_huf_per_m2_max": 156000000,
+        "note": "Ritka kínálat; telkek értéke 100M Ft+ szinte kötelező",
+        "deal_size_typical_huf_min": 200000000,
+        "deal_size_typical_huf_max": 2000000000
+      },
+      {
+        "zone": "Belső fejlődő kerületek",
+        "districts": ["VII", "VIII", "IX", "XIII"],
+        "price_eur_per_m2_min": 80,
+        "price_eur_per_m2_max": 180,
+        "price_huf_per_m2_min": 31200000,
+        "price_huf_per_m2_max": 70200000,
+        "note": "IB Exproconsult fő célterülete; legdinamikusabb fejlesztési zóna",
+        "deal_size_typical_huf_min": 100000000,
+        "deal_size_typical_huf_max": 800000000
+      },
+      {
+        "zone": "Budai középkategória",
+        "districts": ["II", "III", "XI", "XIV"],
+        "price_eur_per_m2_min": 60,
+        "price_eur_per_m2_max": 130,
+        "price_huf_per_m2_min": 23400000,
+        "price_huf_per_m2_max": 50700000,
+        "note": "Kisebb projektek; alacsonyabb fejlesztési intenzitás",
+        "deal_size_typical_huf_min": 50000000,
+        "deal_size_typical_huf_max": 400000000
+      },
+      {
+        "zone": "Külső kerületek",
+        "districts": ["X", "XV", "XVI", "XVII", "XVIII", "XIX", "XX", "XXI", "XXII", "XXIII"],
+        "price_eur_per_m2_min": 10,
+        "price_eur_per_m2_max": 60,
+        "price_huf_per_m2_min": 3900000,
+        "price_huf_per_m2_max": 23400000,
+        "note": "Alacsonyabb értéklánc; munkáslakás és olcsó lakó projektek",
+        "deal_size_typical_huf_min": 20000000,
+        "deal_size_typical_huf_max": 150000000
+      }
+    ]
+  },
+  "industrial_land": {
+    "description": "Ipari, logisztikai célú telek",
+    "price_huf_per_m2_min": 15000,
+    "price_huf_per_m2_max": 40000,
+    "price_huf_per_m2_typical": 22000,
+    "note": "Mérettől erősen függő – nagyobb parcellánál alacsonyabb fajlagos ár; Budapest agglomeráció kedveltebb",
+    "popular_locations": ["Budaörs", "Szigetszentmiklós", "Vecsés", "Dunaharaszti"],
+    "logistics_demand": "magas – e-commerce + EU ellátólánc átrendeződés"
+  },
+  "development_fsz_analysis": {
+    "description": "Beépítési intenzitás hatása a telekárakra",
+    "high_fsz_zones": {
+      "fsz_range": "3.0 – 5.0",
+      "districts": ["V", "VI", "VII", "VIII", "IX", "XIII"],
+      "premium_over_low_fsz_pct": 40,
+      "notes": "Magas FSZ → több értékesíthető alapterület → drágább telek"
+    },
+    "medium_fsz_zones": {
+      "fsz_range": "1.5 – 2.5",
+      "districts": ["I", "II", "III", "X", "XI", "XIV"],
+      "notes": ""
+    },
+    "low_fsz_zones": {
+      "fsz_range": "0.3 – 1.2",
+      "districts": ["külső kerületek"],
+      "notes": "Alacsony intenzitás → alacsonyabb fejlesztési értéke a teleknek"
+    }
+  },
+  "transaction_data_gap": {
+    "description": "Valódi tranzakciós adatok hiánya",
+    "issue": "A MNB és TAKARNET tranzakciós adatbázis nem érhető el granulárisan nyilvánosan",
+    "workaround": "Ingatlan.com aktív hirdetések + értékbecslői becslések + CBRE/Cushman piaci riportok",
+    "recommended_data_sources": [
+      {
+        "source": "Duna House Barométer",
+        "url": "https://www.dunahouse.com/barometer",
+        "frequency": "havi",
+        "content": "Tranzakciószám, átlagár adatok kerületenként"
+      },
+      {
+        "source": "MNB Lakáspiaci Monitor",
+        "url": "https://www.mnb.hu/kiadvanyok/mnb-kiadvanyok/lakaspiaci-jelentes",
+        "frequency": "negyedéves",
+        "content": "Átlagos tranzakciós árak, régióbontás"
+      },
+      {
+        "source": "TAKARNET (fizetős)",
+        "url": "https://www.takarnet.hu",
+        "frequency": "valós idejű",
+        "content": "Teljes ingatlan-nyilvántartás, tranzakciós adatok – ügyvédi/hatósági hozzáférés szükséges"
+      }
+    ]
+  },
+  "ib_exproconsult_land_strategy": {
+    "target_zone": "Belső fejlődő kerületek (VII, VIII, IX, XIII)",
+    "target_size_m2_min": 500,
+    "target_size_m2_max": 3000,
+    "target_price_huf_max_per_m2": 70000,
+    "fsz_minimum": 2.5,
+    "preferred_use": "lakó + diáklakás vegyes hasznosítás",
+    "acquisition_strategy": "Közvetítő ügynök + önkormányzati értesítések + fejlesztői kapcsolatok",
+    "notes": "A VIII-IX. kerületben a telkek gyorsan elkelnek; előzetes ajánlat (LOI) hamar szükséges"
+  }
+}

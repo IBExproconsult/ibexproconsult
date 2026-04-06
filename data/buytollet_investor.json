@@ -1,0 +1,325 @@
+{
+  "meta": {
+    "title": "Kiadási Célú Befektetői Döntéstámogató",
+    "description": "Mit néz aki vásárol és kiadni akarja — hozamszámítás, kerületi benchmarkok, adózás, kockázati tényezők",
+    "last_updated": "2026-03-16",
+    "sources": [
+      "Investropa Budapest Rental Yields 2026",
+      "e-ingatlanügyvédek.hu – Ingatlanbefektetés 2026",
+      "Portfolio.hu – Ingatlanbefektetés elemzés 2025",
+      "The Wandering Investor – Budapest ROI calculation 2025",
+      "Cushman & Wakefield Hungary Market Outlook H1 2025",
+      "immigrantinvest.com Hungary Real Estate Guide 2026"
+    ]
+  },
+  "market_overview_2026": {
+    "avg_gross_yield_pct": 4.5,
+    "avg_net_yield_pct": 3.2,
+    "good_gross_yield_threshold_pct": 5.5,
+    "good_net_yield_threshold_pct": 4.0,
+    "vacancy_buffer_pct": 5,
+    "vacancy_days_per_year": 18,
+    "price_to_rent_ratio_trend": "emelkedő — árak gyorsabban nőnek mint a bérleti díjak",
+    "market_condition_2026": "feszes kereslet, Otthon Start program által vezérelt, de csökkenő hozamok",
+    "residential_mix": {
+      "apartments_pct": 93,
+      "houses_pct": 7,
+      "note": "A budapesti bérleti kínálat 93%-a lakás, ezért a hozamátlag is ezt tükrözi"
+    }
+  },
+  "district_yields": {
+    "description": "Kerületi bruttó hozamok és jellemzők (2026 eleje)",
+    "districts": {
+      "I": {
+        "gross_yield_min": 3.0, "gross_yield_max": 4.5,
+        "vacancy_pct": 8, "tenant_profile": "prémium bérlők, expatok, diplomaták",
+        "investment_profile": "tőkeérték-megőrzés, alacsony hozam, heritage protection",
+        "price_psm_huf": 1800000,
+        "note": "Műemléki védettség = felújítási pluszköltség"
+      },
+      "II": {
+        "gross_yield_min": 3.0, "gross_yield_max": 4.5,
+        "vacancy_pct": 7, "tenant_profile": "expatok, családok",
+        "investment_profile": "tőkenövekedés, alacsony hozam",
+        "price_psm_huf": 1600000
+      },
+      "III": {
+        "gross_yield_min": 4.0, "gross_yield_max": 5.5,
+        "vacancy_pct": 5, "tenant_profile": "vegyes, HÉV hozzáférés",
+        "investment_profile": "közepes hozam + növekedési potenciál",
+        "price_psm_huf": 1100000
+      },
+      "IV": {
+        "gross_yield_min": 4.5, "gross_yield_max": 6.0,
+        "vacancy_pct": 6, "tenant_profile": "munkások, helyi bérlők",
+        "investment_profile": "magas hozam, alacsony árnövekedési potenciál",
+        "price_psm_huf": 800000
+      },
+      "V": {
+        "gross_yield_min": 3.0, "gross_yield_max": 4.5,
+        "vacancy_pct": 4, "tenant_profile": "irodai expatok, Airbnb (korlátozott)",
+        "investment_profile": "prémium, alacsony hozam, likvid",
+        "price_psm_huf": 2000000
+      },
+      "VI": {
+        "gross_yield_min": 4.0, "gross_yield_max": 5.5,
+        "vacancy_pct": 4, "tenant_profile": "fiatalok, irodai dolgozók, diákok",
+        "investment_profile": "közepes-jó hozam, stabil kereslet",
+        "price_psm_huf": 1400000
+      },
+      "VII": {
+        "gross_yield_min": 4.0, "gross_yield_max": 5.5,
+        "vacancy_pct": 4, "tenant_profile": "fiatalok, diákok, kulturális negyed",
+        "investment_profile": "közepes hozam, zsidó negyed turisztikai hatás",
+        "price_psm_huf": 1300000
+      },
+      "VIII": {
+        "gross_yield_min": 5.5, "gross_yield_max": 6.5,
+        "vacancy_pct": 3, "tenant_profile": "diákok (ELTE, SE), fiatalok, Corvin negyed bérlők",
+        "investment_profile": "LEGJOBB HOZAM — regenerálódó negyed, Corvin fejlesztés hatás",
+        "price_psm_huf": 1050000,
+        "ib_relevance": "IB Exproconsult célterület — magas kereslet, diáklakás potenciál"
+      },
+      "IX": {
+        "gross_yield_min": 5.0, "gross_yield_max": 6.5,
+        "vacancy_pct": 3, "tenant_profile": "fiatalok, dolgozók, diákok",
+        "investment_profile": "KIVÁLÓ HOZAM — Ferencváros regeneráció, BudaPart hatás",
+        "price_psm_huf": 1100000,
+        "ib_relevance": "IB Exproconsult célterület — BudaPart szomszédság, erős kereslet"
+      },
+      "X": {
+        "gross_yield_min": 5.0, "gross_yield_max": 6.5,
+        "vacancy_pct": 5, "tenant_profile": "munkások, helyi bérlők",
+        "investment_profile": "panel-alapú magas hozam lehetőség",
+        "price_psm_huf": 850000
+      },
+      "XI": {
+        "gross_yield_min": 4.0, "gross_yield_max": 5.5,
+        "vacancy_pct": 2, "tenant_profile": "BME diákok, fiatalok, irodai dolgozók",
+        "investment_profile": "LEGALACSONYABB ÜRESEDÉS — BME szomszédság, stabil kereslet",
+        "price_psm_huf": 1150000,
+        "ib_relevance": "IB Exproconsult célterület — BME hatás, diáklakás potenciál"
+      },
+      "XII": {
+        "gross_yield_min": 3.0, "gross_yield_max": 4.5,
+        "vacancy_pct": 7, "tenant_profile": "prémium expatok, tehetős magyar bérlők",
+        "investment_profile": "tőkenövekedés, alacsony hozam, prémium zóna",
+        "price_psm_huf": 1450000
+      },
+      "XIII": {
+        "gross_yield_min": 4.5, "gross_yield_max": 6.0,
+        "vacancy_pct": 2, "tenant_profile": "fiatalok, irodai dolgozók, Váci corridor",
+        "investment_profile": "ALACSONY ÜRESEDÉS + JÓ HOZAM — Újlipótváros, Váci corridor hatás",
+        "price_psm_huf": 1100000,
+        "ib_relevance": "IB Exproconsult célterület — legtöbb új projekt fut itt"
+      },
+      "XIV": {
+        "gross_yield_min": 4.5, "gross_yield_max": 6.0,
+        "vacancy_pct": 5, "tenant_profile": "vegyes, nagyobb lakások",
+        "investment_profile": "közepes hozam, nagy méretű lakások",
+        "price_psm_huf": 970000
+      },
+      "XV": {
+        "gross_yield_min": 5.0, "gross_yield_max": 6.5,
+        "vacancy_pct": 6, "tenant_profile": "helyi munkások, családok",
+        "investment_profile": "magas hozam, alacsony árnövekedés",
+        "price_psm_huf": 740000
+      },
+      "XVI": { "gross_yield_min": 5.0, "gross_yield_max": 6.5, "vacancy_pct": 6, "price_psm_huf": 740000 },
+      "XVII": { "gross_yield_min": 5.0, "gross_yield_max": 7.0, "vacancy_pct": 7, "price_psm_huf": 680000 },
+      "XVIII": { "gross_yield_min": 5.0, "gross_yield_max": 7.0, "vacancy_pct": 7, "price_psm_huf": 680000 },
+      "XIX": { "gross_yield_min": 5.0, "gross_yield_max": 7.0, "vacancy_pct": 7, "price_psm_huf": 670000 },
+      "XX": { "gross_yield_min": 5.0, "gross_yield_max": 7.0, "vacancy_pct": 7, "price_psm_huf": 670000 },
+      "XXI": { "gross_yield_min": 5.0, "gross_yield_max": 7.0, "vacancy_pct": 7, "price_psm_huf": 670000 },
+      "XXII": { "gross_yield_min": 4.5, "gross_yield_max": 6.0, "vacancy_pct": 6, "price_psm_huf": 820000 },
+      "XXIII": { "gross_yield_min": 5.0, "gross_yield_max": 7.0, "vacancy_pct": 7, "price_psm_huf": 680000 }
+    }
+  },
+  "property_type_comparison": {
+    "description": "Ingatlan típusonkénti hozam és jellemzők",
+    "types": [
+      {
+        "type": "panel_lakas",
+        "name": "Panellakás",
+        "gross_yield_range": [5.0, 6.5],
+        "price_level": "alacsony (600-850 eFt/m²)",
+        "pros": ["legjobb hozam/ár arány", "gyors kiadhatóság", "alacsony belépési ár"],
+        "cons": ["magasabb közös költség", "fűtési rendszer nem cserélhető", "régebbi épület"],
+        "recommended_for": "hozammaximalizálás"
+      },
+      {
+        "type": "tegla_lakas_hasznalt",
+        "name": "Tégla lakás (használt)",
+        "gross_yield_range": [4.5, 5.5],
+        "price_level": "közepes (800-1100 eFt/m²)",
+        "pros": ["felújítással értéknövelhető", "rugalmas berendezhetőség", "jobb adottság diák/iroda bérlethez"],
+        "cons": ["felújítási költség", "közös területek állapota bizonytalan"],
+        "recommended_for": "kiegyensúlyozott hozam + értéknövekedés"
+      },
+      {
+        "type": "uj_epites",
+        "name": "Újépítésű lakás",
+        "gross_yield_range": [3.5, 5.0],
+        "price_level": "magas (1100-2000 eFt/m²)",
+        "pros": ["5% ÁFA visszaigénylés lehetséges fejlesztőknél", "10 év garancia", "modern energetika"],
+        "cons": ["legalacsonyabb hozam — ár beelőzi a bérleti piacot", "OSP korlát 50M HUF hitelnél"],
+        "recommended_for": "tőkenövekedés + adóoptimalizálás"
+      },
+      {
+        "type": "garzon",
+        "name": "Garzon (25-45 m²)",
+        "gross_yield_range": [5.0, 6.5],
+        "size_range_m2": [25, 45],
+        "rent_range_huf": [150000, 200000],
+        "pros": ["legjobb hozam/m²", "gyors kiadhatóság", "sok potenciális bérlő"],
+        "cons": ["management-intenzív", "bérlőváltás gyakoribb"],
+        "recommended_for": "hozammaximalizálás + diákbérlet"
+      },
+      {
+        "type": "ketszobasos",
+        "name": "2 szobás (45-65 m²)",
+        "gross_yield_range": [4.5, 5.5],
+        "size_range_m2": [45, 65],
+        "rent_range_huf": [200000, 300000],
+        "pros": ["leglikvdebb méretkategória", "stabil bérlők", "jó egyensúly hozam/menedzsment"],
+        "cons": ["átlagos hozam"],
+        "recommended_for": "stabil hosszú távú befektetés"
+      },
+      {
+        "type": "haromszobasos_plus",
+        "name": "3+ szobás (65 m² felett)",
+        "gross_yield_range": [3.5, 4.5],
+        "size_range_m2": [65, 120],
+        "rent_range_huf": [280000, 500000],
+        "pros": ["prémium expat bérlők", "ritkán üresen álló", "alacsony fluktuáció"],
+        "cons": ["alacsony hozam/m²", "szűkebb bérlői bázis"],
+        "recommended_for": "prémium tőkeértékmegőrzés"
+      }
+    ]
+  },
+  "yield_calculation": {
+    "description": "Hozamszámítási módszertan és képletek",
+    "gross_yield": {
+      "formula": "(Éves bérleti díj / Vételár) × 100",
+      "example": "Vételár: 40M HUF, havi bérleti díj: 180 eFt → bruttó hozam = (180.000 × 12 / 40.000.000) × 100 = 5,4%"
+    },
+    "net_yield": {
+      "formula": "((Éves bérleti díj - Összes éves költség) / Vételár) × 100",
+      "typical_cost_items": [
+        { "item": "Közös költség + felújítási alap", "estimate_pct_of_rent": 8 },
+        { "item": "Lakásbiztosítás", "estimate_pct_of_rent": 2 },
+        { "item": "Ingatlankezelés (ha kiszervezett)", "estimate_pct_of_rent": 8, "note": "havi bérlet %-ában + 1 havi bérlőváltáskor" },
+        { "item": "Üresedési veszteség (5% buffer)", "estimate_pct_of_rent": 5 },
+        { "item": "Karbantartás és kisjavítások", "estimate_huf_per_year": 150000 },
+        { "item": "Teljes éves költség (tipikusan)", "estimate_pct_of_rent": 23 }
+      ],
+      "example": "5,4% bruttó → ~23% cost ratio → 4,2% nettó (adózás előtt)"
+    },
+    "total_return": {
+      "formula": "Nettó hozam + Éves tőkeérték-növekedés",
+      "capital_appreciation_budapest_avg_yoy_pct": 8.5,
+      "note": "2026-ban átlagosan 8-10% éves tőkeérték-növekedés várható Budapesten"
+    },
+    "leverage_effect": {
+      "description": "Hitelkaros hatás példa",
+      "example": {
+        "purchase_price_huf": 60000000,
+        "own_equity_huf": 20000000,
+        "loan_huf": 40000000,
+        "loan_rate_pct": 6.5,
+        "annual_rent_huf": 2400000,
+        "gross_yield_on_full_price_pct": 4.0,
+        "return_on_equity_pct_approx": 6.5,
+        "note": "A tőkeáttétel növeli a saját tőkére vetített hozamot, de növeli a kockázatot is"
+      }
+    }
+  },
+  "taxation": {
+    "description": "Adózási szabályok — magánszemély és cég esetén",
+    "individual": {
+      "rental_income_tax": {
+        "szja_rate_pct": 15,
+        "cost_deduction_options": [
+          { "method": "tételes költségelszámolás", "deductible": "tényleges kiadások: közos cost, biztosítás, felújítás, értékcsökkenés" },
+          { "method": "10% költségátalány", "deductible": "bevétel 10%-a automatikusan levonható bizonyítvány nélkül" }
+        ],
+        "note": "Bérleti díj = összevont jövedelemalapba kerül, 15% SZJA"
+      },
+      "capital_gains_on_sale": {
+        "ownership_years_tax_reduction": [
+          { "years": 1, "taxable_pct_of_gain": 100 },
+          { "years": 2, "taxable_pct_of_gain": 100 },
+          { "years": 3, "taxable_pct_of_gain": 90 },
+          { "years": 4, "taxable_pct_of_gain": 70 },
+          { "years": 5, "taxable_pct_of_gain": 50 },
+          { "years_plus": 5, "taxable_pct_of_gain": 0, "note": "5 év után ADÓMENTES az értékesítés" }
+        ],
+        "szja_rate_pct": 15,
+        "example_5yr_exit": "Ha 5 évig tartod, az értékesítési nyereség 0% SZJA-val adható el"
+      },
+      "acquisition_costs": {
+        "vagyonataruhasitasi_illeték_pct": 4,
+        "illeték_max_huf_billion": 1,
+        "illeték_over_1bn_pct": 2,
+        "ugyved_kotsegek_approx_pct": 1,
+        "foldhivatal_dijak_approx_huf": 30000
+      },
+      "airbnb_short_term": {
+        "min_adoalap_huf_per_day": 4500,
+        "szja_rate_pct": 15,
+        "ert_bevezetes": "2024-től Budapest belvárosban rövid idős kiadás korlátozva (évi max 90 nap saját lakásnál)",
+        "note": "Airbnb jövedelem összevont adóalapba kerül"
+      }
+    },
+    "company": {
+      "tao_rate_pct": 9,
+      "hipa_rate_pct_max": 2,
+      "note": "Kft esetén 9% TAO + max 2% HIPA; viszont a bérleti díj a cég költségeivel szemben elszámolható",
+      "advantages": ["értékcsökkenés elszámolható", "felújítás aktiválható", "ingatlankezelési díj ráfordítás"],
+      "disadvantages": ["kettős adóztatás problémája osztaléknál (9% TAO + 15% SZJA osztalékon)", "könyvelési kötelezettség"],
+      "optimal_for": "Több ingatlan esetén, amikor a felújítási és üzemeltetési költségek magasak"
+    }
+  },
+  "risk_factors": {
+    "description": "Befektetési kockázati tényezők",
+    "market_risks": [
+      { "risk": "Bérlői hozam kompresszió", "level": "közepes", "note": "Árak gyorsabban nőnek mint a bérleti díjak → hozamok lassan csökkennek" },
+      { "risk": "Kamatkörnyezet változása", "level": "közepes", "note": "Ha MNB alap kamat nő, az állampapír hozam vonzóbbá válik az ingatlannal szemben" },
+      { "risk": "OSP és CSOK program változása", "level": "alacsony-közepes", "note": "Programok módosítása befolyásolhatja a keresletet" }
+    ],
+    "operational_risks": [
+      { "risk": "Nemfizető bérlő kilakoltatás", "level": "magas", "note": "Közokirat nélkül 1-1.5 év is eltelhet! → MINDIG közokiratba foglalt szerződés" },
+      { "risk": "Üresen állás", "level": "alacsony", "note": "Budapest 2026-ban 2-5% üresedés kerülettől függően" },
+      { "risk": "Felújítási váratlan költségek", "level": "közepes", "note": "10 évnél régebbi lakásoknál évente 1-2% tartalékolás ajánlott" }
+    ],
+    "legal_risks": [
+      { "risk": "Airbnb korlátozások", "level": "közepes-magas", "note": "Budapest belvárosi korlátozások folyamatosan szigorodnak" },
+      { "risk": "Bérlőjogi változások", "level": "alacsony", "note": "Jelenlegi szabályozás kedvező a bérbeadóknak" }
+    ]
+  },
+  "investment_decision_checklist": {
+    "description": "Befektetési döntési ellenőrzőlista",
+    "financial_checks": [
+      "Bruttó hozam ≥ 5%?",
+      "Nettó hozam ≥ 4% (adózás előtt)?",
+      "5 éves tartás esetén az értékesítés adómentes?",
+      "Hitelkaros esetén: éves törlesztő < éves nettó bérleti díj?",
+      "Felújítási költség beleszámítva a vételárba?",
+      "Közös költség + rezsi bérlő által fizethető-e a piaci bérleti díjból?"
+    ],
+    "location_checks": [
+      "Metró vagy villamos 10 percen belül gyalogon?",
+      "Élelmiszer bolt 5 percen belül?",
+      "Bérlői célcsoport jelen van a kerületben (diákok, irodai dolgozók)?",
+      "Kerület nem árvíz-kockázati zónában?",
+      "Zajterhelés elfogadható (nincs főút közvetlenül a ház előtt)?"
+    ],
+    "property_checks": [
+      "Tulajdoni lap tiszta (nincs jelzálog, teher)?",
+      "Társasházi felújítási alap megfelelő?",
+      "Épület állapota nem igényel azonnali nagyfejlesztést (lift, tető, fűtés)?",
+      "Ügyvéd által átvizsgált adásvételi szerződés?",
+      "Bérleti szerződés közokiratba foglalt (kilakoltatási könnyítésért)?"
+    ]
+  }
+}

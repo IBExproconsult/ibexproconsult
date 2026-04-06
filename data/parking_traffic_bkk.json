@@ -1,0 +1,150 @@
+{
+  "meta": {
+    "title": "BKK Parkolási Zónatérkép és P+R Adatok",
+    "description": "BKK közterületi parkolási zónák, P+R helyszínek és forgalmi adatok – Budapest 2026",
+    "last_updated": "2026-03-15",
+    "sources": [
+      "BKK – bkk.hu/parkolás 2026",
+      "Budapest Főváros Közgyűlés parkolási rendelet 2026",
+      "BKK Éves jelentés 2024",
+      "Budapest Go app sajtóközlemény 2026"
+    ],
+    "note": "Forgalmi adatok (napi járműszám) becsült értékek; pontos adatért BKK nyilvános adatbázis szükséges"
+  },
+  "zone_map": {
+    "description": "Budapest 4 parkolási zóna – A (legdrágább) → D (legolcsóbb)",
+    "zones": [
+      {
+        "zone": "A",
+        "color_hex": "#DC2626",
+        "hourly_huf": 600,
+        "districts": ["V", "VI", "VII"],
+        "estimated_daily_vehicles": 85000,
+        "occupancy_rate_pct": 92,
+        "notes": "Legforgalmasabb – belváros; legtöbb illegális parkolás"
+      },
+      {
+        "zone": "B",
+        "color_hex": "#EA580C",
+        "hourly_huf": 450,
+        "districts": ["I", "II", "VIII", "IX", "XIII"],
+        "estimated_daily_vehicles": 120000,
+        "occupancy_rate_pct": 85,
+        "notes": "Intenzív lakónegyedek és irodanegyedek"
+      },
+      {
+        "zone": "C",
+        "color_hex": "#CA8A04",
+        "hourly_huf": 300,
+        "districts": ["X", "XI", "XIV"],
+        "estimated_daily_vehicles": 90000,
+        "occupancy_rate_pct": 75,
+        "notes": "Átmeneti zóna"
+      },
+      {
+        "zone": "D",
+        "color_hex": "#16A34A",
+        "hourly_huf": 200,
+        "districts": ["III", "IV", "XV", "XVI", "XVII", "XVIII", "XIX", "XX", "XXI", "XXII", "XXIII"],
+        "estimated_daily_vehicles": 150000,
+        "occupancy_rate_pct": 60,
+        "notes": "Külső kerületek – alacsony kihasználtság, ingyenes parkolás is elérhető közel"
+      }
+    ]
+  },
+  "park_and_ride_locations": [
+    {
+      "name": "Közvágóhíd P+R",
+      "district": "IX",
+      "metro_line": "M3",
+      "capacity_spaces": 1200,
+      "occupancy_avg_pct": 78,
+      "daily_huf": 500,
+      "monthly_huf": 7500,
+      "notes": "Egyik legnagyobb P+R; IX. kerület – IB Exproconsult célkerület"
+    },
+    {
+      "name": "Határ út P+R",
+      "district": "XIX",
+      "metro_line": "M3",
+      "capacity_spaces": 800,
+      "occupancy_avg_pct": 65,
+      "daily_huf": 500,
+      "monthly_huf": 7500,
+      "notes": ""
+    },
+    {
+      "name": "Kőbánya-Kispest P+R",
+      "district": "X",
+      "metro_line": "M3",
+      "capacity_spaces": 600,
+      "occupancy_avg_pct": 70,
+      "daily_huf": 500,
+      "monthly_huf": 7500,
+      "notes": "Reptér forgalom is"
+    },
+    {
+      "name": "Szentendre P+R (HÉV)",
+      "district": "II",
+      "transport_line": "H5 HÉV",
+      "capacity_spaces": 400,
+      "occupancy_avg_pct": 55,
+      "daily_huf": 500,
+      "monthly_huf": 7500,
+      "notes": ""
+    },
+    {
+      "name": "Örs vezér tere P+R",
+      "district": "XIV",
+      "metro_line": "M2",
+      "capacity_spaces": 500,
+      "occupancy_avg_pct": 80,
+      "daily_huf": 500,
+      "monthly_huf": 7500,
+      "notes": "Keleti végállomás közelében – erősen kihasznált"
+    },
+    {
+      "name": "Flórián tér P+R",
+      "district": "III",
+      "metro_line": "M2 (busz átszállás)",
+      "capacity_spaces": 300,
+      "occupancy_avg_pct": 50,
+      "daily_huf": 500,
+      "monthly_huf": 7500,
+      "notes": ""
+    }
+  ],
+  "technology_transition": {
+    "budapest_go_app": {
+      "launch_full": "2026-07-01",
+      "replaces": "Parkolóautomaták (teljes eltávolítás)",
+      "payment_methods": ["bankkártya in-app", "PayPal", "SimplePay"],
+      "features": ["zóna-azonosítás GPS alapján", "idő-hosszabbítás appból", "fizetési előzmények", "digitális bérletek"],
+      "impact_on_private_operators": "Magánparkolók saját appot vagy integrált rendszert kell vezessenek be"
+    }
+  },
+  "ib_exproconsult_opportunity": {
+    "highest_opportunity_districts": [
+      {
+        "district": "VIII",
+        "reason": "B zóna (450 Ft/h), magas fejlesztési aktivitás, diáklakás szinergia, alulszolgált parkolás",
+        "estimated_demand_score": 9.2
+      },
+      {
+        "district": "IX",
+        "reason": "B zóna, Közvágóhíd P+R közelében, új fejlesztések, Stipendium Hungaricum hallgatók",
+        "estimated_demand_score": 8.8
+      },
+      {
+        "district": "XIII",
+        "reason": "B zóna, erős irodai piac, lakóprojektek tömkelege, közlekedési csomópontok",
+        "estimated_demand_score": 8.5
+      },
+      {
+        "district": "XI",
+        "reason": "C zóna, BME campusz, Újbuda fejlesztések, 300 Ft/h közterületi → magánparkoló verseny kisebb",
+        "estimated_demand_score": 7.8
+      }
+    ]
+  }
+}

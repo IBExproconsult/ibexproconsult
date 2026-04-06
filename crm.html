@@ -1,0 +1,1633 @@
+<!DOCTYPE html>
+<!--
+  
+  Bérlői CRM és Szerződéskezelő — IB Exproconsult
+  © 2026
+-->
+<html lang="hu" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IB Exproconsult — Bérlői CRM</title>
+<meta name="description" content="Bérlői CRM és szerződéskezelő alkalmazás — IB Exproconsult">
+<script src="libs/chart.min.js"></script>
+<style>
+/* =========================================================
+   DESIGN TOKENS
+   ========================================================= */
+:root {
+  --bg: #F5F5F7;
+  --surface: #FFFFFF;
+  --surface-2: #F5F5F7;
+  --surface2: #F5F5F7;
+  --surface-3: #E5E5EA;
+  --border: rgba(0,0,0,0.08);
+  --border-h: rgba(0,0,0,0.14);
+  --accent: #0071E3;
+  --accent-hover: #0077ED;
+  --accent-light: rgba(0,113,227,0.12);
+  --primary: #0071E3;
+  --primary-h: #0077ED;
+  --ib-blue: #0071E3;
+  --ib-blue-h: #0077ED;
+  --ib-blue-glow: rgba(0,113,227,0.15);
+  --gold: #FF9F0A;
+  --green: #34C759;
+  --red: #FF3B30;
+  --orange: #FF9500;
+  --purple: #AF52DE;
+  --teal: #5AC8FA;
+  --cyan: #5AC8FA;
+  --success: #34C759;
+  --warning: #FF9F0A;
+  --danger: #FF3B30;
+  --info: #5AC8FA;
+  --text: #1D1D1F;
+  --text-muted: #6E6E73;
+  --text-dim: #AEAEB2;
+  --text-faint: #AEAEB2;
+  --radius: 10px;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 18px;
+  --shadow: 0 4px 24px rgba(0,0,0,0.4);
+  --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  --text-xs: 10px;
+  --text-sm: 12px;
+  --text-base: 13px;
+  --text-md: 14px;
+  --text-lg: 16px;
+  --text-xl: 20px;
+  --text-2xl: 28px;
+
+      --header-h: 56px;
+      --sidebar-w: 340px;
+    }
+
+/* RESET */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; background: var(--bg); color: var(--text); font-family: var(--font); font-size: 14px; line-height: 1.5; overflow-x: hidden; }
+a { color: var(--accent); text-decoration: none; }
+button { cursor: pointer; border: none; font-family: inherit; }
+input, select, textarea { font-family: inherit; }
+.tabular { font-variant-numeric: tabular-nums lining-nums; }
+
+/* PAGE LAYOUT */
+.page { min-height: 100vh; display: flex; flex-direction: column; }
+
+/* NAV */
+.nav {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 0 24px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  flex-shrink: 0;
+}
+.nav-logo { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 15px; color: var(--text); }
+.nav-logo svg { flex-shrink: 0; }
+.nav-back {
+  display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--text-muted);
+  padding: 6px 12px; border-radius: 6px; background: var(--surface2);
+  border: 1px solid var(--border); transition: all 0.15s;
+}
+.nav-back:hover { color: var(--text); border-color: var(--accent); }
+.nav-spacer { flex: 1; }
+.nav-badge {
+  font-size: 11px; background: var(--accent-light); color: var(--accent);
+  border: 1px solid rgba(0,113,227,0.3); padding: 3px 10px; border-radius: 20px;
+  font-weight: 600; letter-spacing: 0.03em;
+}
+
+/* MAIN */
+.main-content { flex: 1; padding: 24px; max-width: 1440px; margin: 0 auto; width: 100%; }
+
+/* TABS */
+.tab-bar {
+  display: flex; gap: 4px; background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 4px; margin-bottom: 24px; overflow-x: auto;
+}
+.tab-btn {
+  padding: 10px 20px; border-radius: 8px; font-size: 13px; font-weight: 600;
+  background: transparent; color: var(--text-muted); white-space: nowrap; transition: all 0.15s;
+}
+.tab-btn:hover { color: var(--text); background: var(--surface2); }
+.tab-btn.active { background: var(--accent); color: #fff; }
+
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+
+/* CARDS / SURFACES */
+.card {
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg);
+  padding: 20px; box-shadow: var(--shadow);
+}
+
+/* BUTTONS */
+.btn {
+  display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px;
+  border-radius: 8px; font-size: 13px; font-weight: 600; transition: all 0.15s;
+}
+.btn-primary { background: var(--accent); color: #fff; }
+.btn-primary:hover { background: var(--accent-hover); }
+.btn-sm { padding: 5px 10px; font-size: 12px; }
+.btn-outline {
+  background: transparent; color: var(--text-muted); border: 1px solid var(--border);
+}
+.btn-outline:hover { color: var(--text); border-color: var(--accent); }
+.btn-danger { background: var(--red); color: #fff; }
+.btn-danger:hover { background: #dc2626; }
+
+/* INPUTS */
+.input, .select-input {
+  background: var(--surface2); border: 1px solid var(--border); color: var(--text);
+  padding: 8px 12px; border-radius: 8px; font-size: 13px; outline: none; transition: border 0.15s;
+}
+.input:focus, .select-input:focus { border-color: var(--accent); }
+.input::placeholder { color: var(--text-dim); }
+textarea.input { resize: vertical; min-height: 60px; }
+
+/* TABLE */
+.table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+thead th {
+  text-align: left; padding: 10px 12px; color: var(--text-muted); font-weight: 600;
+  border-bottom: 1px solid var(--border); white-space: nowrap; font-size: 12px;
+  text-transform: uppercase; letter-spacing: 0.04em;
+}
+tbody td { padding: 10px 12px; border-bottom: 1px solid rgba(45,50,80,0.4); vertical-align: middle; }
+tbody tr:hover { background: rgba(0,113,227,0.04); }
+
+/* STATUS BADGES */
+.badge {
+  display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 11px;
+  font-weight: 600; text-transform: uppercase; letter-spacing: 0.03em;
+}
+.badge-active { background: rgba(16,185,129,0.15); color: var(--green); }
+.badge-expiring { background: rgba(249,115,22,0.15); color: var(--orange); }
+.badge-expired { background: rgba(239,68,68,0.15); color: var(--red); }
+.badge-late { background: rgba(168,85,247,0.15); color: var(--purple); }
+.badge-free { background: rgba(0,113,227,0.15); color: var(--accent); }
+.badge-dev { background: rgba(249,115,22,0.15); color: var(--orange); }
+
+/* KPI */
+.kpi-grid {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px;
+}
+.kpi-card {
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 16px 20px;
+}
+.kpi-label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 4px; }
+.kpi-value { font-size: 24px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.kpi-sub { font-size: 11px; color: var(--text-dim); margin-top: 2px; }
+
+/* MODAL */
+.modal-overlay {
+  position: fixed; inset: 0; z-index: 1000; background: rgba(0,0,0,0.7);
+  display: flex; align-items: center; justify-content: center; padding: 24px;
+  opacity: 0; pointer-events: none; transition: opacity 0.2s;
+}
+.modal-overlay.open { opacity: 1; pointer-events: all; }
+.modal-panel {
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg);
+  padding: 28px; width: 100%; max-width: 640px; max-height: 90vh; overflow-y: auto;
+  box-shadow: 0 12px 48px rgba(0,0,0,0.5);
+}
+.modal-panel-lg { max-width: 900px; }
+.modal-title { font-size: 18px; font-weight: 700; margin-bottom: 20px; }
+.modal-close {
+  position: absolute; top: 16px; right: 16px; background: var(--surface2);
+  border: 1px solid var(--border); color: var(--text-muted); width: 32px; height: 32px;
+  border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 16px;
+  z-index: 10;
+}
+.modal-close:hover { color: var(--text); border-color: var(--accent); }
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.form-group { display: flex; flex-direction: column; gap: 4px; }
+.form-group.full { grid-column: 1 / -1; }
+.form-label { font-size: 12px; color: var(--text-muted); font-weight: 600; }
+
+/* WARNINGS PANEL */
+.warnings-panel {
+  position: sticky; top: 80px; background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius-lg); padding: 16px; max-height: calc(100vh - 120px); overflow-y: auto;
+}
+.warning-card {
+  background: rgba(249,115,22,0.08); border: 1px solid rgba(249,115,22,0.25);
+  border-radius: var(--radius); padding: 12px; margin-bottom: 8px;
+}
+.warning-card:last-child { margin-bottom: 0; }
+
+/* GANTT */
+.gantt-container { overflow-x: auto; margin-bottom: 24px; }
+.gantt-table { border-collapse: collapse; min-width: 900px; width: 100%; }
+.gantt-header th {
+  padding: 8px 0; text-align: center; font-size: 11px; color: var(--text-muted);
+  border-bottom: 1px solid var(--border); font-weight: 600;
+}
+.gantt-row td { padding: 6px 0; border-bottom: 1px solid rgba(45,50,80,0.3); position: relative; height: 36px; }
+.gantt-label { padding: 6px 12px !important; white-space: nowrap; font-size: 12px; font-weight: 600; min-width: 160px; }
+.gantt-bar {
+  position: absolute; top: 6px; height: 24px; border-radius: 4px; font-size: 10px;
+  display: flex; align-items: center; padding: 0 6px; color: #fff; font-weight: 600;
+  white-space: nowrap; overflow: hidden; min-width: 4px;
+}
+
+/* PROPERTY CARDS */
+.prop-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
+.prop-card {
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg);
+  padding: 20px; transition: border-color 0.15s;
+}
+.prop-card:hover { border-color: var(--accent); }
+.prop-icon { font-size: 28px; margin-bottom: 8px; }
+.prop-title { font-size: 15px; font-weight: 700; margin-bottom: 4px; }
+.prop-district { font-size: 12px; color: var(--text-muted); margin-bottom: 12px; }
+.prop-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px; }
+.prop-stat-label { font-size: 11px; color: var(--text-dim); }
+.prop-stat-value { font-size: 14px; font-weight: 700; }
+
+/* CONTRACT CARDS */
+.contract-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 16px; }
+.contract-card {
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg);
+  padding: 20px; cursor: pointer; transition: border-color 0.15s;
+}
+.contract-card:hover { border-color: var(--accent); }
+
+/* CONTRACT DETAIL PRINT */
+.contract-detail { font-size: 13px; line-height: 1.7; }
+.contract-detail h2 { text-align: center; font-size: 20px; margin-bottom: 4px; }
+.contract-detail h3 { font-size: 14px; color: var(--accent); margin: 16px 0 6px; }
+.contract-detail .cd-row { display: flex; gap: 8px; margin-bottom: 4px; }
+.contract-detail .cd-label { color: var(--text-muted); min-width: 140px; }
+.contract-detail .sig-line { border-top: 1px solid var(--border); margin-top: 32px; padding-top: 8px; text-align: center; color: var(--text-muted); font-size: 12px; }
+
+/* CHARTS */
+.chart-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 24px; margin-bottom: 24px; }
+.chart-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 20px; position: relative; }
+.chart-card canvas { max-height: 280px; }
+.chart-title { font-size: 14px; font-weight: 700; margin-bottom: 12px; color: var(--text-muted); }
+
+/* FOOTER */
+footer {
+  text-align: center; padding: 24px; font-size: 12px; color: var(--text-dim);
+  border-top: 1px solid var(--border);
+}
+footer a { color: var(--text-muted); }
+footer a:hover { color: var(--accent); }
+
+/* RESPONSIVE */
+@media (max-width: 900px) {
+  .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+  .chart-grid { grid-template-columns: 1fr; }
+  .tenants-layout { flex-direction: column !important; }
+  .warnings-panel { position: static; }
+  .form-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 600px) {
+  .kpi-grid { grid-template-columns: 1fr; }
+  .nav { padding: 0 12px; gap: 8px; }
+  .main-content { padding: 16px 12px; }
+  .tab-btn { padding: 8px 12px; font-size: 12px; }
+}
+
+/* SCROLLBAR */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-dim); }
+
+/* ── Dark mode ──────────────────────────────────────────── */
+[data-theme="dark"] {
+  --bg: #1C1C1E;
+  --surface: #2C2C2E;
+  --surface-2: #3A3A3C;
+  --surface-3: #48484A;
+  --border: rgba(255,255,255,0.10);
+  --text: #F5F5F7;
+  --text-muted: #AEAEB2;
+  --text-dim: #636366;
+  --text-faint: #48484A;
+  --accent: #0A84FF;
+  --primary: #0A84FF;
+  --primary-h: #409CFF;
+  --shadow: 0 4px 24px rgba(0,0,0,0.6);
+}
+
+/* ── Kétszintes nav ── */
+.ib-header-wrap { position:sticky; top:0; z-index:200; }
+.ib-header-top {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:0 20px; height:48px;
+  background:rgba(255,255,255,0.92);
+  border-bottom:1px solid rgba(0,0,0,0.06);
+  backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px);
+}
+.ib-header-nav {
+  display:flex; align-items:center; justify-content:center;
+  flex-wrap:wrap; gap:2px;
+  padding:4px 16px;
+  background:rgba(255,255,255,0.85);
+  border-bottom:1px solid rgba(0,0,0,0.08);
+  backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px);
+}
+[data-theme="dark"] .ib-header-top,
+[data-theme="dark"] .ib-header-nav {
+  background:rgba(28,28,30,0.92);
+  border-color:rgba(255,255,255,0.08);
+}
+
+</style>
+<link rel="stylesheet" href="libs/ib-design-system.css">
+</head>
+<body>
+<div class="page">
+  <div class="ib-header-wrap">
+  <div class="ib-header-top">
+    <div style="display:flex;align-items:center;gap:10px;flex-shrink:0;">
+      <div style="width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,#0071E3,#0055B3);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#fff;letter-spacing:-0.5px;flex-shrink:0;">IB</div>
+      <div>
+        <div style="font-size:14px;font-weight:700;color:#1D1D1F;letter-spacing:-0.02em;line-height:1.2;">IB Expro</div>
+        <div style="font-size:10px;color:#6E6E73;letter-spacing:0.03em;line-height:1.2;">Figyelő Platform</div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
+<div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
+    <span id="selected-district-badge" style="font-size:11px;color:#6E6E73;font-weight:500;padding:4px 10px;background:#F5F5F7;border-radius:6px;border:1px solid rgba(0,0,0,0.08);white-space:nowrap;">Összes kerület</span>
+    <button style="width:32px;height:32px;border-radius:8px;background:#F5F5F7;border:1px solid rgba(0,0,0,0.08);color:#6E6E73;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all 0.15s;" data-theme-toggle aria-label="Téma váltás" onmouseover="this.style.borderColor='#0071E3';this.style.color='#0071E3'" onmouseout="this.style.borderColor='rgba(0,0,0,0.08)';this.style.color='#6E6E73'">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+    </button>
+  </div>
+    </div>
+  </div>
+  <nav class="ib-header-nav" id="main-nav">
+    <a href="index.html" class="ib-nav-link">Dashboard</a>
+    <a href="simulator.html" class="ib-nav-link">Szimulátor</a>
+    <a href="development.html" class="ib-nav-link">Fejlesztés</a>
+    <a href="property_mgmt.html" class="ib-nav-link">Kezelés</a>
+    <a href="occupancy.html" class="ib-nav-link">Kihasználtság</a>
+    <a href="investor.html" class="ib-nav-link">Befektetők</a>
+    <a href="investment_calculator.html" class="ib-nav-link">Kalkulátor</a>
+    <a href="apartment_converter.html" class="ib-nav-link">Diáklakás</a>
+    <a href="student_intel.html" class="ib-nav-link">Diák Intel</a>
+    <a href="parking_intel.html" class="ib-nav-link">Parkoló</a>
+    <a href="property_managers.html" class="ib-nav-link">Kezelők</a>
+    <a href="crm.html" class="ib-nav-link active">CRM</a>
+    <a href="memo.html" class="ib-nav-link">Memo</a>
+    <a href="listings.html" class="ib-nav-link">Hirdetések</a>
+    <a href="adatkozpont.html" class="ib-nav-link">Adatközpont</a>
+  </nav>
+</div>
+
+  <!-- TAB BAR -->
+  <div class="main-content">
+    <div class="tab-bar" id="tabBar">
+      <button class="tab-btn active" data-tab="tenants">Bérlők</button>
+      <button class="tab-btn" data-tab="contracts">Szerződések</button>
+      <button class="tab-btn" data-tab="calendar">Naptár / Lejáratok</button>
+      <button class="tab-btn" data-tab="finance">Pénzügyi összesítő</button>
+      <button class="tab-btn" data-tab="properties">Ingatlanok</button>
+      <button class="tab-btn" data-tab="benchmark">📊 Portfólió benchmark</button>
+    </div>
+
+    <!-- ========== TAB 1: BÉRLŐK ========== -->
+    <div class="tab-panel active" id="panel-tenants">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:16px;flex-wrap:wrap;">
+        <div style="display:flex;gap:8px;flex:1;min-width:200px;flex-wrap:wrap;">
+          <input type="text" class="input" id="tenantSearch" placeholder="Keresés (név, email, kerület)..." style="flex:1;min-width:180px;">
+          <select class="input select-input" id="tenantFilter" style="min-width:140px;">
+            <option value="all">Összes</option>
+            <option value="active">Aktív</option>
+            <option value="expiring">Hamarosan lejár</option>
+            <option value="expired">Lejárt</option>
+            <option value="late">Késedelmes</option>
+          </select>
+        </div>
+        <button class="btn btn-primary" onclick="openTenantModal()">+ Új bérlő</button>
+      </div>
+
+      <div class="tenants-layout" style="display:flex;gap:24px;">
+        <div style="flex:1;min-width:0;">
+          <div class="card table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>#</th><th>Név</th><th>Email</th><th>Telefon</th><th>Kerület</th>
+                  <th>Ingatlan</th><th>Havi bérlet</th><th>Státusz</th><th>Lejárat</th><th>Műveletek</th>
+                </tr>
+              </thead>
+              <tbody id="tenantsBody"></tbody>
+            </table>
+          </div>
+        </div>
+        <div style="width:320px;flex-shrink:0;">
+          <div class="warnings-panel" id="warningsPanel">
+            <div style="font-size:13px;font-weight:700;margin-bottom:12px;color:var(--orange);">⚠️ Figyelmeztetések</div>
+            <div id="warningsList"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== TAB 2: SZERZŐDÉSEK ========== -->
+    <div class="tab-panel" id="panel-contracts">
+      <div class="contract-grid" id="contractsGrid"></div>
+    </div>
+
+    <!-- ========== TAB 3: NAPTÁR ========== -->
+    <div class="tab-panel" id="panel-calendar">
+      <div class="card" style="margin-bottom:24px;">
+        <div style="font-size:15px;font-weight:700;margin-bottom:16px;">Szerződések időszaka (Gantt nézet)</div>
+        <div class="gantt-container" id="ganttContainer"></div>
+      </div>
+      <div class="card">
+        <div style="font-size:15px;font-weight:700;margin-bottom:16px;">Közelgő lejáratok (90 napon belül)</div>
+        <div id="upcomingList"></div>
+      </div>
+    </div>
+
+    <!-- ========== TAB 4: PÉNZÜGYI ========== -->
+    <div class="tab-panel" id="panel-finance">
+      <div class="kpi-grid" id="finKpiRow1"></div>
+      <div class="kpi-grid" id="finKpiRow2"></div>
+      <div class="chart-grid">
+        <div class="chart-card">
+          <div class="chart-title">Havi bevétel (elmúlt 6 hó + 3 hó előrejelzés)</div>
+          <div style="position:relative;height:280px;"><canvas id="revenueChart"></canvas></div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-title">Kerület szerinti bevétel</div>
+          <div style="position:relative;height:280px;"><canvas id="districtChart"></canvas></div>
+        </div>
+      </div>
+      <div class="card">
+        <div style="font-size:15px;font-weight:700;margin-bottom:16px;">Fizetési napló</div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>Bérlő</th><th>Ingatlan</th><th>Összeg</th><th>Esedékes</th><th>Fizetve</th><th>Státusz</th></tr>
+            </thead>
+            <tbody id="paymentBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== TAB 5: INGATLANOK ========== -->
+    <div class="tab-panel" id="panel-properties">
+      <div style="display:flex;justify-content:flex-end;margin-bottom:16px;">
+        <button class="btn btn-primary" onclick="openPropertyModal()">+ Ingatlan hozzáadása</button>
+      </div>
+      <div class="prop-grid" id="propertiesGrid"></div>
+    </div>
+
+    <!-- ========== TAB 6: PORTFÓLIÓ BENCHMARK ========== -->
+    <div class="tab-panel" id="panel-benchmark">
+      <div id="benchmark-content">
+        <div style="text-align:center;color:var(--text-muted);padding:40px;">Betöltés...</div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    © 2026 IB Exproconsult Kft. · 
+  </footer>
+</div>
+
+<!-- TENANT MODAL -->
+<div class="modal-overlay" id="tenantModal">
+  <div class="modal-panel" style="position:relative;">
+    <button class="modal-close" onclick="closeTenantModal()">✕</button>
+    <div class="modal-title" id="tenantModalTitle">Új bérlő hozzáadása</div>
+    <form id="tenantForm" onsubmit="saveTenant(event)">
+      <input type="hidden" id="tf_id">
+      <div class="form-grid">
+        <div class="form-group"><label class="form-label">Teljes név</label><input class="input" id="tf_name" required></div>
+        <div class="form-group"><label class="form-label">Email</label><input class="input" type="email" id="tf_email" required></div>
+        <div class="form-group"><label class="form-label">Telefon</label><input class="input" id="tf_phone"></div>
+        <div class="form-group"><label class="form-label">Állampolgárság</label><input class="input" id="tf_nationality"></div>
+        <div class="form-group"><label class="form-label">Ingatlan</label><select class="input select-input" id="tf_property" required></select></div>
+        <div class="form-group"><label class="form-label">Havi bérlet (Ft)</label><input class="input" type="number" id="tf_rent" required></div>
+        <div class="form-group"><label class="form-label">Kaució (Ft)</label><input class="input" type="number" id="tf_deposit"></div>
+        <div class="form-group"><label class="form-label">Fizetési státusz</label>
+          <select class="input select-input" id="tf_payment_status">
+            <option value="rendszeres">Rendszeres</option>
+            <option value="késedelmes">Késedelmes</option>
+            <option value="nem fizet">Nem fizet</option>
+          </select>
+        </div>
+        <div class="form-group"><label class="form-label">Szerződés kezdete</label><input class="input" type="date" id="tf_start" required></div>
+        <div class="form-group"><label class="form-label">Szerződés vége</label><input class="input" type="date" id="tf_end" required></div>
+        <div class="form-group full"><label class="form-label">Megjegyzés</label><textarea class="input" id="tf_notes"></textarea></div>
+      </div>
+      <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:20px;">
+        <button type="button" class="btn btn-outline" onclick="closeTenantModal()">Mégse</button>
+        <button type="submit" class="btn btn-primary">Mentés</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- PROPERTY MODAL -->
+<div class="modal-overlay" id="propertyModal">
+  <div class="modal-panel" style="position:relative;">
+    <button class="modal-close" onclick="closePropertyModal()">✕</button>
+    <div class="modal-title" id="propertyModalTitle">Új ingatlan hozzáadása</div>
+    <form id="propertyForm" onsubmit="saveProperty(event)">
+      <input type="hidden" id="pf_id">
+      <div class="form-grid">
+        <div class="form-group full"><label class="form-label">Cím</label><input class="input" id="pf_address" required></div>
+        <div class="form-group"><label class="form-label">Kerület</label><input class="input" id="pf_district" required></div>
+        <div class="form-group"><label class="form-label">Típus</label>
+          <select class="input select-input" id="pf_type">
+            <option value="Lakás">Lakás</option>
+            <option value="Diák szoba">Diák szoba</option>
+            <option value="Kollégium">Kollégium</option>
+            <option value="Parkoló">Parkoló</option>
+            <option value="Iroda">Iroda</option>
+          </select>
+        </div>
+        <div class="form-group"><label class="form-label">Státusz</label>
+          <select class="input select-input" id="pf_status">
+            <option value="Foglalt">Foglalt</option>
+            <option value="Szabad">Szabad</option>
+            <option value="Fejlesztés alatt">Fejlesztés alatt</option>
+          </select>
+        </div>
+        <div class="form-group"><label class="form-label">Méret (m² / hely)</label><input class="input" id="pf_size"></div>
+        <div class="form-group"><label class="form-label">Havi bevétel (Ft)</label><input class="input" type="number" id="pf_monthly"></div>
+        <div class="form-group"><label class="form-label">Vételár (Ft)</label><input class="input" type="number" id="pf_price"></div>
+      </div>
+      <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:20px;">
+        <button type="button" class="btn btn-outline" onclick="closePropertyModal()">Mégse</button>
+        <button type="submit" class="btn btn-primary">Mentés</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- CONTRACT DETAIL MODAL -->
+<div class="modal-overlay" id="contractDetailModal">
+  <div class="modal-panel modal-panel-lg" style="position:relative;">
+    <button class="modal-close" onclick="closeContractDetail()">✕</button>
+    <div id="contractDetailContent"></div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:20px;">
+      <button class="btn btn-outline" onclick="printContract()">🖨️ Nyomtatás</button>
+      <button class="btn btn-primary" onclick="alert('PDF generálás szimulálva — a letöltés megtörtént volna.')">📄 PDF letöltés</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* =========================================================
+   DATA LAYER
+   ========================================================= */
+const DEMO_TENANTS = [
+  { id: 1, name: "Kovács Péter", email: "kovacs.peter@gmail.com", phone: "+36 70 123 4567", nationality: "Magyar", property: "XIII. Váci út 45.", district: "XIII", monthly_rent: 210000, deposit: 420000, start: "2025-09-01", end: "2026-08-31", notes: "Megbízható bérlő, soha nem késett.", payment_status: "rendszeres" },
+  { id: 2, name: "Anna Müller", email: "anna.mueller@gmail.com", phone: "+49 151 9876 5432", nationality: "Német", property: "IX. Ráday u. 28.", district: "IX", monthly_rent: 145000, deposit: 290000, start: "2026-01-15", end: "2026-07-14", notes: "Erasmus csere, 6 hónapos szerz.", payment_status: "rendszeres" },
+  { id: 3, name: "Zhang Wei", email: "zhang.wei@student.elte.hu", phone: "+36 30 987 6543", nationality: "Kínai", property: "VIII. Corvin 2. szoba", district: "VIII", monthly_rent: 95000, deposit: 190000, start: "2025-09-01", end: "2026-06-30", notes: "ELTE diák, szemeszter alapú bérlet.", payment_status: "rendszeres" },
+  { id: 4, name: "Tóth Andrea", email: "toth.andrea@company.hu", phone: "+36 20 555 7890", nationality: "Magyar", property: "XI. BudaPart parkoló #12", district: "XI", monthly_rent: 25000, deposit: 50000, start: "2025-03-01", end: "2026-02-28", notes: "Céges bérlet, havonta számlát kér.", payment_status: "késedelmes" },
+  { id: 5, name: "Marcos Silva", email: "marcos.silva@bme.hu", phone: "+55 11 9876 5432", nationality: "Brazil", property: "IX. Ráday u. 28/B", district: "IX", monthly_rent: 140000, deposit: 280000, start: "2025-09-01", end: "2026-05-31", notes: "BME hallgató, ösztöndíjas.", payment_status: "rendszeres" }
+];
+
+// IB Exproconsult valós portfólió – forrás: Google Sheets (2026-03-19)
+const DEMO_PROPERTIES = [
+  { id: 1, address: "VIII. Rákóczi út 17.", district: "VIII", type: "Diáklakás", status: "Foglalt", size: "212 m² / 19 ágy", monthly: 2664800, price: 223000000, beds: 19, annual_cost: 3345746, annual_revenue: 27980400 },
+  { id: 2, address: "VIII. Bródy Sándor u. 23.", district: "VIII", type: "Diáklakás", status: "Foglalt", size: "128 m² / 12 ágy", monthly: 1779200, price: 134000000, beds: 12, annual_cost: 2468653, annual_revenue: 18681600 },
+  { id: 3, address: "VIII. Baross u. 10.", district: "VIII", type: "Diáklakás", status: "Foglalt", size: "129 m² / 11 ágy", monthly: 1848400, price: 148000000, beds: 11, annual_cost: 1924470, annual_revenue: 19408200 }
+];
+
+function loadData(key, fallback) {
+  try { const d = window._APP_STORE && window._APP_STORE[key]; return d ? JSON.parse(d) : fallback; }
+  catch(e) { return fallback; }
+}
+function saveData(key, data) { if (!window._APP_STORE) window._APP_STORE = {}; window._APP_STORE[key] = JSON.stringify(data); }
+
+let tenants = loadData('crm_tenants', DEMO_TENANTS);
+let properties = loadData('crm_properties', DEMO_PROPERTIES);
+
+function getNextId(arr) { return arr.length ? Math.max(...arr.map(a => a.id)) + 1 : 1; }
+
+/* =========================================================
+   UTILITY
+   ========================================================= */
+const TODAY = new Date();
+function daysBetween(d1, d2) { return Math.ceil((new Date(d2) - new Date(d1)) / 86400000); }
+
+function fmt(n) { return n != null ? Number(n).toLocaleString('hu-HU') : '—'; }
+function fmtFt(n) { return n != null ? Number(n).toLocaleString('hu-HU') + ' Ft' : '—'; }
+
+function getTenantStatus(t) {
+  const end = new Date(t.end);
+  const diff = daysBetween(TODAY.toISOString().slice(0,10), t.end);
+  if (t.payment_status === 'késedelmes' || t.payment_status === 'nem fizet') return 'late';
+  if (diff < 0) return 'expired';
+  if (diff <= 30) return 'expiring';
+  return 'active';
+}
+
+function statusBadge(status) {
+  const map = {
+    active: ['Aktív','badge-active'],
+    expiring: ['Hamarosan lejár','badge-expiring'],
+    expired: ['Lejárt','badge-expired'],
+    late: ['Késedelmes','badge-late']
+  };
+  const [label, cls] = map[status] || ['—',''];
+  return `<span class="badge ${cls}">${label}</span>`;
+}
+
+function propStatusBadge(status) {
+  if (status === 'Foglalt') return '<span class="badge badge-active">Foglalt</span>';
+  if (status === 'Szabad') return '<span class="badge badge-free">Szabad</span>';
+  return '<span class="badge badge-dev">Fejlesztés alatt</span>';
+}
+
+function propIcon(type) {
+  const map = { 'Lakás': '🏠', 'Diák szoba': '🎓', 'Kollégium': '🏢', 'Parkoló': '🅿️', 'Iroda': '🏢' };
+  return map[type] || '🏠';
+}
+
+/* =========================================================
+   TAB SWITCHING
+   ========================================================= */
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('panel-' + btn.dataset.tab).classList.add('active');
+    if (btn.dataset.tab === 'contracts') renderContracts();
+    if (btn.dataset.tab === 'calendar') renderCalendar();
+    if (btn.dataset.tab === 'finance') renderFinance();
+    if (btn.dataset.tab === 'properties') renderProperties();
+    if (btn.dataset.tab === 'benchmark') renderBenchmarkTab();
+  });
+});
+
+/* =========================================================
+   TAB 1: BÉRLŐK
+   ========================================================= */
+function renderTenants() {
+  const search = (document.getElementById('tenantSearch').value || '').toLowerCase();
+  const filter = document.getElementById('tenantFilter').value;
+
+  let list = tenants.map(t => ({...t, _status: getTenantStatus(t)}));
+  if (search) list = list.filter(t =>
+    t.name.toLowerCase().includes(search) ||
+    t.email.toLowerCase().includes(search) ||
+    t.district.toLowerCase().includes(search)
+  );
+  if (filter !== 'all') list = list.filter(t => t._status === filter);
+
+  const tbody = document.getElementById('tenantsBody');
+  tbody.innerHTML = list.map((t, i) => `
+    <tr>
+      <td>${i + 1}</td>
+      <td style="font-weight:600;">${t.name}</td>
+      <td style="color:var(--text-muted);font-size:12px;">${t.email}</td>
+      <td style="white-space:nowrap;">${t.phone}</td>
+      <td>${t.district}</td>
+      <td style="font-size:12px;">${t.property}</td>
+      <td class="tabular" style="font-weight:600;">${fmtFt(t.monthly_rent)}</td>
+      <td>${statusBadge(t._status)}</td>
+      <td style="white-space:nowrap;">${t.end}</td>
+      <td style="white-space:nowrap;">
+        <button class="btn btn-sm btn-outline" onclick="editTenant(${t.id})" title="Szerkesztés">✏️</button>
+        <button class="btn btn-sm btn-outline" onclick="viewContract(${t.id})" title="Szerződés">📄</button>
+        <button class="btn btn-sm btn-outline" onclick="sendEmail(${t.id})" title="Email küldés">💬</button>
+        <button class="btn btn-sm btn-outline" onclick="deleteTenant(${t.id})" title="Törlés" style="color:var(--red);">🗑️</button>
+      </td>
+    </tr>
+  `).join('');
+
+  renderWarnings();
+}
+
+function renderWarnings() {
+  const list = tenants.filter(t => {
+    const diff = daysBetween(TODAY.toISOString().slice(0,10), t.end);
+    return diff >= 0 && diff <= 30;
+  }).sort((a,b) => new Date(a.end) - new Date(b.end));
+
+  const el = document.getElementById('warningsList');
+  if (!list.length) {
+    el.innerHTML = '<div style="color:var(--text-dim);font-size:12px;">Nincs 30 napon belüli lejárat.</div>';
+    return;
+  }
+  el.innerHTML = list.map(t => {
+    const diff = daysBetween(TODAY.toISOString().slice(0,10), t.end);
+    return `<div class="warning-card">
+      <div style="font-weight:600;font-size:13px;">${t.name}</div>
+      <div style="font-size:12px;color:var(--text-muted);">${t.district}. ker. – Lejárat: ${t.end} (${diff} nap)</div>
+      <button class="btn btn-sm btn-outline" style="margin-top:8px;" onclick="alert('Emlékeztető email elküldve: ${t.email}')">Emlékeztető küldése</button>
+    </div>`;
+  }).join('');
+}
+
+document.getElementById('tenantSearch').addEventListener('input', renderTenants);
+document.getElementById('tenantFilter').addEventListener('change', renderTenants);
+
+// TENANT MODAL
+function openTenantModal(t) {
+  document.getElementById('tenantModalTitle').textContent = t ? 'Bérlő szerkesztése' : 'Új bérlő hozzáadása';
+  document.getElementById('tf_id').value = t ? t.id : '';
+  document.getElementById('tf_name').value = t ? t.name : '';
+  document.getElementById('tf_email').value = t ? t.email : '';
+  document.getElementById('tf_phone').value = t ? t.phone : '';
+  document.getElementById('tf_nationality').value = t ? t.nationality : '';
+  document.getElementById('tf_rent').value = t ? t.monthly_rent : '';
+  document.getElementById('tf_deposit').value = t ? t.deposit : '';
+  document.getElementById('tf_start').value = t ? t.start : '';
+  document.getElementById('tf_end').value = t ? t.end : '';
+  document.getElementById('tf_notes').value = t ? t.notes : '';
+  document.getElementById('tf_payment_status').value = t ? t.payment_status : 'rendszeres';
+
+  // Populate property dropdown
+  const sel = document.getElementById('tf_property');
+  sel.innerHTML = '<option value="">— Válassz —</option>' +
+    properties.map(p => `<option value="${p.address}" ${t && t.property === p.address ? 'selected' : ''}>${p.address}</option>`).join('');
+
+  document.getElementById('tenantModal').classList.add('open');
+}
+function closeTenantModal() { document.getElementById('tenantModal').classList.remove('open'); }
+
+function saveTenant(e) {
+  e.preventDefault();
+  const id = document.getElementById('tf_id').value;
+  const prop = document.getElementById('tf_property').value;
+  const matchProp = properties.find(p => p.address === prop);
+  const district = matchProp ? matchProp.district : prop.split('.')[0].replace(/[^IVXL]/g,'');
+
+  const data = {
+    name: document.getElementById('tf_name').value,
+    email: document.getElementById('tf_email').value,
+    phone: document.getElementById('tf_phone').value,
+    nationality: document.getElementById('tf_nationality').value,
+    property: prop,
+    district: district,
+    monthly_rent: +document.getElementById('tf_rent').value,
+    deposit: +document.getElementById('tf_deposit').value || 0,
+    start: document.getElementById('tf_start').value,
+    end: document.getElementById('tf_end').value,
+    notes: document.getElementById('tf_notes').value,
+    payment_status: document.getElementById('tf_payment_status').value
+  };
+
+  if (id) {
+    const idx = tenants.findIndex(t => t.id === +id);
+    if (idx >= 0) tenants[idx] = {...tenants[idx], ...data};
+  } else {
+    data.id = getNextId(tenants);
+    tenants.push(data);
+  }
+  saveData('crm_tenants', tenants);
+  closeTenantModal();
+  renderTenants();
+}
+
+function editTenant(id) { openTenantModal(tenants.find(t => t.id === id)); }
+function deleteTenant(id) {
+  const t = tenants.find(x => x.id === id);
+  if (confirm(`Biztosan törlöd "${t.name}" bérlőt?`)) {
+    tenants = tenants.filter(x => x.id !== id);
+    saveData('crm_tenants', tenants);
+    renderTenants();
+  }
+}
+function sendEmail(id) {
+  const t = tenants.find(x => x.id === id);
+  alert(`Email küldése szimulálva:\nCímzett: ${t.email}\nTárgy: Bérlemény — ${t.property}`);
+}
+
+/* =========================================================
+   TAB 2: SZERZŐDÉSEK
+   ========================================================= */
+function viewContract(id) {
+  const t = tenants.find(x => x.id === id);
+  if (!t) return;
+  showContractDetail(t);
+  // Switch to contracts tab if we aren't there
+}
+
+function renderContracts() {
+  const grid = document.getElementById('contractsGrid');
+  grid.innerHTML = tenants.map(t => {
+    const st = getTenantStatus(t);
+    const months = Math.max(1, Math.round(daysBetween(t.start, t.end) / 30));
+    return `<div class="contract-card" onclick="showContractDetail(tenants.find(x=>x.id===${t.id}))">
+      <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:8px;">
+        <div style="font-weight:700;font-size:15px;">${t.name}</div>
+        ${statusBadge(st)}
+      </div>
+      <div style="font-size:12px;color:var(--text-muted);margin-bottom:4px;">${t.property}</div>
+      <div style="font-size:12px;color:var(--text-muted);margin-bottom:12px;">${t.start} → ${t.end} (${months} hó)</div>
+      <div style="font-size:18px;font-weight:700;margin-bottom:12px;font-variant-numeric:tabular-nums;">${fmtFt(t.monthly_rent)}<span style="font-size:12px;font-weight:400;color:var(--text-muted);"> /hó</span></div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;">
+        <button class="btn btn-sm btn-outline" onclick="event.stopPropagation();alert('PDF letöltés szimulálva: ${t.name} szerződése')">📥 Letöltés PDF</button>
+        <button class="btn btn-sm btn-primary" onclick="event.stopPropagation();renewContract(${t.id})">🔄 Megújítás</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renewContract(id) {
+  const t = tenants.find(x => x.id === id);
+  if (!t) return;
+  const endDate = new Date(t.end);
+  const newStart = new Date(endDate);
+  newStart.setDate(newStart.getDate() + 1);
+  const newEnd = new Date(newStart);
+  newEnd.setFullYear(newEnd.getFullYear() + 1);
+  t.start = newStart.toISOString().slice(0,10);
+  t.end = newEnd.toISOString().slice(0,10);
+  saveData('crm_tenants', tenants);
+  alert(`Szerződés megújítva: ${t.name}\nÚj időszak: ${t.start} → ${t.end}`);
+  renderContracts();
+  renderTenants();
+}
+
+function showContractDetail(t) {
+  const el = document.getElementById('contractDetailContent');
+  el.innerHTML = `
+    <div class="contract-detail">
+      <h2>BÉRLETI SZERZŐDÉS</h2>
+      <div style="text-align:center;color:var(--text-muted);margin-bottom:20px;">IB Exproconsult Kft. — Ingatlan bérbeadási megállapodás</div>
+
+      <h3>1. Bérbeadó adatai</h3>
+      <div class="cd-row"><span class="cd-label">Cégnév:</span><span>IB Exproconsult Kft.</span></div>
+      <div class="cd-row"><span class="cd-label">Székhely:</span><span>1054 Budapest, Hold utca 6.</span></div>
+      <div class="cd-row"><span class="cd-label">Adószám:</span><span>12345678-1-41</span></div>
+
+      <h3>2. Bérlő adatai</h3>
+      <div class="cd-row"><span class="cd-label">Név:</span><span>${t.name}</span></div>
+      <div class="cd-row"><span class="cd-label">Email:</span><span>${t.email}</span></div>
+      <div class="cd-row"><span class="cd-label">Telefon:</span><span>${t.phone}</span></div>
+      <div class="cd-row"><span class="cd-label">Állampolgárság:</span><span>${t.nationality}</span></div>
+
+      <h3>3. Bérlemény adatai</h3>
+      <div class="cd-row"><span class="cd-label">Ingatlan címe:</span><span>${t.property}</span></div>
+      <div class="cd-row"><span class="cd-label">Kerület:</span><span>${t.district}. kerület</span></div>
+
+      <h3>4. Pénzügyi feltételek</h3>
+      <div class="cd-row"><span class="cd-label">Havi bérleti díj:</span><span style="font-weight:700;">${fmtFt(t.monthly_rent)}</span></div>
+      <div class="cd-row"><span class="cd-label">Kaució:</span><span>${fmtFt(t.deposit)}</span></div>
+      <div class="cd-row"><span class="cd-label">Fizetési mód:</span><span>Banki átutalás, minden hónap 5. napjáig</span></div>
+
+      <h3>5. Időtartam</h3>
+      <div class="cd-row"><span class="cd-label">Kezdet:</span><span>${t.start}</span></div>
+      <div class="cd-row"><span class="cd-label">Vége:</span><span>${t.end}</span></div>
+      <div class="cd-row"><span class="cd-label">Felmondási idő:</span><span>30 nap, írásban</span></div>
+
+      <h3>6. Általános feltételek</h3>
+      <p style="color:var(--text-muted);font-size:12px;line-height:1.8;">
+        A bérlő köteles a bérleményt rendeltetésszerűen használni, és a közüzemi díjakat határidőben megfizetni.
+        A bérbeadó jogosult a bérleményt évente egyszer megvizsgálni, előzetes egyeztetés után.
+        Szerződésszegés esetén a bérbeadó jogosult a szerződést azonnali hatállyal felmondani.
+        A kaució a szerződés lejáratakor, a bérlemény állapotának felmérése után kerül visszafizetésre.
+      </p>
+
+      <h3>7. Megjegyzések</h3>
+      <p style="color:var(--text-muted);font-size:12px;">${t.notes || '—'}</p>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:40px;margin-top:40px;">
+        <div class="sig-line">Bérbeadó (IB Exproconsult Kft.)</div>
+        <div class="sig-line">${t.name} (Bérlő)</div>
+      </div>
+      <div style="text-align:center;margin-top:16px;font-size:11px;color:var(--text-dim);">Kelt: Budapest, ${new Date().toISOString().slice(0,10)}</div>
+    </div>
+  `;
+  document.getElementById('contractDetailModal').classList.add('open');
+}
+function closeContractDetail() { document.getElementById('contractDetailModal').classList.remove('open'); }
+function printContract() {
+  const content = document.getElementById('contractDetailContent').innerHTML;
+  const w = window.open('','','width=800,height=900');
+  w.document.write(`<html><head><title>Bérleti Szerződés</title><style>body{font-family:sans-serif;padding:40px;font-size:13px;line-height:1.7;color:#1D1D1F;}h2{text-align:center;}h3{color:#0071E3;margin:16px 0 6px;}
+  .cd-row{display:flex;gap:8px;margin-bottom:3px;}.cd-label{color:#6E6E73;min-width:140px;}.sig-line{border-top:1px solid #D1D1D6;margin-top:32px;padding-top:8px;text-align:center;color:#6E6E73;font-size:12px;}</style>
+</head><body>${content}</body></html>`);
+  w.document.close();
+  w.print();
+}
+
+/* =========================================================
+   TAB 3: NAPTÁR / GANTT
+   ========================================================= */
+function renderCalendar() {
+  // Gantt chart
+  const ganttStart = new Date(2026, 0, 1); // Jan 2026
+  const ganttEnd = new Date(2027, 5, 30); // Jun 2027
+  const totalDays = daysBetween(ganttStart.toISOString().slice(0,10), ganttEnd.toISOString().slice(0,10));
+
+  // Build month headers
+  const months = [];
+  let d = new Date(ganttStart);
+  while (d < ganttEnd) {
+    months.push({ label: d.toLocaleDateString('hu-HU', { year: 'numeric', month: 'short' }), days: new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate() });
+    d.setMonth(d.getMonth() + 1);
+  }
+
+  let html = '<table class="gantt-table"><thead class="gantt-header"><tr><th style="text-align:left;min-width:160px;">Bérlő</th>';
+  months.forEach(m => { html += `<th>${m.label}</th>`; });
+  html += '</tr></thead><tbody>';
+
+  tenants.forEach(t => {
+    const st = getTenantStatus(t);
+    const barColor = st === 'expired' ? 'var(--red)' : st === 'expiring' ? 'var(--orange)' : st === 'late' ? 'var(--purple)' : 'var(--green)';
+    const tStart = new Date(t.start);
+    const tEnd = new Date(t.end);
+
+    // Clamp to gantt range
+    const clampStart = tStart < ganttStart ? ganttStart : tStart;
+    const clampEnd = tEnd > ganttEnd ? ganttEnd : tEnd;
+
+    const leftPct = Math.max(0, daysBetween(ganttStart.toISOString().slice(0,10), clampStart.toISOString().slice(0,10)) / totalDays * 100);
+    const widthPct = Math.max(0.5, daysBetween(clampStart.toISOString().slice(0,10), clampEnd.toISOString().slice(0,10)) / totalDays * 100);
+
+    html += `<tr class="gantt-row"><td class="gantt-label">${t.name}</td>`;
+    // One wide cell spanning all months
+    html += `<td colspan="${months.length}" style="position:relative;">
+      <div class="gantt-bar" style="left:${leftPct}%;width:${widthPct}%;background:${barColor};" title="${t.name}: ${t.start} → ${t.end}">
+        ${widthPct > 8 ? t.property : ''}
+      </div>
+    </td></tr>`;
+  });
+
+  html += '</tbody></table>';
+  document.getElementById('ganttContainer').innerHTML = html;
+
+  // Upcoming events
+  const upcoming = tenants.filter(t => {
+    const diff = daysBetween(TODAY.toISOString().slice(0,10), t.end);
+    return diff >= 0 && diff <= 90;
+  }).sort((a,b) => new Date(a.end) - new Date(b.end));
+
+  const upEl = document.getElementById('upcomingList');
+  if (!upcoming.length) {
+    upEl.innerHTML = '<div style="color:var(--text-dim);padding:12px;">Nincs lejárat 90 napon belül.</div>';
+  } else {
+    upEl.innerHTML = '<div class="table-wrap"><table><thead><tr><th>Bérlő</th><th>Ingatlan</th><th>Lejárat</th><th>Hátralévő</th><th>Státusz</th></tr></thead><tbody>' +
+      upcoming.map(t => {
+        const diff = daysBetween(TODAY.toISOString().slice(0,10), t.end);
+        const st = getTenantStatus(t);
+        return `<tr><td style="font-weight:600;">${t.name}</td><td>${t.property}</td><td>${t.end}</td><td>${diff} nap</td><td>${statusBadge(st)}</td></tr>`;
+      }).join('') + '</tbody></table></div>';
+  }
+}
+
+/* =========================================================
+   TAB 4: PÉNZÜGYI
+   ========================================================= */
+let revenueChart = null, districtChart = null;
+
+function renderFinance() {
+  const activeTenants = tenants.filter(t => getTenantStatus(t) === 'active' || getTenantStatus(t) === 'expiring');
+  const totalMonthly = activeTenants.reduce((s, t) => s + t.monthly_rent, 0);
+  const totalDeposit = tenants.reduce((s, t) => s + (t.deposit || 0), 0);
+  const latePayers = tenants.filter(t => t.payment_status === 'késedelmes' || t.payment_status === 'nem fizet').length;
+  const avgRent = activeTenants.length ? Math.round(totalMonthly / activeTenants.length) : 0;
+  const utilizationPct = properties.length ? Math.round(properties.filter(p => p.status === 'Foglalt').length / properties.length * 100) : 0;
+
+  // Next 30 days due
+  const next30 = tenants.filter(t => {
+    const diff = daysBetween(TODAY.toISOString().slice(0,10), t.end);
+    return diff >= 0;
+  }).reduce((s, t) => s + t.monthly_rent, 0);
+
+  document.getElementById('finKpiRow1').innerHTML = [
+    kpiCard('Összes havi bevétel', fmtFt(totalMonthly), ''),
+    kpiCard('Összes éves bevétel (becsült)', fmtFt(totalMonthly * 12), ''),
+    kpiCard('Aktív bérlők száma', activeTenants.length, 'db'),
+    kpiCard('Átlag bérlet/bérlő', fmtFt(avgRent), '')
+  ].join('');
+
+  document.getElementById('finKpiRow2').innerHTML = [
+    kpiCard('Összes kaució letét', fmtFt(totalDeposit), ''),
+    kpiCard('Késedelmes fizetők', latePayers, 'fő', latePayers > 0 ? 'var(--red)' : ''),
+    kpiCard('Kihasználtsági %', utilizationPct + '%', ''),
+    kpiCard('Következő havi esedékes', fmtFt(next30), '')
+  ].join('');
+
+  // Revenue bar chart
+  renderRevenueChart(totalMonthly);
+  renderDistrictChart();
+  renderPaymentLog();
+}
+
+function kpiCard(label, value, sub, color) {
+  return `<div class="kpi-card">
+    <div class="kpi-label">${label}</div>
+    <div class="kpi-value" ${color ? `style="color:${color}"` : ''}>${value}</div>
+    ${sub ? `<div class="kpi-sub">${sub}</div>` : ''}
+  </div>`;
+}
+
+function renderRevenueChart(baseMonthly) {
+  const ctx = document.getElementById('revenueChart').getContext('2d');
+  if (revenueChart) revenueChart.destroy();
+
+  const labels = [];
+  const actual = [];
+  const forecast = [];
+  const now = new Date();
+
+  for (let i = -5; i <= 3; i++) {
+    const m = new Date(now.getFullYear(), now.getMonth() + i, 1);
+    labels.push(m.toLocaleDateString('hu-HU', { year: 'numeric', month: 'short' }));
+    const variation = baseMonthly * (0.95 + Math.random() * 0.1);
+    if (i <= 0) {
+      actual.push(Math.round(variation));
+      forecast.push(null);
+    } else {
+      actual.push(null);
+      forecast.push(Math.round(variation));
+    }
+  }
+
+  revenueChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [
+        { label: 'Tényleges', data: actual, backgroundColor: 'rgba(0,113,227,0.7)', borderRadius: 4 },
+        { label: 'Előrejelzés', data: forecast, backgroundColor: 'rgba(0,113,227,0.25)', borderRadius: 4, borderWidth: 1, borderColor: 'rgba(0,113,227,0.5)' }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { labels: { color: '#6E6E73', font: { size: 11 } } },
+        tooltip: { callbacks: { label: ctx => ctx.parsed.y ? fmtFt(ctx.parsed.y) : '' } }
+      },
+      scales: {
+        x: { grid: { color: 'rgba(45,50,80,0.3)' }, ticks: { color: '#6E6E73', font: { size: 11 } } },
+        y: { grid: { color: 'rgba(45,50,80,0.3)' }, ticks: { color: '#6E6E73', font: { size: 11 }, callback: v => fmt(v) } }
+      }
+    }
+  });
+}
+
+function renderDistrictChart() {
+  const ctx = document.getElementById('districtChart').getContext('2d');
+  if (districtChart) districtChart.destroy();
+
+  const districtMap = {};
+  tenants.forEach(t => {
+    const st = getTenantStatus(t);
+    if (st === 'active' || st === 'expiring') {
+      districtMap[t.district] = (districtMap[t.district] || 0) + t.monthly_rent;
+    }
+  });
+
+  const labels = Object.keys(districtMap);
+  const data = Object.values(districtMap);
+  const colors = ['#0071E3', '#34C759', '#FF9F0A', '#a855f7', '#FF3B30', '#5AC8FA'];
+
+  districtChart = new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels: labels.map(l => l + '. kerület'),
+      datasets: [{ data, backgroundColor: colors.slice(0, labels.length), borderWidth: 0 }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      cutout: '60%',
+      plugins: {
+        legend: { position: 'bottom', labels: { color: '#6E6E73', font: { size: 11 }, padding: 12 } },
+        tooltip: { callbacks: { label: ctx => fmtFt(ctx.parsed) } }
+      }
+    }
+  });
+}
+
+function renderPaymentLog() {
+  const payments = [
+    { tenant: 'Kovács Péter', property: 'XIII. Váci út 45.', amount: 210000, due: '2026-03-05', paid: '2026-03-04', status: 'Fizetve' },
+    { tenant: 'Anna Müller', property: 'IX. Ráday u. 28.', amount: 145000, due: '2026-03-05', paid: '2026-03-05', status: 'Fizetve' },
+    { tenant: 'Zhang Wei', property: 'VIII. Corvin 2. szoba', amount: 95000, due: '2026-03-05', paid: '2026-03-03', status: 'Fizetve' },
+    { tenant: 'Tóth Andrea', property: 'XI. BudaPart parkoló #12', amount: 25000, due: '2026-03-05', paid: '—', status: 'Késedelmes' },
+    { tenant: 'Marcos Silva', property: 'IX. Ráday u. 28/B', amount: 140000, due: '2026-03-05', paid: '2026-03-05', status: 'Fizetve' }
+  ];
+
+  document.getElementById('paymentBody').innerHTML = payments.map(p => {
+    const badge = p.status === 'Fizetve'
+      ? '<span class="badge badge-active">Fizetve</span>'
+      : '<span class="badge badge-late">Késedelmes</span>';
+    return `<tr>
+      <td style="font-weight:600;">${p.tenant}</td>
+      <td style="font-size:12px;">${p.property}</td>
+      <td class="tabular" style="font-weight:600;">${fmtFt(p.amount)}</td>
+      <td>${p.due}</td>
+      <td>${p.paid}</td>
+      <td>${badge}</td>
+    </tr>`;
+  }).join('');
+}
+
+/* =========================================================
+   TAB 5: INGATLANOK
+   ========================================================= */
+function renderProperties() {
+  const grid = document.getElementById('propertiesGrid');
+  grid.innerHTML = properties.map(p => {
+    const yieldPct = p.price > 0 ? ((p.monthly * 12) / p.price * 100).toFixed(1) : '—';
+    const tenant = tenants.find(t => t.property.includes(p.address.split('.').slice(0,2).join('.').trim().slice(0,10)));
+    return `<div class="prop-card">
+      <div class="prop-icon">${propIcon(p.type)}</div>
+      <div class="prop-title">${p.address}</div>
+      <div class="prop-district">${p.district}. kerület · ${p.type} · ${p.size || '—'}</div>
+      <div style="margin-bottom:12px;">${propStatusBadge(p.status)}</div>
+      <div class="prop-stats">
+        <div><div class="prop-stat-label">Havi bevétel</div><div class="prop-stat-value">${fmtFt(p.monthly)}</div></div>
+        <div><div class="prop-stat-label">Vételár</div><div class="prop-stat-value">${fmt(p.price / 1000000)} M Ft</div></div>
+        <div><div class="prop-stat-label">Yield</div><div class="prop-stat-value" style="color:var(--green);">${yieldPct}%</div></div>
+        <div><div class="prop-stat-label">Bérlő</div><div class="prop-stat-value" style="font-size:12px;">${tenant ? tenant.name : '—'}</div></div>
+      </div>
+      <div style="display:flex;gap:8px;">
+        <button class="btn btn-sm btn-outline" onclick="editProperty(${p.id})">✏️ Módosítás</button>
+        <a href="simulator.html" class="btn btn-sm btn-primary" style="text-decoration:none;">📊 Szimulátor</a>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// PROPERTY MODAL
+function openPropertyModal(p) {
+  document.getElementById('propertyModalTitle').textContent = p ? 'Ingatlan szerkesztése' : 'Új ingatlan hozzáadása';
+  document.getElementById('pf_id').value = p ? p.id : '';
+  document.getElementById('pf_address').value = p ? p.address : '';
+  document.getElementById('pf_district').value = p ? p.district : '';
+  document.getElementById('pf_type').value = p ? p.type : 'Lakás';
+  document.getElementById('pf_status').value = p ? p.status : 'Szabad';
+  document.getElementById('pf_size').value = p ? p.size : '';
+  document.getElementById('pf_monthly').value = p ? p.monthly : '';
+  document.getElementById('pf_price').value = p ? p.price : '';
+  document.getElementById('propertyModal').classList.add('open');
+}
+function closePropertyModal() { document.getElementById('propertyModal').classList.remove('open'); }
+
+function saveProperty(e) {
+  e.preventDefault();
+  const id = document.getElementById('pf_id').value;
+  const data = {
+    address: document.getElementById('pf_address').value,
+    district: document.getElementById('pf_district').value,
+    type: document.getElementById('pf_type').value,
+    status: document.getElementById('pf_status').value,
+    size: document.getElementById('pf_size').value,
+    monthly: +document.getElementById('pf_monthly').value,
+    price: +document.getElementById('pf_price').value
+  };
+  if (id) {
+    const idx = properties.findIndex(p => p.id === +id);
+    if (idx >= 0) properties[idx] = {...properties[idx], ...data};
+  } else {
+    data.id = getNextId(properties);
+    properties.push(data);
+  }
+  saveData('crm_properties', properties);
+  closePropertyModal();
+  renderProperties();
+}
+function editProperty(id) { openPropertyModal(properties.find(p => p.id === id)); }
+
+
+// =========================================================
+// PORTFÓLIÓ BENCHMARK (Feature 5)
+// =========================================================
+const BENCHMARK_DISTRICT_DATA = [
+  {district:"I",   rent_median_m2:6000, rent_median_total:310000},
+  {district:"II",  rent_median_m2:5750, rent_median_total:360000},
+  {district:"III", rent_median_m2:5120, rent_median_total:230000},
+  {district:"IV",  rent_median_m2:4670, rent_median_total:195000},
+  {district:"V",   rent_median_m2:6600, rent_median_total:350000},
+  {district:"VI",  rent_median_m2:5810, rent_median_total:290000},
+  {district:"VII", rent_median_m2:5560, rent_median_total:250000},
+  {district:"VIII",rent_median_m2:5510, rent_median_total:250000},
+  {district:"IX",  rent_median_m2:5640, rent_median_total:240000},
+  {district:"X",   rent_median_m2:4740, rent_median_total:200000},
+  {district:"XI",  rent_median_m2:5410, rent_median_total:265000},
+  {district:"XII", rent_median_m2:5580, rent_median_total:260000},
+  {district:"XIII",rent_median_m2:5670, rent_median_total:260000},
+  {district:"XIV", rent_median_m2:4860, rent_median_total:220000},
+  {district:"XV",  rent_median_m2:4490, rent_median_total:200000},
+  {district:"XVI", rent_median_m2:4080, rent_median_total:185000},
+  {district:"XVII",rent_median_m2:3950, rent_median_total:180000},
+  {district:"XVIII",rent_median_m2:4290,rent_median_total:190000},
+  {district:"XIX", rent_median_m2:4560, rent_median_total:200000},
+  {district:"XX",  rent_median_m2:4400, rent_median_total:195000},
+  {district:"XXI", rent_median_m2:3850, rent_median_total:175000},
+  {district:"XXII",rent_median_m2:4080, rent_median_total:180000},
+  {district:"XXIII",rent_median_m2:4560,rent_median_total:167000}
+];
+
+let benchmarkChart = null;
+
+function renderBenchmarkTab() {
+  const props = properties;
+  const container = document.getElementById('benchmark-content');
+  if (!props || props.length === 0) {
+    container.innerHTML = '<div style="text-align:center;color:var(--text-muted);padding:40px;">Nincs ingatlan a portfólióban.</div>';
+    return;
+  }
+
+  // Extract district from property address/district field
+  function getDistrictRoman(p) {
+    // Try district field first, then parse from address
+    let d = p.district || '';
+    d = d.replace(/\./g, '').trim();
+    return d;
+  }
+
+  const comparisons = props.filter(p => p.monthly && p.monthly > 0).map(p => {
+    const dist = getDistrictRoman(p);
+    const benchmarkDistrict = BENCHMARK_DISTRICT_DATA.find(b => b.district === dist);
+    const median = benchmarkDistrict ? benchmarkDistrict.rent_median_total : null;
+    const delta = median ? p.monthly - median : null;
+    const deltaPct = median ? ((p.monthly - median) / median * 100) : null;
+    let status = 'Nincs adat';
+    let statusColor = 'var(--text-muted)';
+    if (delta !== null) {
+      if (delta > 0) { status = 'Medián felett'; statusColor = 'var(--green)'; }
+      else if (delta < 0) { status = 'Medián alatt'; statusColor = 'var(--red)'; }
+      else { status = 'Medián'; statusColor = 'var(--gold)'; }
+    }
+    return { ...p, dist, median, delta, deltaPct, status, statusColor };
+  });
+
+  const BP_AVG_RENT_M2 = 5200;
+  const portfolioAvg = comparisons.length > 0 ? Math.round(comparisons.reduce((s, c) => s + c.monthly, 0) / comparisons.length) : 0;
+  const validComps = comparisons.filter(c => c.deltaPct !== null);
+  const avgDeltaPct = validComps.length > 0 ? (validComps.reduce((s, c) => s + c.deltaPct, 0) / validComps.length).toFixed(1) : '—';
+
+  let html = `
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin-bottom:24px;">
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;">
+        <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;font-weight:600;">Portfólió átlag bérleti díj</div>
+        <div style="font-size:22px;font-weight:700;margin-top:6px;">${portfolioAvg.toLocaleString('hu-HU')} Ft/hó</div>
+      </div>
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;">
+        <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;font-weight:600;">Budapest átlag bérleti díj</div>
+        <div style="font-size:22px;font-weight:700;margin-top:6px;">${BP_AVG_RENT_M2.toLocaleString('hu-HU')} Ft/m²</div>
+      </div>
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;">
+        <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;font-weight:600;">Portfólió vs. piac delta</div>
+        <div style="font-size:22px;font-weight:700;margin-top:6px;color:${parseFloat(avgDeltaPct) >= 0 ? 'var(--green)' : 'var(--red)'};">${avgDeltaPct}%</div>
+      </div>
+    </div>
+
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px;margin-bottom:24px;overflow-x:auto;">
+      <h3 style="font-size:15px;margin-bottom:16px;">Ingatlan vs. kerületi medián összehasonlítás</h3>
+      <table style="width:100%;border-collapse:collapse;font-size:13px;">
+        <thead>
+          <tr style="border-bottom:2px solid var(--border);">
+            <th style="padding:10px;text-align:left;color:var(--text-muted);font-size:11px;text-transform:uppercase;">Ingatlan</th>
+            <th style="padding:10px;text-align:center;color:var(--text-muted);font-size:11px;text-transform:uppercase;">Kerület</th>
+            <th style="padding:10px;text-align:right;color:var(--text-muted);font-size:11px;text-transform:uppercase;">Bérleti díj (Ft)</th>
+            <th style="padding:10px;text-align:right;color:var(--text-muted);font-size:11px;text-transform:uppercase;">Kerületi medián</th>
+            <th style="padding:10px;text-align:right;color:var(--text-muted);font-size:11px;text-transform:uppercase;">Delta (Ft)</th>
+            <th style="padding:10px;text-align:right;color:var(--text-muted);font-size:11px;text-transform:uppercase;">Delta (%)</th>
+            <th style="padding:10px;text-align:center;color:var(--text-muted);font-size:11px;text-transform:uppercase;">Státusz</th>
+          </tr>
+        </thead>
+        <tbody>
+  `;
+
+  comparisons.forEach(c => {
+    html += `<tr style="border-bottom:1px solid var(--border);">
+      <td style="padding:10px;">${c.address || c.name || '—'}</td>
+      <td style="padding:10px;text-align:center;">${c.dist}.</td>
+      <td style="padding:10px;text-align:right;font-weight:600;">${c.monthly ? c.monthly.toLocaleString('hu-HU') : '—'}</td>
+      <td style="padding:10px;text-align:right;">${c.median ? c.median.toLocaleString('hu-HU') : '—'}</td>
+      <td style="padding:10px;text-align:right;color:${c.delta >= 0 ? 'var(--green)' : 'var(--red)'};">${c.delta !== null ? (c.delta >= 0 ? '+' : '') + c.delta.toLocaleString('hu-HU') : '—'}</td>
+      <td style="padding:10px;text-align:right;color:${c.deltaPct >= 0 ? 'var(--green)' : 'var(--red)'};">${c.deltaPct !== null ? (c.deltaPct >= 0 ? '+' : '') + c.deltaPct.toFixed(1) + '%' : '—'}</td>
+      <td style="padding:10px;text-align:center;"><span style="padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;background:${c.statusColor === 'var(--green)' ? 'rgba(16,185,129,0.15)' : c.statusColor === 'var(--red)' ? 'rgba(239,68,68,0.15)' : 'rgba(245,158,11,0.15)'};color:${c.statusColor};">${c.status}</span></td>
+    </tr>`;
+  });
+
+  html += `</tbody></table></div>`;
+
+  // Chart container
+  html += `<div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px;">
+    <h3 style="font-size:15px;margin-bottom:16px;">Bérleti díj összehasonlítás (aktuális vs. kerületi medián)</h3>
+    <div style="height:${Math.max(250, comparisons.length * 60)}px;"><canvas id="benchmark-chart"></canvas></div>
+  </div>`;
+
+  container.innerHTML = html;
+
+  // Render chart
+  if (benchmarkChart) benchmarkChart.destroy();
+  const chartData = comparisons.filter(c => c.median !== null);
+  if (chartData.length > 0) {
+    const ctx = document.getElementById('benchmark-chart').getContext('2d');
+    benchmarkChart = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: chartData.map(c => c.address || c.name || c.dist + '. ker.'),
+        datasets: [
+          {
+            label: 'Aktuális bérleti díj',
+            data: chartData.map(c => c.monthly),
+            backgroundColor: 'rgba(0,113,227,0.7)',
+            borderColor: '#0071E3',
+            borderWidth: 1
+          },
+          {
+            label: 'Kerületi medián',
+            data: chartData.map(c => c.median),
+            backgroundColor: 'rgba(245,158,11,0.5)',
+            borderColor: '#FF9F0A',
+            borderWidth: 1
+          }
+        ]
+      },
+      options: {
+        indexAxis: 'y',
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { labels: { color: '#6E6E73', font: { size: 11 } } },
+          tooltip: {
+            callbacks: {
+              label: function(ctx) { return ctx.dataset.label + ': ' + parseInt(ctx.raw).toLocaleString('hu-HU') + ' Ft'; }
+            }
+          }
+        },
+        scales: {
+          x: {
+            ticks: {
+              color: '#6E6E73',
+              callback: function(v) { return (v/1000).toFixed(0) + 'k'; }
+            },
+            grid: { color: 'rgba(45,50,80,0.3)' }
+          },
+          y: {
+            ticks: { color: '#6E6E73', font: { size: 11 } },
+            grid: { color: 'rgba(45,50,80,0.3)' }
+          }
+        }
+      }
+    });
+  }
+}
+
+/* =========================================================
+   INIT
+   ========================================================= */
+renderTenants();
+
+// Close modals on overlay click
+document.querySelectorAll('.modal-overlay').forEach(overlay => {
+  overlay.addEventListener('click', e => {
+    if (e.target === overlay) overlay.classList.remove('open');
+  });
+});
+
+// Keyboard close
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    document.querySelectorAll('.modal-overlay.open').forEach(m => m.classList.remove('open'));
+  }
+});
+</script>
+<!-- IB Assistant Chat Widget -->
+<script>
+(function(){
+/* ── Styles ───────────────────────────────────────────── */
+var css = document.createElement('style');
+css.textContent = `
+@keyframes ibPulse{0%{box-shadow:0 0 0 0 rgba(0,113,227,.55)}70%{box-shadow:0 0 0 18px rgba(0,113,227,0)}100%{box-shadow:0 0 0 0 rgba(0,113,227,0)}}
+@keyframes ibDot{0%,80%,100%{transform:scale(0)}40%{transform:scale(1)}}
+#ib-chat-btn{position:fixed;bottom:28px;right:28px;z-index:9999;width:56px;height:56px;border-radius:50%;background:#0071E3;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(0,113,227,.45);animation:ibPulse 2s ease-out 3;transition:transform .2s}
+#ib-chat-btn:hover{transform:scale(1.08)}
+#ib-chat-btn svg{width:28px;height:28px;fill:#fff}
+#ib-chat-btn .ib-badge{position:absolute;top:-2px;right:-2px;background:#FF9F0A;color:#F5F5F7;font-size:11px;font-weight:800;width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center}
+#ib-chat-panel{position:fixed;bottom:96px;right:28px;z-index:9999;width:380px;height:520px;background:#FFFFFF;border:1px solid rgba(0,113,227,.25);border-radius:16px;display:none;flex-direction:column;overflow:hidden;box-shadow:0 12px 48px rgba(0,0,0,.55);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif}
+#ib-chat-panel.open{display:flex}
+.ib-header{background:linear-gradient(135deg,#0071E3 0%,#3a5fcc 100%);padding:16px 18px;display:flex;align-items:center;justify-content:space-between}
+.ib-header-left h3{margin:0;font-size:15px;font-weight:700;color:#fff}
+.ib-header-left p{margin:2px 0 0;font-size:11px;color:rgba(255,255,255,.7)}
+.ib-close{background:none;border:none;color:rgba(255,255,255,.8);font-size:22px;cursor:pointer;padding:0 4px;line-height:1}
+.ib-close:hover{color:#fff}
+.ib-messages{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px}
+.ib-messages::-webkit-scrollbar{width:5px}
+.ib-messages::-webkit-scrollbar-thumb{background:#333;border-radius:4px}
+.ib-msg{max-width:88%;padding:10px 14px;border-radius:14px;font-size:13px;line-height:1.55;color:#1D1D1F;word-wrap:break-word}
+.ib-msg.bot{align-self:flex-start;background:#F5F5F7;border-bottom-left-radius:4px}
+.ib-msg.user{align-self:flex-end;background:#0071E3;color:#fff;border-bottom-right-radius:4px}
+.ib-msg .ib-ts{display:block;font-size:10px;color:rgba(255,255,255,.35);margin-top:5px}
+.ib-msg.bot .ib-ts{color:rgba(255,255,255,.3)}
+.ib-chips{display:flex;flex-wrap:wrap;gap:6px;padding:0 14px 10px}
+.ib-chip{background:#F5F5F7;border:1px solid rgba(0,113,227,.3);color:#6E6E73;font-size:11px;padding:6px 12px;border-radius:20px;cursor:pointer;transition:all .15s}
+.ib-chip:hover{background:#0071E3;color:#fff;border-color:#0071E3}
+.ib-typing{align-self:flex-start;display:flex;gap:4px;padding:10px 18px;background:#F5F5F7;border-radius:14px;border-bottom-left-radius:4px}
+.ib-typing span{width:7px;height:7px;background:#0071E3;border-radius:50%;animation:ibDot 1.4s infinite ease-in-out both}
+.ib-typing span:nth-child(1){animation-delay:-.32s}
+.ib-typing span:nth-child(2){animation-delay:-.16s}
+.ib-input-bar{display:flex;padding:10px;gap:8px;border-top:1px solid rgba(255,255,255,.07);background:#F5F5F7}
+.ib-input-bar input{flex:1;background:#F5F5F7;border:1px solid rgba(255,255,255,.1);border-radius:24px;padding:10px 16px;color:#1D1D1F;font-size:13px;outline:none}
+.ib-input-bar input::placeholder{color:#555}
+.ib-input-bar input:focus{border-color:#0071E3}
+.ib-send{background:#0071E3;border:none;border-radius:50%;width:38px;height:38px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s}
+.ib-send:hover{background:#3a5fcc}
+.ib-send svg{width:18px;height:18px;fill:#fff}
+`;
+document.head.appendChild(css);
+
+/* ── Knowledge Base ───────────────────────────────────── */
+var KB = [
+  // Navigation
+  {k:['szimulátor','szimulator','simulator','kalkulátor'],a:'A Szimulátor (simulator.html) 18 különböző kalkulátor tabot tartalmaz. A navigációs sávban a „Szimulátor" gombra kattintva éred el. Tartalmaz: ingatlan elemzés, fordított keresés, portfólió, cash-flow, kollégium, parkolóház, adózás, makro szcenáriók, befektetői mérőszámok, bérlői eszközök és még sok más modult.'},
+  {k:['land residual','telekérték','telek residual','residual módszer'],a:'A Land Residual (maradékérték) módszer a telek maximális vételárát határozza meg. Képlet: GDV (bruttó fejlesztési érték) – építési költség – soft költségek – finanszírozás – célprofit = maximális telekár. Megtalálod a development.html „📍 F2 · Telekszerzés" tabján.'},
+  {k:['pro forma','proforma','pénzügyi terv'],a:'A Pro Forma kalkulátor a fejlesztési projekt teljes pénzügyi modelljét készíti el. Tartalmaz: bevétel-előrejelzés, költségbecslés, hozamszámítás (ROI, IRR, cash-on-cash yield). Megtalálod a development.html „💰 Pro Forma" tabján.'},
+  {k:['bérleti díj','albérlet','bérleti','hol vannak a bérleti'],a:'A bérleti díj adatokat több helyen is megtalálod:\n• index.html: interaktív koropletikus térkép kerületenkénti átlagokkal\n• simulator.html: részletes elemzés és összehasonlítás\nAz adatok a rent_detailed.json fájlból származnak, forrásuk a negyzetmeterarak.hu.'},
+  {k:['oték','otk','övezeti','övezet','zóna besorolás'],a:'Az OTÉK (Országos Településrendezési és Építési Követelmények) meghatározza az egyes kerületek építési paramétereit: szintterületi mutató (SZM), maximális beépítési arány, emeletszám és parkolási norma. Az OTÉK elemzőt a development.html „🔍 F1 · Piackutatás" tabjában találod.'},
+  {k:['due diligence','dd checklist','átvilágítás'],a:'A Due Diligence (átvilágítási) checklist 22 ellenőrzési pontot tartalmaz 4 kategóriában: Jogi (6), Területhasználat (6), Műszaki (6), Pénzügyi (4). A kitöltöttségi állapot automatikusan mentődik. Megtalálod a development.html „📍 F2 · Telekszerzés" tabján.'},
+  {k:['mi ez a rendszer','mi ez az oldal','platform','dashboard','mire való'],a:'Ez az IB Exproconsult Budapest Ingatlanelemzési Platform — 12 HTML modulból álló komplex elemző rendszer. Tartalmaz: piaci adatok (index.html), szimulátorok (simulator.html), fejlesztési tracker (development.html), CRM (crm.html), befektetői memo (memo.html), kihasználtsági elemzés, hirdetésfigyelő, diáklakás elemző, ingatlankezelés, parkolóház elemző és lakásátalakító modult.'},
+
+  // Calculators
+  {k:['hozam számol','hozamot','hozamszámítás','yield','mekkora a hozam'],a:'Hozamszámításhoz használd a simulator.html „Ingatlan Elemzés" (forward) tabját. Add meg a vételárat, bérleti díjat, költségeket — és azonnal látod a bruttó/nettó hozamot, cap rate-et és cash-on-cash metrikai mutatókat. A fejlesztési hozamhoz a development.html Pro Forma kalkulátorát ajánlom.'},
+  {k:['melyik kerület','kerületbe érdemes','hová érdemes','befektetés hol','beruházni','beruház'],a:'A „Fordított Keresés" (simulator.html 2. tab) segít megtalálni a legjobb kerületet. Add meg az elvárásaidat (hozam, büdzsé, típus) és a rendszer rangsorolja a kerületeket. Emellett a „🔍 F1 · Piackutatás" tab (development.html) piaci rés elemzőjében látod az összes kerület bruttó hozamát összehasonlítva.'},
+  {k:['jelzálog','hitel','mortgage','törlesztő','hitelkalkul'],a:'A Hitelkalkulátor a simulator.html-ben található. Megadhatod a hitelt összeget, futamidőt, kamatot és a kalkulátor kiszámolja a havi törlesztőt, teljes visszafizetést és a hitel költségét. A „Cash-flow Előrejelzés" tabbal kombinálva láthatod a hitel hatását a pénzáramlásra.'},
+  {k:['adó','áfa','szja','adózás','illeték','tax'],a:'Adózási kalkulátort két helyen is találsz:\n• simulator.html „Adózás" tab: SZJA, szocho, önkormányzati adó, áfa kalkulátor befektetők számára\n• development.html F7 tab: fejlesztési projekt adózási elemzés\nMindkettő tartalmazza a hatályos magyar adókulcsokat.'},
+  {k:['exit','eladás','mikor adjam el','exit stratégia','kiszállás'],a:'Az Exit Stratégia kalkulátort a development.html-ben találod. Segít eldönteni a legjobb kiszállási időpontot a projekt hozam görbéje alapján. Figyelembe veszi a piaci ciklusokat, SZJA kedvezményeket (5 év tartás után) és az alternatív költséget.'},
+  {k:['cash flow','pénzáramlás','cashflow','cf előrejelzés'],a:'A Cash-flow Előrejelzés a simulator.html-ben található. 10 éves előrejelzést készít havi bontásban: bérleti bevétel, üzemeltetési költségek, hiteltörlesztés, adók, nettó pénzáramlás. Grafikonon is megjeleníti a trendeket.'},
+
+  // Data
+  {k:['vásárlási ár','eladási ár','purchase','ingatlanárak','négyzetméterár'],a:'A vásárlási árak adatait a purchase_prices.json fájl tartalmazza kerületenkénti bontásban. Az index.html főoldalon interaktív térképen és táblázatban is megtekintheted. A simulator.html-ben részletes szűrési és összehasonlítási lehetőségek vannak.'},
+  {k:['kollégium','diák','student','diáklakás','kollégiumi'],a:'A diáklakás/kollégium elemzést két modulban találod:\n• student_intel.html: Egyetemek körüli kereslet-elemzés, hallgatói statisztikák\n• apartment_converter.html: Lakás → diákszálló átalakítási kalkulátor\nA simulator.html „Kollégium" tabja is tartalmaz releváns kalkulátorokat.'},
+  {k:['parkoló','parking','parkolóház','garázs'],a:'A parkolóház elemzést a parking_intel.html modulban találod. Tartalmaz: kerületenkénti parkolóhely kereslet, árszintek, fejlesztési potenciál, ROI kalkulátor. A simulator.html „Parkolóház" tabja is tartalmaz parkolóház-specifikus kalkulátort.'},
+  {k:['engedély','építési engedély','engedélyezés','hatóság','permitting'],a:'Az építési engedélyezés nyomon követését a development.html „F4 · Engedélyezés" tabján találod. Tartalmazza a teljes engedélyezési folyamatot, határidőket, szükséges dokumentumokat és a hatósági eljárás lépéseit.'},
+  {k:['közmű','elmű','víz','gáz','csatorna','kapacitás','közműkapacitás'],a:'A közmű kapacitás ellenőrzést a development.html-ben találod (Közmű Kapacitás tab). Segít felmérni a villamos (ELMŰ-ÉMÁSZ), gáz, víz és csatornahálózat kapacitását a tervezett fejlesztéshez. Fontos a land due diligence részeként!'},
+  {k:['telek','telekár','telek ár','telekszim','telekszerzés'],a:'Telekkel kapcsolatos elemzések:\n• simulator.html „Telek Szimulátor" tab: telekérték és fejlesztési potenciál\n• development.html „📍 F2 · Telekszerzés": Land Residual módszer, telekár benchmark 23 kerületre, Due Diligence checklist'},
+
+  // Business lines
+  {k:['ingatlankezelés','property management','kezelés','üzemeltetés','propertymanagement'],a:'Az Ingatlankezelés modult a property_mgmt.html oldalon találod. Tartalmaz: bérlői nyilvántartás, karbantartási naptár, pénzügyi kimutatások, tulajdonosi riportok, automatikus figyelmeztetések lejáró szerződésekre.'},
+  {k:['fejlesztés','development','projekt tracker','fejlesztési projekt'],a:'A Fejlesztési Projekt Tracker (development.html) a teljes ingatlanfejlesztési folyamatot lefedi 8+ fázisban: Piackutatás (F1), Telekszerzés (F2), Tervezés (F3), Engedélyezés (F4), Kivitelezés, Közmű, Adózás, Exit stratégia. Minden fázishoz kalkulátor és checklist tartozik.'},
+
+  // General
+  {k:['frissítés','update','mikor frissül','adat frissítés','frissülnek az adatok'],a:'Az adatok félévente frissülnek: szeptember 15. és március 15. Az aktuális adatok a legutóbbi frissítési ciklusból származnak. A bérleti díjak és vásárlási árak a negyzetmeterarak.hu, ingatlan.com és KSH forrásokból származnak.'},
+  {k:['crm','bérlő kezelés','ügyfél','bérlői crm'],a:'A bérlői CRM rendszert a crm.html oldalon találod. Funkciók: bérlői adatbázis, szerződés kezelés, fizetési nyomon követés, kommunikációs napló, automatikus emlékeztetők, bérlő értékelés.'},
+  {k:['export','csv','letöltés','mentés'],a:'Szinte minden oldalon elérhető CSV export funkció. A táblázatok felett vagy mellett keresd az „Export" vagy „CSV" gombot. A teljes adatkészlet letölthető további elemzéshez Excelben vagy más eszközben.'},
+  {k:['memo','befektetői memo','investor memo'],a:'A Befektetői Memo generátort a memo.html oldalon találod. Automatikusan összeállít egy professzionális befektetői prezentációt a projekt adataiból: piaci összefoglaló, pénzügyi mutatók, kockázatelemzés, exit stratégia.'},
+  {k:['listing','hirdetés','hirdetésfigyelő'],a:'A Hirdetésfigyelő modult a listings.html oldalon találod. Valós idejű hirdetés adatokat gyűjt és elemez: árszint monitoring, piacra kerülési idő, ár/m² összehasonlítás kerületenként.'},
+  {k:['kihasználtság','occupancy','üresedés','vacancy'],a:'A Kihasználtsági Elemzést az occupancy.html oldalon találod. Nyomon követi a bérleti kihasználtságot, üresedési rátákat, szezonális trendeket és segít optimalizálni a bérleti stratégiát.'},
+  {k:['lakásátalakító','converter','átalakítás','apartment converter'],a:'A Lakásátalakító kalkulátort az apartment_converter.html oldalon találod. Kiszámolja a lakás → diákszálló/airbnb átalakítás költségeit, megtérülését és a szükséges engedélyeket.'},
+  {k:['portfólió','portfolio'],a:'A Portfólió Elemző a simulator.html-ben található. Lehetővé teszi több ingatlanból álló portfólió összesített elemzését: diverzifikáció, kockázat, összesített hozam, értékváltozás tracking.'},
+  {k:['makro','gdp','infláció','kamat','gazdaság','makrogazdaság','szcenárió'],a:'A Makro Szcenáriók modult a simulator.html-ben találod. Három szcenáriót modellez (optimista, bázis, pesszimista) a magyar makrogazdasági mutatók alapján: GDP, infláció, jegybanki alapkamat, munkanélküliség, és ezek hatása az ingatlanpiacra.'},
+  {k:['rezsi','közös költség','villany','fűtés','üzemeltetési költség','utility'],a:'A Rezsi Benchmark-ot a simulator.html „🏠 Bérlői & Vásárlói eszközök" tabjában találod (Rezsi Benchmark al-tab). 23 kerület rezsiadatait tartalmazza: villany, gáz, víz, távfűtés, közös költség — összehasonlítható és szűrhető.'},
+  {k:['minőség','neighbourhood','szomszédság','kerület minőség','quality'],a:'A Lakókörnyezet Minőségi Index a simulator.html „🏠 Bérlői & Vásárlói eszközök" tabjában érhető el (Kerületi Minőség al-tab). 6 dimenzióban értékeli a kerületeket: közlekedés, zöldterület, szolgáltatások, biztonság, oktatás, egészségügy.'},
+  {k:['rent vs buy','bérlés vagy vásárlás','break even','megtérülés','bérelni vagy venni'],a:'A „Bérlés vs. Vásárlás" Break-even kalkulátort a simulator.html „🏠 Bérlői & Vásárlói eszközök" tabjában találod. Kiszámolja, hány év után térül meg a vásárlás a bérléshez képest, figyelembe véve: áremelkedés, bérleti díj növekedés, hitelköltség, alternatív befektetési hozam.'},
+  {k:['segítség','help','hogyan','útmutató','használat'],a:'Üdvözöllek! A rendszer 12 modulból áll:\n1. Főoldal (index.html) — piaci áttekintés\n2. Szimulátor — 18 kalkulátor\n3. Fejlesztés — projekt tracker\n4. CRM — bérlő kezelés\n5. Befektetői oldal — investor tools\n6. Memo — befektetői memo\n7. Kihasználtság — occupancy\n8. Hirdetések — listings\n9. Diáklakás — student intel\n10. Ingatlankezelés — property mgmt\n11. Parkoló — parking intel\n12. Átalakító — converter\nKérdezz bátran bármelyikről!'}
+];
+
+function getAssistantResponse(q) {
+  var ql = q.toLowerCase().replace(/[?!.,]/g, '');
+  var best = null, bestScore = 0;
+  for (var i = 0; i < KB.length; i++) {
+    var score = 0;
+    for (var j = 0; j < KB[i].k.length; j++) {
+      if (ql.indexOf(KB[i].k[j]) !== -1) {
+        score += KB[i].k[j].length;
+      }
+    }
+    if (score > bestScore) { bestScore = score; best = KB[i]; }
+  }
+  if (best) return best.a;
+  // Fallback — try to suggest relevant pages
+  var suggestions = [];
+  if (/kerület|district/.test(ql)) suggestions.push('index.html (piaci áttekintés)', 'simulator.html (fordított keresés)');
+  if (/pénz|cost|ár|price/.test(ql)) suggestions.push('simulator.html (kalkulátorok)', 'development.html (pro forma)');
+  if (/bérl|rent/.test(ql)) suggestions.push('index.html (bérleti térkép)', 'crm.html (bérlő kezelés)');
+  if (/fejleszt|build|épít/.test(ql)) suggestions.push('development.html (fejlesztési tracker)');
+  if (suggestions.length > 0) {
+    return 'Ezt a kérdést nem találom az adatbázisomban, de lehet, hogy ezeken az oldalakon megtalálod, amit keresel:\n• ' + suggestions.join('\n• ') + '\nPróbáld pontosítani a kérdést!';
+  }
+  return 'Ezt a kérdést nem találom az adatbázisomban. Próbáld pontosítani, vagy kérdezz rá a következő témákra: szimulátor, bérleti díjak, hozamszámítás, adózás, fejlesztés, OTÉK, due diligence, CRM, parkoló, kollégium, ingatlankezelés.';
+}
+
+/* ── Build DOM ────────────────────────────────────────── */
+// Floating button
+var btn = document.createElement('button');
+btn.id = 'ib-chat-btn';
+btn.setAttribute('aria-label', 'IB Assistant megnyitása');
+btn.innerHTML = '<svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H5.2L4 17.2V4h16v12z"/><path d="M7 9h10v2H7zm0-3h10v2H7z"/></svg><span class="ib-badge">?</span>';
+document.body.appendChild(btn);
+
+// Chat panel
+var panel = document.createElement('div');
+panel.id = 'ib-chat-panel';
+panel.innerHTML = '<div class="ib-header"><div class="ib-header-left"><h3>IB Assistant</h3><p>Hogyan segíthetek?</p></div><button class="ib-close" aria-label="Bezárás">&times;</button></div><div class="ib-messages" id="ib-msgs"></div><div class="ib-chips" id="ib-chips"></div><div class="ib-input-bar"><input id="ib-input" type="text" placeholder="Kérdezz valamit..." autocomplete="off"/><button class="ib-send" aria-label="Küldés"><svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg></button></div>';
+document.body.appendChild(panel);
+
+var msgs = document.getElementById('ib-msgs');
+var input = document.getElementById('ib-input');
+var chips = document.getElementById('ib-chips');
+var closeBtn = panel.querySelector('.ib-close');
+var sendBtn = panel.querySelector('.ib-send');
+var isOpen = false;
+var chipsShown = true;
+
+// Init chat history store
+if (typeof window._APP_STORE === 'undefined') window._APP_STORE = {};
+if (!window._APP_STORE.chatHistory) window._APP_STORE.chatHistory = [];
+
+var SUGGESTED = [
+  'Hogyan számolok fejlesztési hozamot?',
+  'Melyik kerületbe érdemes beruházni?',
+  'Hol találom az adózási kalkulátort?',
+  'Mi a Land Residual módszer?',
+  'Hogyan működik a közmű kapacitás ellenőrzés?',
+  'Mikor frissülnek az adatok?'
+];
+
+// Render chips
+SUGGESTED.forEach(function(txt) {
+  var c = document.createElement('button');
+  c.className = 'ib-chip';
+  c.textContent = txt;
+  c.addEventListener('click', function() { sendMessage(txt); });
+  chips.appendChild(c);
+});
+
+function ts() {
+  var d = new Date();
+  return (d.getHours() < 10 ? '0' : '') + d.getHours() + ':' + (d.getMinutes() < 10 ? '0' : '') + d.getMinutes();
+}
+
+function addMsg(text, who) {
+  var div = document.createElement('div');
+  div.className = 'ib-msg ' + who;
+  div.innerHTML = text.replace(/\n/g, '<br>') + '<span class="ib-ts">' + ts() + '</span>';
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+  window._APP_STORE.chatHistory.push({who: who, text: text, time: ts()});
+}
+
+function showTyping() {
+  var t = document.createElement('div');
+  t.className = 'ib-typing';
+  t.id = 'ib-typing';
+  t.innerHTML = '<span></span><span></span><span></span>';
+  msgs.appendChild(t);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function hideTyping() {
+  var t = document.getElementById('ib-typing');
+  if (t) t.remove();
+}
+
+function sendMessage(text) {
+  if (!text || !text.trim()) return;
+  addMsg(text.trim(), 'user');
+  input.value = '';
+  // Hide chips after first user message
+  if (chipsShown) { chips.style.display = 'none'; chipsShown = false; }
+  // Typing indicator
+  showTyping();
+  setTimeout(function() {
+    hideTyping();
+    var answer = getAssistantResponse(text.trim());
+    addMsg(answer, 'bot');
+  }, 600);
+}
+
+// Toggle panel
+btn.addEventListener('click', function() {
+  isOpen = !isOpen;
+  if (isOpen) {
+    panel.classList.add('open');
+    btn.querySelector('.ib-badge').style.display = 'none';
+    input.focus();
+    // Restore previous messages
+    if (msgs.children.length === 0 && window._APP_STORE.chatHistory.length === 0) {
+      addMsg('Üdvözöllek! 👋 Az IB Assistant vagyok. Kérdezz bátran a Budapest Dashboard rendszerről — segítek eligazodni a modulok, kalkulátorok és adatok között.', 'bot');
+    }
+  } else {
+    panel.classList.remove('open');
+  }
+});
+
+closeBtn.addEventListener('click', function() {
+  isOpen = false;
+  panel.classList.remove('open');
+});
+
+// Send on Enter or click
+input.addEventListener('keydown', function(e) { if (e.key === 'Enter') sendMessage(input.value); });
+sendBtn.addEventListener('click', function() { sendMessage(input.value); });
+
+})();
+</script>
+</body>
+</html>

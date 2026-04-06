@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="hu" data-theme="light">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Kezelő Figyelő — IB Exproconsult</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root {
+  --bg: #F5F5F7;
+  --surface: #FFFFFF;
+  --surface-2: #F5F5F7;
+  --border: rgba(0,0,0,0.08);
+  --border-h: rgba(0,0,0,0.14);
+  --accent: #0071E3;
+  --accent-hover: #0077ED;
+  --accent-light: rgba(0,113,227,0.12);
+  --green: #34C759;
+  --red: #FF3B30;
+  --orange: #FF9500;
+  --gold: #FF9F0A;
+  --purple: #AF52DE;
+  --text: #1D1D1F;
+  --text-muted: #6E6E73;
+  --text-dim: #AEAEB2;
+  --radius: 10px;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --shadow-sm: 0 1px 4px rgba(0,0,0,0.08);
+  --shadow: 0 4px 16px rgba(0,0,0,0.10);
+}
+[data-theme="dark"] {
+  --bg: #1C1C1E;
+  --surface: #2C2C2E;
+  --surface-2: #3A3A3C;
+  --border: rgba(255,255,255,0.08);
+  --border-h: rgba(255,255,255,0.15);
+  --text: #F5F5F7;
+  --text-muted: #AEAEB2;
+  --text-dim: #636366;
+}
+body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;min-height:100vh;line-height:1.5}
+a{color:inherit;text-decoration:none}
+
+/* ── Two-row Header ── */
+.ib-header-wrap{position:sticky;top:0;z-index:200}
+.ib-header-top{display:flex;align-items:center;justify-content:space-between;padding:0 20px;height:48px;background:rgba(255,255,255,0.92);border-bottom:1px solid rgba(0,0,0,0.06);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+.ib-header-nav{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:2px;padding:4px 16px;background:rgba(255,255,255,0.85);border-bottom:1px solid rgba(0,0,0,0.08);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+[data-theme="dark"] .ib-header-top,[data-theme="dark"] .ib-header-nav{background:rgba(28,28,30,0.92)}
+.header-title{font-size:14px;font-weight:700;color:var(--text);letter-spacing:-0.02em;line-height:1.2}
+.header-subtitle{font-size:10px;color:var(--text-muted);letter-spacing:0.03em;line-height:1.2}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:8px;font-size:13px;font-weight:600;border:none;cursor:pointer;transition:all .18s}
+.btn-primary{background:var(--accent);color:#fff}
+.btn-primary:hover{background:var(--accent-hover)}
+.btn-outline{background:transparent;border:1.5px solid var(--border-h);color:var(--text-muted)}
+.btn-outline:hover{border-color:var(--accent);color:var(--accent)}
+.ib-nav-link{display:inline-block;padding:6px 12px;font-size:12px;font-weight:500;color:var(--text-muted);border-radius:6px;white-space:nowrap;transition:all .18s}
+.ib-nav-link:hover{color:var(--accent);background:var(--accent-light)}
+.ib-nav-link.active{color:#fff;background:var(--accent)}
+
+/* ── Main ── */
+.main{max-width:1440px;margin:0 auto;padding:28px 24px 80px}
+.page-title{font-size:26px;font-weight:800;color:var(--text);margin-bottom:4px}
+.page-subtitle{font-size:14px;color:var(--text-muted);margin-bottom:24px}
+
+/* ── KPI Row ── */
+.kpi-row{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:28px}
+@media(max-width:900px){.kpi-row{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:600px){.kpi-row{grid-template-columns:repeat(2,1fr)}}
+.kpi{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-md);padding:16px 18px;text-align:center}
+.kpi-value{font-size:22px;font-weight:800;color:var(--accent)}
+.kpi-label{font-size:11px;color:var(--text-muted);margin-top:3px}
+.kpi.green .kpi-value{color:var(--green)}
+.kpi.gold .kpi-value{color:var(--gold)}
+.kpi.red .kpi-value{color:var(--red)}
+
+/* ── Filter Bar ── */
+.filter-bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:20px;padding:14px 18px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-md)}
+.filter-label{font-size:12px;font-weight:600;color:var(--text-muted);white-space:nowrap}
+.filter-chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{padding:5px 12px;border-radius:20px;font-size:12px;font-weight:600;border:1.5px solid var(--border-h);background:transparent;color:var(--text-muted);cursor:pointer;transition:all .15s}
+.chip:hover{border-color:var(--accent);color:var(--accent)}
+.chip.active{background:var(--accent);border-color:var(--accent);color:#fff}
+.search-input{margin-left:auto;padding:7px 12px;border:1.5px solid var(--border-h);border-radius:8px;background:var(--surface-2);color:var(--text);font-size:13px;outline:none;width:220px;transition:border-color .18s}
+.search-input:focus{border-color:var(--accent)}
+
+/* ── Sort Bar ── */
+.sort-bar{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.sort-bar select{padding:6px 10px;border:1.5px solid var(--border-h);border-radius:7px;background:var(--surface);color:var(--text);font-size:12px;cursor:pointer;outline:none}
+.result-count{font-size:12px;color:var(--text-muted);margin-left:auto}
+
+/* ── Company Cards Grid ── */
+.cards-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(420px,1fr));gap:16px}
+@media(max-width:900px){.cards-grid{grid-template-columns:1fr}}
+
+/* ── Company Card ── */
+.company-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;transition:box-shadow .2s,border-color .2s;cursor:pointer}
+.company-card:hover{box-shadow:var(--shadow);border-color:var(--border-h)}
+.company-card.expanded{border-color:var(--accent);box-shadow:0 0 0 2px rgba(0,113,227,0.15),var(--shadow)}
+.card-header{display:flex;align-items:flex-start;gap:14px;padding:18px 20px 14px}
+.card-logo{width:44px;height:44px;border-radius:10px;background:var(--surface-2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;color:var(--accent);flex-shrink:0;letter-spacing:-0.5px}
+.card-title-block{flex:1;min-width:0}
+.card-name{font-size:15px;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.card-meta{font-size:12px;color:var(--text-muted);margin-top:2px}
+.card-badges{display:flex;gap:5px;flex-wrap:wrap;margin-top:6px}
+.badge{display:inline-block;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:600}
+.badge-tier-enterprise{background:#AF52DE22;color:#AF52DE}
+.badge-tier-mid{background:#0071E322;color:#0071E3}
+.badge-tier-boutique{background:#34C75922;color:#34C759}
+.badge-relevance-high{background:#FF3B3022;color:#FF3B30}
+.badge-relevance-medium{background:#FF950022;color:#FF9500}
+.badge-relevance-low{background:#6E6E7322;color:#6E6E73}
+.badge-relevance-veryhigh{background:#FF3B3033;color:#FF3B30;border:1px solid #FF3B3044}
+
+/* ── Card KPIs ── */
+.card-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+.card-kpi{padding:10px 12px;text-align:center}
+.card-kpi:not(:last-child){border-right:1px solid var(--border)}
+.card-kpi-value{font-size:13px;font-weight:700;color:var(--text)}
+.card-kpi-label{font-size:10px;color:var(--text-muted);margin-top:2px}
+
+/* ── Card Body ── */
+.card-body{padding:14px 20px;display:none}
+.company-card.expanded .card-body{display:block}
+.card-desc{font-size:13px;color:var(--text-muted);line-height:1.6;margin-bottom:14px}
+.section-title{font-size:11px;font-weight:700;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;margin-top:14px}
+.tag-list{display:flex;gap:5px;flex-wrap:wrap}
+.tag{padding:3px 9px;background:var(--surface-2);border:1px solid var(--border);border-radius:6px;font-size:11px;color:var(--text-muted)}
+.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+@media(max-width:600px){.info-grid{grid-template-columns:1fr}}
+.info-row{display:flex;flex-direction:column;gap:2px}
+.info-key{font-size:11px;color:var(--text-dim);font-weight:600;text-transform:uppercase;letter-spacing:0.3px}
+.info-val{font-size:13px;color:var(--text)}
+.relevance-box{margin-top:14px;padding:10px 14px;border-radius:8px;font-size:12px;line-height:1.5}
+.relevance-box.high{background:#FF3B3010;border:1px solid #FF3B3030;color:#FF3B30}
+.relevance-box.medium{background:#FF950010;border:1px solid #FF950030;color:#FF9500}
+.relevance-box.veryhigh{background:#FF3B3020;border:1px solid #FF3B3050;color:#FF3B30;font-weight:600}
+.relevance-box.low{background:var(--surface-2);border:1px solid var(--border);color:var(--text-muted)}
+.relevance-label{font-weight:700;margin-bottom:2px}
+.card-footer{display:flex;align-items:center;gap:8px;padding:10px 20px;border-top:1px solid var(--border);background:var(--surface-2)}
+.card-link{font-size:12px;color:var(--accent);font-weight:600}
+.card-link:hover{text-decoration:underline}
+.expand-toggle{margin-left:auto;font-size:11px;color:var(--text-muted);display:flex;align-items:center;gap:4px;font-weight:500}
+.expand-toggle svg{transition:transform .2s}
+.company-card.expanded .expand-toggle svg{transform:rotate(180deg)}
+
+/* ── Competitive Map ── */
+.comp-section{margin-top:32px}
+.comp-title{font-size:18px;font-weight:700;margin-bottom:16px}
+.comp-matrix{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden}
+.comp-matrix table{width:100%;border-collapse:collapse}
+.comp-matrix th{padding:10px 14px;font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.4px;background:var(--surface-2);border-bottom:1px solid var(--border);text-align:left}
+.comp-matrix td{padding:10px 14px;font-size:12px;border-bottom:1px solid var(--border);color:var(--text)}
+.comp-matrix tr:last-child td{border-bottom:none}
+.comp-matrix tr:hover td{background:var(--surface-2)}
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px}
+.dot-green{background:var(--green)}
+.dot-orange{background:var(--orange)}
+.dot-red{background:var(--red)}
+.fee-bar{display:flex;align-items:center;gap:6px}
+.fee-fill{height:6px;border-radius:3px;background:var(--accent);opacity:.7}
+
+/* ── District Coverage Map ── */
+.district-section{margin-top:32px}
+.districts-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:8px;margin-top:12px}
+.district-card{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:10px 12px}
+.district-num{font-size:13px;font-weight:700;color:var(--accent)}
+.district-name{font-size:11px;color:var(--text-muted);margin-top:2px}
+.district-managers{display:flex;gap:4px;flex-wrap:wrap;margin-top:6px}
+.district-dot{width:24px;height:24px;border-radius:6px;background:var(--surface-2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:var(--text-muted);cursor:default}
+
+/* ── Footer ── */
+footer{text-align:center;padding:28px;font-size:12px;color:var(--text-muted)}
+footer a{color:var(--accent)}
+
+/* ── Dark Mode Toggle ── */
+.theme-btn{background:none;border:1.5px solid var(--border-h);border-radius:8px;padding:6px 10px;cursor:pointer;color:var(--text-muted);font-size:13px;transition:all .18s}
+.theme-btn:hover{color:var(--accent);border-color:var(--accent)}
+
+/* ── Skeleton ── */
+.skeleton{background:linear-gradient(90deg,var(--surface-2) 25%,var(--border) 50%,var(--surface-2) 75%);background-size:200% 100%;animation:shimmer 1.4s infinite;border-radius:6px}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+
+/* ── No results ── */
+.no-results{text-align:center;padding:60px 20px;color:var(--text-muted);font-size:14px}
+</style>
+<link rel="stylesheet" href="libs/ib-design-system.css">
+</head>
+<body>
+
+<!-- Two-row Header -->
+<div class="ib-header-wrap">
+  <div class="ib-header-top">
+    <div style="display:flex;align-items:center;gap:12px;flex-shrink:0;">
+      <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0;">
+        <rect width="32" height="32" rx="8" fill="#0071E3"/>
+        <text x="5" y="22" font-family="-apple-system,sans-serif" font-size="16" font-weight="800" fill="white">IB</text>
+      </svg>
+      <div>
+        <div class="header-title">IB Expro</div>
+        <div class="header-subtitle">Figyelő Platform</div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px;">
+      <button class="theme-btn" onclick="toggleTheme()" title="Téma váltás" style="background:none;border:none;cursor:pointer;font-size:16px;padding:4px;border-radius:6px;">🌙</button>
+    </div>
+  </div>
+  <nav class="ib-header-nav" id="main-nav">
+    <a href="index.html" class="ib-nav-link">Dashboard</a>
+    <a href="simulator.html" class="ib-nav-link">Szimulátor</a>
+    <a href="development.html" class="ib-nav-link">Fejlesztés</a>
+    <a href="property_mgmt.html" class="ib-nav-link">Kezelés</a>
+    <a href="occupancy.html" class="ib-nav-link">Kihasználtság</a>
+    <a href="investor.html" class="ib-nav-link">Befektetők</a>
+    <a href="investment_calculator.html" class="ib-nav-link">Kalkulátor</a>
+    <a href="apartment_converter.html" class="ib-nav-link">Diáklakás</a>
+    <a href="student_intel.html" class="ib-nav-link">Diák Intel</a>
+    <a href="parking_intel.html" class="ib-nav-link">Parkoló</a>
+    <a href="property_managers.html" class="ib-nav-link active">Kezelők</a>
+    <a href="crm.html" class="ib-nav-link">CRM</a>
+    <a href="memo.html" class="ib-nav-link">Memo</a>
+    <a href="listings.html" class="ib-nav-link">Hirdetések</a>
+    <a href="adatkozpont.html" class="ib-nav-link">Adatközpont</a>
+  </nav>
+</div>
+
+<!-- Main -->
+<main class="main">
+  <div class="page-title">Kezelő Figyelő</div>
+  <div class="page-subtitle">Budapest 12 vezető ingatlankezelő cégeinek piaci monitoringja — pénzügyi adatok, díjstruktúra, kerületi jelenlét és versenyhelyzet</div>
+
+  <!-- KPI Row -->
+  <div class="kpi-row" id="kpi-row">
+    <div class="kpi">
+      <div class="kpi-value" id="kpi-count">12</div>
+      <div class="kpi-label">Megfigyelt cég</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-value" id="kpi-revenue">39,8 Mrd</div>
+      <div class="kpi-label">Össz. 2024 forgalom (Ft)</div>
+    </div>
+    <div class="kpi green">
+      <div class="kpi-value" id="kpi-profit">7,4 Mrd</div>
+      <div class="kpi-label">Össz. 2024 nyereség (Ft)</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-value" id="kpi-properties">9 084</div>
+      <div class="kpi-label">Kezelt ingatlan (db)</div>
+    </div>
+    <div class="kpi gold">
+      <div class="kpi-value" id="kpi-high-rel">4</div>
+      <div class="kpi-label">Közvetlen IB versenytárs</div>
+    </div>
+  </div>
+
+  <!-- Filter Bar -->
+  <div class="filter-bar">
+    <span class="filter-label">Szegmens:</span>
+    <div class="filter-chips">
+      <button class="chip active" data-filter="all" onclick="filterCards('all',this)">Mind</button>
+      <button class="chip" data-filter="enterprise" onclick="filterCards('enterprise',this)">Nagyvállalat</button>
+      <button class="chip" data-filter="mid" onclick="filterCards('mid',this)">Középvállalat</button>
+      <button class="chip" data-filter="boutique" onclick="filterCards('boutique',this)">Boutique</button>
+      <button class="chip" data-filter="tech" onclick="filterCards('tech',this)">Tech-alapú</button>
+    </div>
+    <span class="filter-label" style="margin-left:12px">IB relevancia:</span>
+    <div class="filter-chips">
+      <button class="chip" data-filter="rel-veryhigh" onclick="filterCards('rel-veryhigh',this)">Nagyon magas</button>
+      <button class="chip" data-filter="rel-high" onclick="filterCards('rel-high',this)">Magas</button>
+    </div>
+    <input type="text" class="search-input" placeholder="Cég neve, kerület..." oninput="searchCards(this.value)" id="search-box">
+  </div>
+
+  <!-- Sort Bar -->
+  <div class="sort-bar">
+    <span style="font-size:12px;color:var(--text-muted);font-weight:600">Rendezés:</span>
+    <select onchange="sortCards(this.value)">
+      <option value="revenue">Forgalom (csökkenő)</option>
+      <option value="profit">Nyereség (csökkenő)</option>
+      <option value="properties">Kezelt ingatlanok</option>
+      <option value="name">Név (A-Z)</option>
+      <option value="founded">Alapítás éve</option>
+    </select>
+    <span class="result-count" id="result-count">12 cég megjelenítve</span>
+  </div>
+
+  <!-- Cards Grid -->
+  <div class="cards-grid" id="cards-grid">
+    <!-- Generated by JS -->
+  </div>
+
+  <!-- Competitive Matrix -->
+  <div class="comp-section">
+    <div class="comp-title">Versenytárs Mátrix</div>
+    <div class="comp-matrix">
+      <table>
+        <thead>
+          <tr>
+            <th>Cég</th>
+            <th>2024 Forgalom</th>
+            <th>Profitmarzs</th>
+            <th>Kezelési díj</th>
+            <th>Kezelt ingatlan</th>
+            <th>Létszám</th>
+            <th>Hatékonyság</th>
+            <th>IB Relevancia</th>
+          </tr>
+        </thead>
+        <tbody id="matrix-tbody">
+          <!-- Generated by JS -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- District Coverage -->
+  <div class="district-section">
+    <div class="comp-title" style="margin-top:32px">Kerületi Jelenlét Térkép</div>
+    <p style="font-size:13px;color:var(--text-muted);margin-bottom:16px">Melyik kezelő van jelen az adott kerületben. IB ingatlanok: VIII. (Rákóczi, Baross) és VIII. szomszéd (Bródy).</p>
+    <div class="districts-grid" id="districts-grid">
+      <!-- Generated by JS -->
+    </div>
+  </div>
+
+</main>
+
+<footer>
+  <div style="margin-bottom:6px;font-size:11px;color:var(--text-dim)">Adatforrás: Google Sheets (Budapesti ingatlankezelők), weboldalak átnézése (2026-03-19). Tájékoztató jellegű, üzleti döntés előtt ellenőrizze az adatokat.</div>
+  
+</footer>
+
+<script>
+// ── Data ──────────────────────────────────────────────────────────────────────
+const COMPANIES = [
+  {
+    id:"otp-ingatlan",name:"OTP Ingatlanüzemeltető Kft.",short:"OTP Ingatlan",website:"https://www.otpingatlan.hu",
+    founded:1990,type:"nagyvállalat",tier:"enterprise",
+    revenue:12400000000,profit:1900000000,properties:2100,employees:610,
+    feeRange:"8-11%",feeMin:8,feeMax:11,
+    propertyTypes:["lakóingatlan","kereskedelmi","irodaház","lakópark"],
+    districts:["I","II","III","V","VI","VIII","X","XII","XIII","XIV"],
+    description:"Az OTP Csoport tagjaként Magyarország egyik vezető ingatlanüzemeltető vállalata. Teljes körű ingatlanmenedzsment: lakó- és kereskedelmi ingatlanok, fejlesztés, bérbeadás, értékbecslés, pénzügyi tanácsadás. Saját fejlesztésű nagy volumenű projektek: Dagály Park, Somfa Liget, Királyhágó Residence.",
+    services:["társasházkezelés","építményüzemeltetés","ingatlanfejlesztés","adásvétel-közvetítés","bérbeadás","értékbecslés","hitelügyintézés"],
+    differentiators:["OTP Bank háttér – banki+ingatlan szinergia","Saját fejlesztésű portfólió (Dagály Park stb.)","Teljes életciklus-kezelés fejlesztéstől értékesítésig","Digitális platform: OTP Ingatlanpont"],
+    contact:{address:"1138 Budapest, Váci út 141-143.",phone:"+36 1 373-3800",email:"info@otpingatlan.hu"},
+    certifications:["Euromoney Awards for Excellence 2025","Portfolio Property Awards 2025"],
+    targetClients:["magánszemélyek","társasházi közösségek","intézményi befektetők"],
+    competitorRelevance:"MAGAS",ibOverlap:"Lakóingatlan-kezelés, fejlesztési portfólió, VIII–XIII. kerület",
+    logoText:"OTP"
+  },
+  {
+    id:"appeninn",name:"Appeninn Vagyonkezelő Holding Nyrt.",short:"Appeninn",website:"https://www.appeninnholding.hu",
+    founded:2009,type:"tőzsdei holding",tier:"enterprise",
+    revenue:11816000000,profit:3419000000,properties:900,employees:450,
+    feeRange:"8-12%",feeMin:8,feeMax:12,
+    propertyTypes:["irodaház","kereskedelmi","ipari","logisztikai"],
+    districts:["I","II","VIII","IX","X","XIV","XXI"],
+    description:"Budapesti Értéktőzsdén (BÉT) listázott vezető magyar ingatlanbefektetési és vagyonkezelő társaság. CEE/SEE régióra fókuszál. Portfólió: 16 irodaegység + 20 kiskereskedelmi egység. B+ besorolás a Növekedési Kötvényprogramban.",
+    services:["ingatlanbefektetés","vagyonkezelés","bérbeadás","üzemeltetés","ingatlanfejlesztés"],
+    differentiators:["BÉT-en listázott – átlátható tőkepiaci működés","ESG-fókusz, energiahatékonyság","CEE/SEE regionális jelenlét (Lengyelország)","B+ kötvényprogrambesorolás"],
+    contact:{address:"1022 Budapest, Bég utca 3-5.",phone:"+36 1 346-8869",email:"info@appeninnholding.com"},
+    certifications:["BÉT Premium kategória","B+ Növekedési Kötvényprogram (Scope)"],
+    targetClients:["intézményi befektetők","retail befektetők","SPAR/LIDL/ALDI bérlők"],
+    competitorRelevance:"KÖZEPES",ibOverlap:"Kereskedelmi ingatlanok, VIII–IX. kerület, tőkepiaci megközelítés",
+    logoText:"AP"
+  },
+  {
+    id:"cushman",name:"Cushman & Wakefield Kft.",short:"Cushman & Wakefield",website:"https://www.cushmanwakefield.com/en/hungary",
+    founded:2000,type:"multinacionális",tier:"enterprise",
+    revenue:4033759000,profit:350000000,properties:850,employees:140,
+    feeRange:"12-16%",feeMin:12,feeMax:16,
+    propertyTypes:["irodaház","kereskedelmi","ipari","logisztikai","data center"],
+    districts:["V","IX","XIII"],
+    description:"Globálisan vezető kereskedelmi ingatlanszolgáltató cég. Magyarországon 26+ év tapasztalat. 52.000 szakember, 60 ország. Budapest: ~700.000 m² kezelt terület, >2 Mrd EUR kezelt eszközérték. 'AI+' digitális transzformáció.",
+    services:["property management","ESG-tanácsadás","bérlői képviselet","fejlesztési projekt-menedzsment","agency leasing","tőkepiaci tranzakció","értékbecslés"],
+    differentiators:["Globális platform – helyi tudás","'AI+' digitális transzformáció","ESG/fenntarthatósági szakértelem","GIS/Atlas helyszínelemző eszköz"],
+    contact:{address:"1052 Budapest, Deák Ferenc utca 5.",phone:"+36 1 268-1288",email:"Webes kapcsolatfelvétel"},
+    certifications:["Global Top 3 CRE firm","700.000 m² / >2 Mrd EUR Magyarországon"],
+    targetClients:["multinacionális vállalatok","intézményi befektetők","irodabérlők"],
+    competitorRelevance:"ALACSONY",ibOverlap:"Kereskedelmi referenciák, ESG-megközelítés, fejlesztési PM",
+    logoText:"C&W"
+  },
+  {
+    id:"tower",name:"Tower-International Kft.",short:"Tower Budapest",website:"https://www.towerbudapest.com",
+    founded:2005,type:"középvállalat",tier:"mid",
+    revenue:2800000000,profit:380000000,properties:800,employees:220,
+    feeRange:"10-13%",feeMin:10,feeMax:13,
+    propertyTypes:["lakóingatlan","kereskedelmi","irodaház"],
+    districts:["I","II","III","V","VI","VII","VIII","IX","XI","XII","XIII"],
+    description:"20+ év tapasztalattal rendelkező budapesti ingatlankezelő. Teljes körű property management lakó- és kereskedelmi ingatlanokra. Új ügyfeleknek: 3 hónap ingyenes kezelési ajánlat. Erős belvárosi és budai jelenlét.",
+    services:["lakóingatlan-kezelés","kereskedelmi kezelés","bérbeadás","karbantartás","bérlő-management"],
+    differentiators:["20+ év tapasztalat","Promóciós belépési ajánlat (3 hónap ingyenes)","Széleskörű kerületi lefedettség","800+ aktív ingatlan"],
+    contact:{address:"Budapest",phone:"Weboldal alapján",email:"Weboldal alapján"},
+    certifications:["20+ év piaci jelenlét"],
+    targetClients:["magán lakástulajdonosok","befektetési portfóliók","kereskedelmi bérlők"],
+    competitorRelevance:"KÖZEPES",ibOverlap:"VIII–XIII. kerület, lakóingatlan-kezelés",
+    logoText:"TW"
+  },
+  {
+    id:"managerent",name:"Managerent Kft.",short:"Managerent",website:"https://www.managerent.hu",
+    founded:2004,type:"középvállalat",tier:"mid",
+    revenue:2400000000,profit:310000000,properties:694,employees:160,
+    feeRange:"11-14%",feeMin:11,feeMax:14,
+    propertyTypes:["lakóingatlan","kereskedelmi","belváros-fókusz"],
+    districts:["I","II","III","V","VI","VII","VIII","IX","XIII","XIV"],
+    description:"2004 óta működő belvárosi fókuszú ingatlankezelő. 'Több száz' minőségi belvárosi ingatlan portfólió. Erős V–IX. kerületi jelenlét. Ingyenes konzultáció és értékbecslés új ügyfeleknek.",
+    services:["ingatlankezelés","bérbeadás","értékbecslés","ingatlanközvetítés","tanácsadás"],
+    differentiators:["22+ év tapasztalat (2004 óta)","Belváros-specializáció","Ingyenes konzultáció+értékbecslés","360+ eladó + 640+ bérlő aktív kínálat"],
+    contact:{address:"Budapest belváros",phone:"Weboldal alapján",email:"Weboldal alapján"},
+    certifications:["22+ év piaci tapasztalat"],
+    targetClients:["magán lakástulajdonosok","befektetési célú lakástulajdonosok"],
+    competitorRelevance:"MAGAS",ibOverlap:"VII–IX. kerület, bérbeadás-kezelés, lakóingatlan",
+    logoText:"MR"
+  },
+  {
+    id:"homever",name:"Homever (Premium Apartments Consulting Kft.)",short:"Homever",website:"https://www.homever.hu",
+    founded:2017,type:"boutique",tier:"boutique",
+    revenue:1680000000,profit:220000000,properties:380,employees:95,
+    feeRange:"8% + sikerdíj",feeMin:8,feeMax:14,
+    propertyTypes:["prémium lakóingatlan","luxuslakás"],
+    districts:["V","VI","IX","XV","XVI","XX"],
+    description:"Prémium szegmensre specializált lakáskezelő. 'Úgy vigyázunk Otthonára, akár a sajátunkra' filozófia. 100% Elégedettségi Garancia (30 napos visszatérítés). 100+ aktívan kezelt ingatlan, 1000+ sikeres bérbeadás. 98%-os bérlőmegtartás.",
+    services:["prémium lakáskezelés","bérlőkiválasztás+szűrés","karbantartás","jogi ügyintézés","díjbeszedés","bérbeadás"],
+    differentiators:["100% Elégedettségi Garancia (30 napos visszatérítési lehetőség)","98%-os bérlőmegtartás (2+ év)","95%-os bérleti díj-időpont betartás","Prémium szegmens fókusz"],
+    contact:{address:"1096 Budapest, Ernő utca 17.",phone:"+36 70 601-9908",email:"info@homever.hu"},
+    certifications:["100% Elégedettségi Garancia","High Quality minőségi jelzés"],
+    targetClients:["passzív jövedelmet kereső tulajdonosok","prémium lakástulajdonosok"],
+    competitorRelevance:"KÖZEPES",ibOverlap:"Bérbeadás-management modell, tulajdonosbarát kommunikáció",
+    logoText:"HV"
+  },
+  {
+    id:"corvin",name:"Corvin Apartments Budapest Kft.",short:"Corvin Apartments",website:"https://www.corvinapartments.hu",
+    founded:2011,type:"boutique",tier:"boutique",
+    revenue:1650000000,profit:290000000,properties:420,employees:105,
+    feeRange:"11-14%",feeMin:11,feeMax:14,
+    propertyTypes:["lakóingatlan","serviced apartment","short-stay","corporate housing"],
+    districts:["VII","VIII","XIII"],
+    description:"Corvin negyed fókuszú apartmankezelő. Rövid és hosszú távú bérbeadás, expat-relokáció, vállalati szállás. Booking.com: 8.9/10. Helyszín: VIII. kerület Futó utca 34-36. Dinamikus árazás, szállodai minőségű szolgáltatások.",
+    services:["rövid-középtávú kiadás","hosszú távú bérbeadás","corporate relocation","expat-dokumentáció","dinamikus árazás"],
+    differentiators:["Dinamikus árazás – occupancy maximalizálás","Expat relokációs + bevándorlási dokumentációs szolgáltatás","Booking.com 8.9/10 értékelés","Corvin negyed presztizshelyszín"],
+    contact:{address:"1082 Budapest, Futó utca 34-36.",phone:"+36 70 770-4454",email:"hello@corvincentersuites.com"},
+    certifications:["Booking.com 8.9/10","Hotels.com 8/10 – Very Good"],
+    targetClients:["külföldi expatok","üzleti utazók","vállalati relokáló ügyfelek","turisták"],
+    competitorRelevance:"NAGYON MAGAS",ibOverlap:"VIII. kerület direkt átfedés IB Rákóczi/Baross ingatlanaival; rövid-középtávú kiadás",
+    logoText:"CA"
+  },
+  {
+    id:"itl",name:"ITL Real Estate Kft.",short:"ITL Real Estate",website:"https://www.itlrealestate.hu",
+    founded:1995,type:"középvállalat",tier:"mid",
+    revenue:1400000000,profit:185000000,properties:320,employees:95,
+    feeRange:"10-13%",feeMin:10,feeMax:13,
+    propertyTypes:["lakóingatlan","irodaház","kereskedelmi"],
+    districts:["VI","VIII","XI","XIII"],
+    description:"ITL Group tagja (1995-óta). 30+ év tapasztalat, 500+ vállalati ügyfél referencia. Ingatlanközvetítés, kezelés és vállalati szolgáltatások kombinációja. VI. és XI. kerületi irodák.",
+    services:["ingatlanközvetítés","ingatlankezelés","vállalati szolgáltatások","értékbecslés"],
+    differentiators:["ITL Group vállalati háttér","30+ év tapasztalat","500+ vállalati ügyfél referencia"],
+    contact:{address:"Budapest, VI. és XI. kerület",phone:"Weboldal alapján",email:"Weboldal alapján"},
+    certifications:["30+ év piaci jelenlét"],
+    targetClients:["vállalati ügyfelek","intézményi befektetők","magánszemélyek"],
+    competitorRelevance:"KÖZEPES",ibOverlap:"VIII. kerület, vállalati ügyfelek",
+    logoText:"ITL"
+  },
+  {
+    id:"maril",name:"Maril Property Management Kft.",short:"Maril",website:"https://www.maril.hu",
+    founded:2022,type:"boutique",tier:"boutique",
+    revenue:1320000000,profit:175000000,properties:280,employees:85,
+    feeRange:"12-15%",feeMin:12,feeMax:15,
+    propertyTypes:["lakóingatlan","egyedi kezelés"],
+    districts:["V","VI","VII","IX","XIII"],
+    description:"2022-ben alapított, gyorsan növekvő IX. kerületi fókuszú ingatlankezelő. Ferencváros-specialista. Átlátható díjazás rejtett költségek nélkül. Egyedi megoldások 1 lakástól teljes portfólióig.",
+    services:["ingatlankezelés","bérbeadás","karbantartás","adminisztráció"],
+    differentiators:["IX. kerület (Ferencváros) specialista","Átlátható díjazás – nincs rejtett költség","Egyedi megoldások","Fiatal, dinamikus csapat"],
+    contact:{address:"Budapest, IX. kerület",phone:"Weboldal alapján",email:"Weboldal alapján"},
+    certifications:[],
+    targetClients:["magán lakástulajdonosok","ferencvárosi ingatlantulajdonosok"],
+    competitorRelevance:"MAGAS",ibOverlap:"IX. kerület szomszédság, lakóingatlan-kezelés, diáklakás potenciál",
+    logoText:"ML"
+  },
+  {
+    id:"dream",name:"Dream Home Budapest Kft.",short:"Dream Home",website:"https://www.dreamhomebudapest.com",
+    founded:2008,type:"boutique",tier:"boutique",
+    revenue:680000000,profit:88000000,properties:120,employees:50,
+    feeRange:"14-17%",feeMin:14,feeMax:17,
+    propertyTypes:["prémium lakóingatlan","belváros-fókusz"],
+    districts:["II","V","VI","VII","VIII","IX","XIII"],
+    description:"2008 (Kallós Home Service Bt.) alapú prémium fókuszú ingatlanközvetítő és kezelő. 55 aktív hirdetés. Belső és népszerű kerületek specializáció. Ingyenes értékbecslés és konzultáció.",
+    services:["ingatlanközvetítés","ingatlankezelés","értékbecslés","konzultáció"],
+    differentiators:["18+ év piaci tapasztalat","Prémium belváros fókusz","Ingyenes értékbecslés","Személyes boutique megközelítés"],
+    contact:{address:"Budapest",phone:"Weboldal alapján",email:"Weboldal alapján"},
+    certifications:["18+ év piaci tapasztalat"],
+    targetClients:["prémium ingatlantulajdonosok","befektetők","külföldi vevők"],
+    competitorRelevance:"ALACSONY-KÖZEPES",ibOverlap:"VII–IX. kerület, lakóingatlan közvetítés",
+    logoText:"DH"
+  },
+  {
+    id:"nyolcas",name:"Nyolcas.com Kft.",short:"Nyolcas.com",website:"https://www.nyolcas.com",
+    founded:2014,type:"tech-alapú",tier:"tech",
+    revenue:246000000,profit:52804000,properties:1500,employees:20,
+    feeRange:"10%",feeMin:10,feeMax:10,
+    propertyTypes:["lakóingatlan","VIII–IX–XI–XIII. kerület fókusz"],
+    districts:["I","II","III","IV","V","VI","VII","VIII","IX","X","XI","XIII","XIV"],
+    description:"Tech-alapú, hatékony ingatlankezelő. 1.500 db kezelt ingatlan mindössze 20 alkalmazottal — erős automatizáció. 12+ év tapasztalat. VIII–IX–XI–XIII. kerületi fókusz. Legalacsonyabb díj a piacon: bérleti díj 10%-a.",
+    services:["ingatlankezelés","bérlő-elhelyezés","bérbeadás","karbantartás"],
+    differentiators:["1.500+ kezelt ingatlan csupán 20 fővel – technológia-vezérelt hatékonyság","Legalacsonyabb díj: 10% (min. 15-20 eFt)","3.400+ sikeres bérbeadás","VIII–IX–XI–XIII. kerület specializáció"],
+    contact:{address:"Budapest, VIII–XIII. kerület",phone:"Weboldal alapján",email:"Weboldal alapján"},
+    certifications:["12+ év piaci tapasztalat"],
+    targetClients:["magán lakástulajdonosok","befektetési portfóliók","VIII. kerületi ingatlantulajdonosok"],
+    competitorRelevance:"NAGYON MAGAS",ibOverlap:"VIII. kerület direkt átfedés IB Rákóczi/Baross ingatlanokkal; IX–XIII. kerület; alacsony díj",
+    logoText:"8.com"
+  },
+  {
+    id:"flatco",name:"Flatco Real Estate Kft.",short:"Flatco",website:"https://www.flatco.hu",
+    founded:2012,type:"középvállalat",tier:"mid",
+    revenue:609293000,profit:108776000,properties:700,employees:33,
+    feeRange:"10-15%",feeMin:10,feeMax:15,
+    propertyTypes:["lakóingatlan","nagy lakóépületek kezelése"],
+    districts:["III","IV","VI","VII","VIII","IX","X","XI","XIII","XIV"],
+    description:"2012-ben alapított (korábban TFCB). 700+ kezelt ingatlan, 33 alkalmazott. XIII. kerületi széleskörű portfólió: Teve utca, Berettyó utca, Madarász Viktor utca épületek. Nagyobb lakókomplexumok specialistája.",
+    services:["ingatlankezelés","bérbeadás","nagyobb lakóépületek kezelése"],
+    differentiators:["700+ kezelt ingatlan kis csapattal (33 fő)","Nagy lakóépületek kezelési tapasztalata","Széles kerületi lefedettség"],
+    contact:{address:"Budapest, XIII. kerület",phone:"Weboldal alapján",email:"Weboldal alapján"},
+    certifications:["14 év piaci tapasztalat"],
+    targetClients:["magán lakástulajdonosok","nagy lakóépületek tulajdonosai","befektetők"],
+    competitorRelevance:"MAGAS",ibOverlap:"VIII–IX–XIII. kerület, lakóingatlan kezelés",
+    logoText:"FC"
+  }
+];
+
+// ── State ──────────────────────────────────────────────────────────────────────
+let filtered = [...COMPANIES];
+let activeFilter = 'all';
+
+// ── Helpers ──────────────────────────────────────────────────────────────────
+function fmtM(n){
+  if(n>=1e9) return (n/1e9).toLocaleString('hu-HU',{maximumFractionDigits:1})+' Mrd';
+  if(n>=1e6) return (n/1e6).toLocaleString('hu-HU',{maximumFractionDigits:0})+' M';
+  return n.toLocaleString('hu-HU');
+}
+function fmtPct(a,b){ return b>0 ? ((a/b)*100).toFixed(1)+'%' : 'n/a'; }
+function tierLabel(t){ return {enterprise:'Nagyvállalat',mid:'Középvállalat',boutique:'Boutique','tech-alapú':'Tech-alapú',tech:'Tech-alapú'}[t]||t; }
+function tierClass(t){ return {enterprise:'enterprise',mid:'mid',boutique:'boutique','tech-alapú':'boutique',tech:'boutique'}[t]||'mid'; }
+function relClass(r){
+  if(r.includes('NAGYON')) return 'veryhigh';
+  if(r==='MAGAS') return 'high';
+  if(r.includes('KÖZEPES')) return 'medium';
+  return 'low';
+}
+function relLabel(r){ return r; }
+function feeWidth(min,max){ return Math.round(((min+max)/2/20)*100); }
+
+// ── Render Cards ──────────────────────────────────────────────────────────────
+function renderCards(){
+  const grid = document.getElementById('cards-grid');
+  if(!filtered.length){
+    grid.innerHTML='<div class="no-results">Nincs találat a szűrési feltételekre.</div>';
+    document.getElementById('result-count').textContent='0 cég';
+    return;
+  }
+  document.getElementById('result-count').textContent=filtered.length+' cég megjelenítve';
+  grid.innerHTML = filtered.map(c=>`
+    <div class="company-card" id="card-${c.id}" onclick="toggleCard('${c.id}')">
+      <div class="card-header">
+        <div class="card-logo">${c.logoText}</div>
+        <div class="card-title-block">
+          <div class="card-name">${c.name}</div>
+          <div class="card-meta">${c.founded} · ${c.type} · <a href="${c.website}" target="_blank" onclick="event.stopPropagation()" style="color:var(--accent)">${new URL(c.website).hostname}</a></div>
+          <div class="card-badges">
+            <span class="badge badge-tier-${tierClass(c.tier)}">${tierLabel(c.tier)}</span>
+            <span class="badge badge-relevance-${relClass(c.competitorRelevance)}">IB: ${relLabel(c.competitorRelevance)}</span>
+          </div>
+        </div>
+      </div>
+      <div class="card-kpis">
+        <div class="card-kpi">
+          <div class="card-kpi-value">${fmtM(c.revenue)}</div>
+          <div class="card-kpi-label">Forgalom (Ft)</div>
+        </div>
+        <div class="card-kpi">
+          <div class="card-kpi-value">${fmtPct(c.profit,c.revenue)}</div>
+          <div class="card-kpi-label">Profitmarzs</div>
+        </div>
+        <div class="card-kpi">
+          <div class="card-kpi-value">${c.properties.toLocaleString('hu-HU')}</div>
+          <div class="card-kpi-label">Kezelt ingat.</div>
+        </div>
+        <div class="card-kpi">
+          <div class="card-kpi-value">${c.feeRange}</div>
+          <div class="card-kpi-label">Kezelési díj</div>
+        </div>
+      </div>
+      <div class="card-body">
+        <p class="card-desc">${c.description}</p>
+        <div class="section-title">Fő szolgáltatások</div>
+        <div class="tag-list">${c.services.map(s=>`<span class="tag">${s}</span>`).join('')}</div>
+        <div class="section-title">Megkülönböztető tényezők</div>
+        <div class="tag-list">${c.differentiators.map(d=>`<span class="tag" style="background:var(--accent-light);border-color:rgba(0,113,227,0.2);color:var(--accent)">${d}</span>`).join('')}</div>
+        <div class="section-title">Ingatlan típusok</div>
+        <div class="tag-list">${c.propertyTypes.map(p=>`<span class="tag">${p}</span>`).join('')}</div>
+        <div class="section-title">Célkerületek</div>
+        <div class="tag-list">${c.districts.map(d=>`<span class="tag" style="font-weight:700">${d}. ker.</span>`).join('')}</div>
+        <div class="section-title">Kapcsolat</div>
+        <div class="info-grid">
+          <div class="info-row"><span class="info-key">Cím</span><span class="info-val">${c.contact.address}</span></div>
+          <div class="info-row"><span class="info-key">Telefon</span><span class="info-val">${c.contact.phone}</span></div>
+          <div class="info-row"><span class="info-key">E-mail</span><span class="info-val">${c.contact.email}</span></div>
+          <div class="info-row"><span class="info-key">Alkalmazottak</span><span class="info-val">${c.employees} fő</span></div>
+        </div>
+        ${c.certifications.length ? `<div class="section-title">Díjak, tanúsítványok</div><div class="tag-list">${c.certifications.map(cert=>`<span class="tag" style="background:#FF9F0A15;border-color:#FF9F0A33;color:var(--gold)">${cert}</span>`).join('')}</div>` : ''}
+        <div class="relevance-box ${relClass(c.competitorRelevance)}">
+          <div class="relevance-label">IB Exproconsult relevancia: ${c.competitorRelevance}</div>
+          <div>${c.ibOverlap}</div>
+        </div>
+      </div>
+      <div class="card-footer">
+        <a href="${c.website}" target="_blank" onclick="event.stopPropagation()" class="card-link">↗ Weboldal</a>
+        <span class="expand-toggle">
+          <span id="toggle-label-${c.id}">Részletek</span>
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 5l4 4 4-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </span>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ── Render Matrix ──────────────────────────────────────────────────────────────
+function renderMatrix(){
+  const tbody = document.getElementById('matrix-tbody');
+  const sorted = [...COMPANIES].sort((a,b)=>b.revenue-a.revenue);
+  tbody.innerHTML = sorted.map(c=>{
+    const margin = ((c.profit/c.revenue)*100).toFixed(1);
+    const eff = Math.round(c.properties/c.employees*10)/10;
+    const rc = relClass(c.competitorRelevance);
+    const dotColor = rc==='veryhigh'?'red':rc==='high'?'orange':rc==='medium'?'orange':'green';
+    return `<tr>
+      <td><strong>${c.short}</strong><br><span style="font-size:10px;color:var(--text-muted)">${c.founded}</span></td>
+      <td>${fmtM(c.revenue)}</td>
+      <td style="color:${parseFloat(margin)>20?'var(--green)':parseFloat(margin)>10?'var(--gold)':'var(--text)'}">${margin}%</td>
+      <td>
+        <div class="fee-bar">
+          <div class="fee-fill" style="width:${feeWidth(c.feeMin,c.feeMax)}px"></div>
+          ${c.feeRange}
+        </div>
+      </td>
+      <td>${c.properties.toLocaleString('hu-HU')} db</td>
+      <td>${c.employees} fő</td>
+      <td style="color:var(--accent);font-weight:600">${eff} db/fő</td>
+      <td><span class="dot dot-${dotColor}"></span>${c.competitorRelevance}</td>
+    </tr>`;
+  }).join('');
+}
+
+// ── Render Districts ──────────────────────────────────────────────────────────
+function renderDistricts(){
+  const IBdistricts = ["VIII","IX"];
+  const allDistricts = {};
+  COMPANIES.forEach(c=>{
+    c.districts.forEach(d=>{
+      if(!allDistricts[d]) allDistricts[d]={companies:[]};
+      allDistricts[d].companies.push(c);
+    });
+  });
+  const districtNames = {
+    "I":"Belváros","II":"Budai hegy","III":"Óbuda","IV":"Újpest","V":"Lipótváros",
+    "VI":"Terézváros","VII":"Erzsébetváros","VIII":"Józsefváros","IX":"Ferencváros",
+    "X":"Kőbánya","XI":"Újbuda","XII":"Hegyvidék","XIII":"Angyalföld","XIV":"Zugló",
+    "XV":"Rákospalota","XVI":"Mátyásföld","XX":"Pesterzsébet","XXI":"Csepel"
+  };
+  const grid = document.getElementById('districts-grid');
+  const sortedKeys = Object.keys(allDistricts).sort((a,b)=>{
+    const na=parseInt(a.replace(/\D/g,''))||99;
+    const nb=parseInt(b.replace(/\D/g,''))||99;
+    return na-nb;
+  });
+  grid.innerHTML = sortedKeys.map(d=>{
+    const isIB = IBdistricts.includes(d);
+    return `<div class="district-card" style="${isIB?'border-color:var(--accent);background:var(--accent-light)':''}">
+      <div class="district-num" style="${isIB?'color:var(--accent)':''}">
+        ${isIB?'★ ':''}<strong>${d}.</strong> kerület
+      </div>
+      <div class="district-name">${districtNames[d]||''}</div>
+      <div class="district-managers" style="margin-top:7px">
+        ${allDistricts[d].companies.map(c=>`
+          <div class="district-dot" title="${c.name}" style="${relClass(c.competitorRelevance)==='veryhigh'?'background:#FF3B3022;border-color:#FF3B30;color:#FF3B30':relClass(c.competitorRelevance)==='high'?'background:#FF950022;border-color:#FF9500;color:#FF9500':''}">${c.logoText.slice(0,2)}</div>
+        `).join('')}
+      </div>
+      <div style="font-size:10px;color:var(--text-muted);margin-top:5px">${allDistricts[d].companies.length} kezelő</div>
+    </div>`;
+  }).join('');
+}
+
+// ── Toggle Card ───────────────────────────────────────────────────────────────
+function toggleCard(id){
+  const card = document.getElementById('card-'+id);
+  const label = document.getElementById('toggle-label-'+id);
+  const isExp = card.classList.contains('expanded');
+  card.classList.toggle('expanded',!isExp);
+  if(label) label.textContent = isExp ? 'Részletek' : 'Bezárás';
+}
+
+// ── Filter ────────────────────────────────────────────────────────────────────
+function filterCards(filter, btn){
+  activeFilter = filter;
+  document.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  applyFilters();
+}
+
+function searchCards(q){
+  applyFilters(q);
+}
+
+function applyFilters(query){
+  const q = (query || document.getElementById('search-box').value).toLowerCase();
+  filtered = COMPANIES.filter(c=>{
+    const tierMatch = activeFilter==='all' ||
+      (activeFilter==='enterprise' && c.tier==='enterprise') ||
+      (activeFilter==='mid' && c.tier==='mid') ||
+      (activeFilter==='boutique' && c.tier==='boutique') ||
+      (activeFilter==='tech' && (c.tier==='tech'||c.type==='tech-alapú')) ||
+      (activeFilter==='rel-veryhigh' && c.competitorRelevance.includes('NAGYON')) ||
+      (activeFilter==='rel-high' && (c.competitorRelevance==='MAGAS'||c.competitorRelevance.includes('NAGYON')));
+    const textMatch = !q || c.name.toLowerCase().includes(q) || c.short.toLowerCase().includes(q) ||
+      c.districts.some(d=>d.toLowerCase().includes(q)) ||
+      c.description.toLowerCase().includes(q) ||
+      c.propertyTypes.some(p=>p.toLowerCase().includes(q));
+    return tierMatch && textMatch;
+  });
+  renderCards();
+}
+
+// ── Sort ──────────────────────────────────────────────────────────────────────
+function sortCards(key){
+  filtered.sort((a,b)=>{
+    if(key==='revenue') return b.revenue-a.revenue;
+    if(key==='profit') return b.profit-a.profit;
+    if(key==='properties') return b.properties-a.properties;
+    if(key==='name') return a.name.localeCompare(b.name,'hu');
+    if(key==='founded') return a.founded-b.founded;
+    return 0;
+  });
+  renderCards();
+}
+
+// ── Dark Mode ─────────────────────────────────────────────────────────────────
+function toggleTheme(){
+  const html = document.documentElement;
+  const isDark = html.getAttribute('data-theme')==='dark';
+  html.setAttribute('data-theme', isDark?'light':'dark');
+}
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+renderCards();
+renderMatrix();
+renderDistricts();
+</script>
+</body>
+</html>

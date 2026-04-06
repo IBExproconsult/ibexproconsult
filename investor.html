@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<!--
+  
+  Befektetői Dashboard — IB Exproconsult
+  © 2026
+-->
+<html lang="hu" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IB Exproconsult — Befektetői Dashboard</title>
+<meta name="description" content="Befektetői portfólió dashboard — IB Exproconsult">
+<script src="libs/chart.min.js"></script>
+<style>
+:root {
+  --bg: #F5F5F7;
+  --surface: #FFFFFF;
+  --surface-2: #F5F5F7;
+  --surface2: #F5F5F7;
+  --surface-3: #E5E5EA;
+  --border: rgba(0,0,0,0.08);
+  --border-h: rgba(0,0,0,0.14);
+  --accent: #0071E3;
+  --accent-hover: #0077ED;
+  --accent-light: rgba(0,113,227,0.12);
+  --primary: #0071E3;
+  --primary-h: #0077ED;
+  --ib-blue: #0071E3;
+  --ib-blue-h: #0077ED;
+  --ib-blue-glow: rgba(0,113,227,0.15);
+  --gold: #FF9F0A;
+  --green: #34C759;
+  --red: #FF3B30;
+  --orange: #FF9500;
+  --purple: #AF52DE;
+  --teal: #5AC8FA;
+  --cyan: #5AC8FA;
+  --success: #34C759;
+  --warning: #FF9F0A;
+  --danger: #FF3B30;
+  --info: #5AC8FA;
+  --text: #1D1D1F;
+  --text-muted: #6E6E73;
+  --text-dim: #AEAEB2;
+  --text-faint: #AEAEB2;
+  --radius: 10px;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 18px;
+  --shadow: 0 4px 24px rgba(0,0,0,0.4);
+  --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  --text-xs: 10px;
+  --text-sm: 12px;
+  --text-base: 13px;
+  --text-md: 14px;
+  --text-lg: 16px;
+  --text-xl: 20px;
+  --text-2xl: 28px;
+
+      --header-h: 56px;
+      --sidebar-w: 340px;
+    }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; background: var(--bg); color: var(--text); font-family: var(--font); font-size: 14px; line-height: 1.5; }
+a { color: var(--accent); text-decoration: none; }
+button { cursor: pointer; border: none; font-family: inherit; }
+.page { min-height: 100vh; display: flex; flex-direction: column; }
+
+.nav {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 0 24px; height: 56px;
+  display: flex; align-items: center; gap: 16px;
+  position: sticky; top: 0; z-index: 100;
+}
+.nav-back {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 13px; color: var(--text-muted);
+  padding: 6px 12px; border-radius: 6px;
+  background: var(--surface2); border: 1px solid var(--border);
+  transition: all 0.15s;
+}
+.nav-back:hover { color: var(--text); border-color: var(--accent); }
+.nav-logo { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 15px; color: var(--text); }
+.nav-spacer { flex: 1; }
+.nav-badge {
+  font-size: 11px; background: var(--accent-light); color: var(--accent);
+  border: 1px solid rgba(0,113,227,0.3); padding: 3px 10px;
+  border-radius: 20px; font-weight: 600;
+}
+
+.main-content { flex: 1; padding: 24px; max-width: 1600px; margin: 0 auto; width: 100%; }
+
+.investor-grid {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 24px;
+  align-items: start;
+}
+@media (max-width: 1000px) {
+  .investor-grid { grid-template-columns: 1fr; }
+}
+
+.kpi-sidebar { display: flex; flex-direction: column; gap: 12px; }
+.kpi-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 16px;
+}
+.kpi-label {
+  font-size: 11px; color: var(--text-muted); text-transform: uppercase;
+  font-weight: 600; letter-spacing: 0.06em;
+}
+.kpi-value {
+  font-size: 24px; font-weight: 700; margin-top: 4px;
+  font-variant-numeric: tabular-nums lining-nums;
+}
+.kpi-value.accent { color: var(--accent); }
+.kpi-value.green { color: var(--green); }
+.kpi-value.gold { color: var(--gold); }
+
+.main-right { display: flex; flex-direction: column; gap: 24px; }
+
+.card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius-lg); padding: 20px; overflow-x: auto;
+}
+.card h3 {
+  font-size: 15px; margin-bottom: 16px; display: flex;
+  align-items: center; gap: 8px;
+}
+
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+th {
+  padding: 10px 12px; text-align: left; color: var(--text-muted);
+  font-size: 11px; text-transform: uppercase; font-weight: 600;
+  letter-spacing: 0.04em; border-bottom: 2px solid var(--border);
+}
+td { padding: 10px 12px; border-bottom: 1px solid var(--border); }
+tr:hover { background: rgba(0,113,227,0.04); }
+
+.badge {
+  padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600;
+}
+.badge-active { background: rgba(16,185,129,0.15); color: var(--green); }
+.badge-free { background: rgba(239,68,68,0.15); color: var(--red); }
+
+.expiring-card {
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 14px; margin-bottom: 10px;
+}
+.expiring-card.urgent { border-color: var(--red); }
+
+.btn-action {
+  padding: 8px 16px; border-radius: 8px; font-size: 13px;
+  font-weight: 600; transition: all 0.15s; display: inline-flex;
+  align-items: center; gap: 6px;
+}
+
+.footer {
+  padding: 16px 24px; text-align: center; font-size: 11px;
+  color: var(--text-dim); border-top: 1px solid var(--border);
+}
+.footer a { color: var(--text-muted); }
+.footer a:hover { color: var(--accent); }
+
+/* ── Dark mode ──────────────────────────────────────────── */
+[data-theme="dark"] {
+  --bg: #1C1C1E;
+  --surface: #2C2C2E;
+  --surface-2: #3A3A3C;
+  --surface-3: #48484A;
+  --border: rgba(255,255,255,0.10);
+  --text: #F5F5F7;
+  --text-muted: #AEAEB2;
+  --text-dim: #636366;
+  --text-faint: #48484A;
+  --accent: #0A84FF;
+  --primary: #0A84FF;
+  --primary-h: #409CFF;
+  --shadow: 0 4px 24px rgba(0,0,0,0.6);
+}
+
+/* ── Kétszintes nav ── */
+.ib-header-wrap { position:sticky; top:0; z-index:200; }
+.ib-header-top {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:0 20px; height:48px;
+  background:rgba(255,255,255,0.92);
+  border-bottom:1px solid rgba(0,0,0,0.06);
+  backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px);
+}
+.ib-header-nav {
+  display:flex; align-items:center; justify-content:center;
+  flex-wrap:wrap; gap:2px;
+  padding:4px 16px;
+  background:rgba(255,255,255,0.85);
+  border-bottom:1px solid rgba(0,0,0,0.08);
+  backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px);
+}
+[data-theme="dark"] .ib-header-top,
+[data-theme="dark"] .ib-header-nav {
+  background:rgba(28,28,30,0.92);
+  border-color:rgba(255,255,255,0.08);
+}
+
+</style>
+<link rel="stylesheet" href="libs/ib-design-system.css">
+</head>
+<body>
+<div class="page">
+  <div class="ib-header-wrap">
+  <div class="ib-header-top">
+    <div style="display:flex;align-items:center;gap:10px;flex-shrink:0;">
+      <div style="width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,#0071E3,#0055B3);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#fff;letter-spacing:-0.5px;flex-shrink:0;">IB</div>
+      <div>
+        <div style="font-size:14px;font-weight:700;color:#1D1D1F;letter-spacing:-0.02em;line-height:1.2;">IB Expro</div>
+        <div style="font-size:10px;color:#6E6E73;letter-spacing:0.03em;line-height:1.2;">Figyelő Platform</div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
+<div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
+    <span id="selected-district-badge" style="font-size:11px;color:#6E6E73;font-weight:500;padding:4px 10px;background:#F5F5F7;border-radius:6px;border:1px solid rgba(0,0,0,0.08);white-space:nowrap;">Összes kerület</span>
+    <button style="width:32px;height:32px;border-radius:8px;background:#F5F5F7;border:1px solid rgba(0,0,0,0.08);color:#6E6E73;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all 0.15s;" data-theme-toggle aria-label="Téma váltás" onmouseover="this.style.borderColor='#0071E3';this.style.color='#0071E3'" onmouseout="this.style.borderColor='rgba(0,0,0,0.08)';this.style.color='#6E6E73'">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+    </button>
+  </div>
+    </div>
+  </div>
+  <nav class="ib-header-nav" id="main-nav">
+    <a href="index.html" class="ib-nav-link">Dashboard</a>
+    <a href="simulator.html" class="ib-nav-link">Szimulátor</a>
+    <a href="development.html" class="ib-nav-link">Fejlesztés</a>
+    <a href="property_mgmt.html" class="ib-nav-link">Kezelés</a>
+    <a href="occupancy.html" class="ib-nav-link">Kihasználtság</a>
+    <a href="investor.html" class="ib-nav-link active">Befektetők</a>
+    <a href="investment_calculator.html" class="ib-nav-link">Kalkulátor</a>
+    <a href="apartment_converter.html" class="ib-nav-link">Diáklakás</a>
+    <a href="student_intel.html" class="ib-nav-link">Diák Intel</a>
+    <a href="parking_intel.html" class="ib-nav-link">Parkoló</a>
+    <a href="property_managers.html" class="ib-nav-link">Kezelők</a>
+    <a href="crm.html" class="ib-nav-link">CRM</a>
+    <a href="memo.html" class="ib-nav-link">Memo</a>
+    <a href="listings.html" class="ib-nav-link">Hirdetések</a>
+    <a href="adatkozpont.html" class="ib-nav-link">Adatközpont</a>
+  </nav>
+</div>
+
+  <div class="main-content">
+    <div class="investor-grid">
+      <!-- LEFT: KPI Sidebar -->
+      <div class="kpi-sidebar">
+        <div class="kpi-card">
+          <div class="kpi-label">Összesített portfólió érték</div>
+          <div class="kpi-value accent" id="kpi-portfolio-value">—</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Havi bevétel összesen</div>
+          <div class="kpi-value green" id="kpi-monthly-income">—</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Éves bevétel</div>
+          <div class="kpi-value green" id="kpi-yearly-income">—</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">YTD hozam %</div>
+          <div class="kpi-value gold" id="kpi-ytd-yield">—</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Átlagos kihasználtság</div>
+          <div class="kpi-value accent" id="kpi-occupancy">—</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Lejáró szerződések (90 napon belül)</div>
+          <div class="kpi-value" style="color:var(--red);" id="kpi-expiring">—</div>
+        </div>
+      </div>
+
+      <!-- RIGHT: Main content -->
+      <div class="main-right">
+        <!-- Portfolio Table -->
+        <div class="card">
+          <h3>📋 Ingatlan portfólió</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>Ingatlan neve</th>
+                <th>Kerület</th>
+                <th>Típus</th>
+                <th style="text-align:right;">Alapterület</th>
+                <th style="text-align:right;">Havi bérleti díj</th>
+                <th style="text-align:right;">Hozam %</th>
+                <th>Lejárat</th>
+                <th>Státusz</th>
+              </tr>
+            </thead>
+            <tbody id="portfolio-tbody"></tbody>
+          </table>
+        </div>
+
+        <!-- Cashflow Chart -->
+        <div class="card">
+          <h3>📊 Havi cashflow (12 hónap)</h3>
+          <div style="height:320px;"><canvas id="cashflow-chart"></canvas></div>
+        </div>
+
+        <!-- Expiring Leases -->
+        <div class="card">
+          <h3>⏰ Lejáró szerződések (következő 6 hónap)</h3>
+          <div id="expiring-cards"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="footer">
+    © 2026 IB Exproconsult Kft. · 
+  </footer>
+</div>
+
+<script>
+const INVESTOR_PORTFOLIO = [
+  {id:1, name:"Budapest V. Váci utca", district:"V", type:"Lakás", sqm:65, monthly_rent:420000, purchase_price:130000000, status:"Bérelt", lease_end:"2026-06-30"},
+  {id:2, name:"Budapest XIII. Lehel", district:"XIII", type:"Lakás", sqm:52, monthly_rent:295000, purchase_price:83000000, status:"Bérelt", lease_end:"2026-04-15"},
+  {id:3, name:"Budapest XI. Móricz", district:"XI", type:"Lakás", sqm:78, monthly_rent:420000, purchase_price:127000000, status:"Bérelt", lease_end:"2027-01-31"},
+  {id:4, name:"Budapest IX. Ferencváros", district:"IX", type:"Lakás", sqm:48, monthly_rent:270000, purchase_price:75000000, status:"Szabad", lease_end:null},
+  {id:5, name:"Budapest XIV. Zugló", district:"XIV", type:"Lakás", sqm:60, monthly_rent:290000, purchase_price:80000000, status:"Bérelt", lease_end:"2026-05-31"},
+  {id:6, name:"Budapest II. Pasarét", district:"II", type:"Lakás", sqm:92, monthly_rent:520000, purchase_price:170000000, status:"Bérelt", lease_end:"2026-07-31"},
+  {id:7, name:"Budapest VI. Andrássy", district:"VI", type:"Iroda", sqm:120, monthly_rent:780000, purchase_price:210000000, status:"Bérelt", lease_end:"2027-03-31"},
+  {id:8, name:"Budapest VIII. Józsefváros", district:"VIII", type:"Lakás", sqm:42, monthly_rent:230000, purchase_price:56000000, status:"Bérelt", lease_end:"2026-08-31"}
+];
+
+const TODAY = new Date();
+
+function fmt(n) { return n != null ? Number(n).toLocaleString('hu-HU') : '—'; }
+
+function animateCount(el, target, suffix) {
+  suffix = suffix || '';
+  let current = 0;
+  const step = target / 40;
+  const interval = setInterval(() => {
+    current += step;
+    if (current >= target) {
+      current = target;
+      clearInterval(interval);
+    }
+    if (suffix === '%') {
+      el.textContent = current.toFixed(1) + '%';
+    } else {
+      el.textContent = fmt(Math.round(current)) + (suffix ? ' ' + suffix : '');
+    }
+  }, 25);
+}
+
+function init() {
+  const portfolio = INVESTOR_PORTFOLIO;
+  const totalValue = portfolio.reduce((s, p) => s + p.purchase_price, 0);
+  const monthlyIncome = portfolio.filter(p => p.status === 'Bérelt').reduce((s, p) => s + p.monthly_rent, 0);
+  const yearlyIncome = monthlyIncome * 12;
+  const ytdYield = (yearlyIncome / totalValue * 100);
+  const occupiedCount = portfolio.filter(p => p.status === 'Bérelt').length;
+  const occupancy = (occupiedCount / portfolio.length * 100);
+
+  const now = TODAY.getTime();
+  const d90 = now + 90 * 86400000;
+  const expiring90 = portfolio.filter(p => p.lease_end && new Date(p.lease_end).getTime() <= d90 && new Date(p.lease_end).getTime() >= now).length;
+
+  // Animate KPIs
+  animateCount(document.getElementById('kpi-portfolio-value'), totalValue, 'Ft');
+  animateCount(document.getElementById('kpi-monthly-income'), monthlyIncome, 'Ft');
+  animateCount(document.getElementById('kpi-yearly-income'), yearlyIncome, 'Ft');
+  animateCount(document.getElementById('kpi-ytd-yield'), ytdYield, '%');
+  animateCount(document.getElementById('kpi-occupancy'), occupancy, '%');
+  document.getElementById('kpi-expiring').textContent = expiring90 + ' db';
+
+  // Portfolio table
+  const tbody = document.getElementById('portfolio-tbody');
+  tbody.innerHTML = portfolio.map(p => {
+    const yieldPct = (p.monthly_rent * 12 / p.purchase_price * 100).toFixed(1);
+    const leaseDate = p.lease_end ? new Date(p.lease_end).toLocaleDateString('hu-HU') : '—';
+    const statusBadge = p.status === 'Bérelt'
+      ? '<span class="badge badge-active">Bérelt</span>'
+      : '<span class="badge badge-free">Szabad</span>';
+    return '<tr>' +
+      '<td style="font-weight:600;">' + p.name + '</td>' +
+      '<td>' + p.district + '.</td>' +
+      '<td>' + p.type + '</td>' +
+      '<td style="text-align:right;">' + p.sqm + ' m²</td>' +
+      '<td style="text-align:right;font-weight:600;">' + fmt(p.monthly_rent) + ' Ft</td>' +
+      '<td style="text-align:right;color:var(--green);">' + yieldPct + '%</td>' +
+      '<td>' + leaseDate + '</td>' +
+      '<td>' + statusBadge + '</td>' +
+      '</tr>';
+  }).join('');
+
+  // Cashflow chart
+  const totalMonthly = portfolio.reduce((s, p) => s + p.monthly_rent, 0);
+  const months = ['Jan', 'Feb', 'Már', 'Ápr', 'Máj', 'Jún', 'Júl', 'Aug', 'Sze', 'Okt', 'Nov', 'Dec'];
+  const fluctuations = [0.92, 0.95, 1.0, 1.02, 1.05, 1.03, 0.98, 0.97, 1.01, 1.04, 1.0, 0.96];
+  const incomeData = fluctuations.map(f => Math.round(totalMonthly * f));
+  const opexRate = 0.25;
+  const expenseData = incomeData.map(v => Math.round(v * opexRate));
+  const netData = incomeData.map((v, i) => v - expenseData[i]);
+
+  const ctx = document.getElementById('cashflow-chart').getContext('2d');
+  new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: months,
+      datasets: [
+        {
+          label: 'Bevétel',
+          data: incomeData,
+          borderColor: '#34C759',
+          backgroundColor: 'rgba(16,185,129,0.1)',
+          fill: true, tension: 0.3, pointRadius: 4
+        },
+        {
+          label: 'Kiadás',
+          data: expenseData,
+          borderColor: '#FF3B30',
+          backgroundColor: 'rgba(239,68,68,0.1)',
+          fill: true, tension: 0.3, pointRadius: 4
+        },
+        {
+          label: 'Nettó cashflow',
+          data: netData,
+          borderColor: '#0071E3',
+          backgroundColor: 'rgba(0,113,227,0.1)',
+          fill: true, tension: 0.3, pointRadius: 4
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      animation: { duration: 1000 },
+      plugins: {
+        legend: { labels: { color: '#6E6E73', font: { size: 11 } } },
+        tooltip: {
+          callbacks: {
+            label: function(ctx) { return ctx.dataset.label + ': ' + parseInt(ctx.raw).toLocaleString('hu-HU') + ' Ft'; }
+          }
+        }
+      },
+      scales: {
+        x: { ticks: { color: '#6E6E73' }, grid: { color: 'rgba(45,50,80,0.3)' } },
+        y: {
+          ticks: {
+            color: '#6E6E73',
+            callback: function(v) { return (v / 1e6).toFixed(1) + ' M'; }
+          },
+          grid: { color: 'rgba(45,50,80,0.3)' }
+        }
+      }
+    }
+  });
+
+  // Expiring leases panel
+  const d180 = now + 180 * 86400000;
+  const expiringLeases = portfolio
+    .filter(p => p.lease_end && new Date(p.lease_end).getTime() >= now && new Date(p.lease_end).getTime() <= d180)
+    .sort((a, b) => new Date(a.lease_end) - new Date(b.lease_end));
+
+  const cardsEl = document.getElementById('expiring-cards');
+  if (expiringLeases.length === 0) {
+    cardsEl.innerHTML = '<div style="color:var(--text-muted);padding:20px;text-align:center;">Nincs lejáró szerződés a következő 6 hónapban.</div>';
+  } else {
+    cardsEl.innerHTML = expiringLeases.map(p => {
+      const daysLeft = Math.ceil((new Date(p.lease_end).getTime() - now) / 86400000);
+      const isUrgent = daysLeft <= 30;
+      return '<div class="expiring-card ' + (isUrgent ? 'urgent' : '') + '">' +
+        '<div style="display:flex;justify-content:space-between;align-items:center;">' +
+        '<div>' +
+        '<div style="font-weight:700;font-size:14px;">' + p.name + '</div>' +
+        '<div style="font-size:12px;color:var(--text-muted);">' + p.district + '. ker. · ' + p.type + ' · ' + p.sqm + ' m²</div>' +
+        '</div>' +
+        '<div style="text-align:right;">' +
+        '<div style="font-size:13px;font-weight:700;color:' + (isUrgent ? 'var(--red)' : 'var(--gold)') + ';">' + daysLeft + ' nap</div>' +
+        '<div style="font-size:11px;color:var(--text-muted);">Lejárat: ' + new Date(p.lease_end).toLocaleDateString('hu-HU') + '</div>' +
+        '</div>' +
+        '</div>' +
+        '<div style="margin-top:8px;font-size:13px;">Havi díj: <strong>' + fmt(p.monthly_rent) + ' Ft</strong></div>' +
+        (isUrgent ? '<div style="margin-top:6px;font-size:11px;color:var(--red);font-weight:600;">⚠ 30 napon belüli lejárat — azonnali intézkedés szükséges!</div>' : '') +
+        '</div>';
+    }).join('');
+  }
+}
+
+function exportCSV() {
+  const headers = ['Ingatlan neve','Kerület','Típus','Alapterület (m²)','Havi bérleti díj (Ft)','Vételár (Ft)','Státusz','Lejárat'];
+  const rows = INVESTOR_PORTFOLIO.map(p => [
+    p.name, p.district + '.', p.type, p.sqm, p.monthly_rent, p.purchase_price, p.status, p.lease_end || ''
+  ]);
+  const csv = [headers.join(';'), ...rows.map(r => r.join(';'))].join('\n');
+  const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'ib_exproconsult_portfolio_' + new Date().toISOString().slice(0,10) + '.csv';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+init();
+</script>
+<!-- IB Assistant Chat Widget -->
+<script>
+(function(){
+/* ── Styles ───────────────────────────────────────────── */
+var css = document.createElement('style');
+css.textContent = `
+@keyframes ibPulse{0%{box-shadow:0 0 0 0 rgba(0,113,227,.55)}70%{box-shadow:0 0 0 18px rgba(0,113,227,0)}100%{box-shadow:0 0 0 0 rgba(0,113,227,0)}}
+@keyframes ibDot{0%,80%,100%{transform:scale(0)}40%{transform:scale(1)}}
+#ib-chat-btn{position:fixed;bottom:28px;right:28px;z-index:9999;width:56px;height:56px;border-radius:50%;background:#0071E3;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(0,113,227,.45);animation:ibPulse 2s ease-out 3;transition:transform .2s}
+#ib-chat-btn:hover{transform:scale(1.08)}
+#ib-chat-btn svg{width:28px;height:28px;fill:#fff}
+#ib-chat-btn .ib-badge{position:absolute;top:-2px;right:-2px;background:#FF9F0A;color:#F5F5F7;font-size:11px;font-weight:800;width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center}
+#ib-chat-panel{position:fixed;bottom:96px;right:28px;z-index:9999;width:380px;height:520px;background:#FFFFFF;border:1px solid rgba(0,113,227,.25);border-radius:16px;display:none;flex-direction:column;overflow:hidden;box-shadow:0 12px 48px rgba(0,0,0,.55);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif}
+#ib-chat-panel.open{display:flex}
+.ib-header{background:linear-gradient(135deg,#0071E3 0%,#3a5fcc 100%);padding:16px 18px;display:flex;align-items:center;justify-content:space-between}
+.ib-header-left h3{margin:0;font-size:15px;font-weight:700;color:#fff}
+.ib-header-left p{margin:2px 0 0;font-size:11px;color:rgba(255,255,255,.7)}
+.ib-close{background:none;border:none;color:rgba(255,255,255,.8);font-size:22px;cursor:pointer;padding:0 4px;line-height:1}
+.ib-close:hover{color:#fff}
+.ib-messages{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px}
+.ib-messages::-webkit-scrollbar{width:5px}
+.ib-messages::-webkit-scrollbar-thumb{background:#333;border-radius:4px}
+.ib-msg{max-width:88%;padding:10px 14px;border-radius:14px;font-size:13px;line-height:1.55;color:#1D1D1F;word-wrap:break-word}
+.ib-msg.bot{align-self:flex-start;background:#F5F5F7;border-bottom-left-radius:4px}
+.ib-msg.user{align-self:flex-end;background:#0071E3;color:#fff;border-bottom-right-radius:4px}
+.ib-msg .ib-ts{display:block;font-size:10px;color:rgba(255,255,255,.35);margin-top:5px}
+.ib-msg.bot .ib-ts{color:rgba(255,255,255,.3)}
+.ib-chips{display:flex;flex-wrap:wrap;gap:6px;padding:0 14px 10px}
+.ib-chip{background:#F5F5F7;border:1px solid rgba(0,113,227,.3);color:#6E6E73;font-size:11px;padding:6px 12px;border-radius:20px;cursor:pointer;transition:all .15s}
+.ib-chip:hover{background:#0071E3;color:#fff;border-color:#0071E3}
+.ib-typing{align-self:flex-start;display:flex;gap:4px;padding:10px 18px;background:#F5F5F7;border-radius:14px;border-bottom-left-radius:4px}
+.ib-typing span{width:7px;height:7px;background:#0071E3;border-radius:50%;animation:ibDot 1.4s infinite ease-in-out both}
+.ib-typing span:nth-child(1){animation-delay:-.32s}
+.ib-typing span:nth-child(2){animation-delay:-.16s}
+.ib-input-bar{display:flex;padding:10px;gap:8px;border-top:1px solid rgba(255,255,255,.07);background:#F5F5F7}
+.ib-input-bar input{flex:1;background:#F5F5F7;border:1px solid rgba(255,255,255,.1);border-radius:24px;padding:10px 16px;color:#1D1D1F;font-size:13px;outline:none}
+.ib-input-bar input::placeholder{color:#555}
+.ib-input-bar input:focus{border-color:#0071E3}
+.ib-send{background:#0071E3;border:none;border-radius:50%;width:38px;height:38px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s}
+.ib-send:hover{background:#3a5fcc}
+.ib-send svg{width:18px;height:18px;fill:#fff}
+`;
+document.head.appendChild(css);
+
+/* ── Knowledge Base ───────────────────────────────────── */
+var KB = [
+  // Navigation
+  {k:['szimulátor','szimulator','simulator','kalkulátor'],a:'A Szimulátor (simulator.html) 18 különböző kalkulátor tabot tartalmaz. A navigációs sávban a „Szimulátor" gombra kattintva éred el. Tartalmaz: ingatlan elemzés, fordított keresés, portfólió, cash-flow, kollégium, parkolóház, adózás, makro szcenáriók, befektetői mérőszámok, bérlői eszközök és még sok más modult.'},
+  {k:['land residual','telekérték','telek residual','residual módszer'],a:'A Land Residual (maradékérték) módszer a telek maximális vételárát határozza meg. Képlet: GDV (bruttó fejlesztési érték) – építési költség – soft költségek – finanszírozás – célprofit = maximális telekár. Megtalálod a development.html „📍 F2 · Telekszerzés" tabján.'},
+  {k:['pro forma','proforma','pénzügyi terv'],a:'A Pro Forma kalkulátor a fejlesztési projekt teljes pénzügyi modelljét készíti el. Tartalmaz: bevétel-előrejelzés, költségbecslés, hozamszámítás (ROI, IRR, cash-on-cash yield). Megtalálod a development.html „💰 Pro Forma" tabján.'},
+  {k:['bérleti díj','albérlet','bérleti','hol vannak a bérleti'],a:'A bérleti díj adatokat több helyen is megtalálod:\n• index.html: interaktív koropletikus térkép kerületenkénti átlagokkal\n• simulator.html: részletes elemzés és összehasonlítás\nAz adatok a rent_detailed.json fájlból származnak, forrásuk a negyzetmeterarak.hu.'},
+  {k:['oték','otk','övezeti','övezet','zóna besorolás'],a:'Az OTÉK (Országos Településrendezési és Építési Követelmények) meghatározza az egyes kerületek építési paramétereit: szintterületi mutató (SZM), maximális beépítési arány, emeletszám és parkolási norma. Az OTÉK elemzőt a development.html „🔍 F1 · Piackutatás" tabjában találod.'},
+  {k:['due diligence','dd checklist','átvilágítás'],a:'A Due Diligence (átvilágítási) checklist 22 ellenőrzési pontot tartalmaz 4 kategóriában: Jogi (6), Területhasználat (6), Műszaki (6), Pénzügyi (4). A kitöltöttségi állapot automatikusan mentődik. Megtalálod a development.html „📍 F2 · Telekszerzés" tabján.'},
+  {k:['mi ez a rendszer','mi ez az oldal','platform','dashboard','mire való'],a:'Ez az IB Exproconsult Budapest Ingatlanelemzési Platform — 12 HTML modulból álló komplex elemző rendszer. Tartalmaz: piaci adatok (index.html), szimulátorok (simulator.html), fejlesztési tracker (development.html), CRM (crm.html), befektetői memo (memo.html), kihasználtsági elemzés, hirdetésfigyelő, diáklakás elemző, ingatlankezelés, parkolóház elemző és lakásátalakító modult.'},
+
+  // Calculators
+  {k:['hozam számol','hozamot','hozamszámítás','yield','mekkora a hozam'],a:'Hozamszámításhoz használd a simulator.html „Ingatlan Elemzés" (forward) tabját. Add meg a vételárat, bérleti díjat, költségeket — és azonnal látod a bruttó/nettó hozamot, cap rate-et és cash-on-cash metrikai mutatókat. A fejlesztési hozamhoz a development.html Pro Forma kalkulátorát ajánlom.'},
+  {k:['melyik kerület','kerületbe érdemes','hová érdemes','befektetés hol','beruházni','beruház'],a:'A „Fordított Keresés" (simulator.html 2. tab) segít megtalálni a legjobb kerületet. Add meg az elvárásaidat (hozam, büdzsé, típus) és a rendszer rangsorolja a kerületeket. Emellett a „🔍 F1 · Piackutatás" tab (development.html) piaci rés elemzőjében látod az összes kerület bruttó hozamát összehasonlítva.'},
+  {k:['jelzálog','hitel','mortgage','törlesztő','hitelkalkul'],a:'A Hitelkalkulátor a simulator.html-ben található. Megadhatod a hitelt összeget, futamidőt, kamatot és a kalkulátor kiszámolja a havi törlesztőt, teljes visszafizetést és a hitel költségét. A „Cash-flow Előrejelzés" tabbal kombinálva láthatod a hitel hatását a pénzáramlásra.'},
+  {k:['adó','áfa','szja','adózás','illeték','tax'],a:'Adózási kalkulátort két helyen is találsz:\n• simulator.html „Adózás" tab: SZJA, szocho, önkormányzati adó, áfa kalkulátor befektetők számára\n• development.html F7 tab: fejlesztési projekt adózási elemzés\nMindkettő tartalmazza a hatályos magyar adókulcsokat.'},
+  {k:['exit','eladás','mikor adjam el','exit stratégia','kiszállás'],a:'Az Exit Stratégia kalkulátort a development.html-ben találod. Segít eldönteni a legjobb kiszállási időpontot a projekt hozam görbéje alapján. Figyelembe veszi a piaci ciklusokat, SZJA kedvezményeket (5 év tartás után) és az alternatív költséget.'},
+  {k:['cash flow','pénzáramlás','cashflow','cf előrejelzés'],a:'A Cash-flow Előrejelzés a simulator.html-ben található. 10 éves előrejelzést készít havi bontásban: bérleti bevétel, üzemeltetési költségek, hiteltörlesztés, adók, nettó pénzáramlás. Grafikonon is megjeleníti a trendeket.'},
+
+  // Data
+  {k:['vásárlási ár','eladási ár','purchase','ingatlanárak','négyzetméterár'],a:'A vásárlási árak adatait a purchase_prices.json fájl tartalmazza kerületenkénti bontásban. Az index.html főoldalon interaktív térképen és táblázatban is megtekintheted. A simulator.html-ben részletes szűrési és összehasonlítási lehetőségek vannak.'},
+  {k:['kollégium','diák','student','diáklakás','kollégiumi'],a:'A diáklakás/kollégium elemzést két modulban találod:\n• student_intel.html: Egyetemek körüli kereslet-elemzés, hallgatói statisztikák\n• apartment_converter.html: Lakás → diákszálló átalakítási kalkulátor\nA simulator.html „Kollégium" tabja is tartalmaz releváns kalkulátorokat.'},
+  {k:['parkoló','parking','parkolóház','garázs'],a:'A parkolóház elemzést a parking_intel.html modulban találod. Tartalmaz: kerületenkénti parkolóhely kereslet, árszintek, fejlesztési potenciál, ROI kalkulátor. A simulator.html „Parkolóház" tabja is tartalmaz parkolóház-specifikus kalkulátort.'},
+  {k:['engedély','építési engedély','engedélyezés','hatóság','permitting'],a:'Az építési engedélyezés nyomon követését a development.html „F4 · Engedélyezés" tabján találod. Tartalmazza a teljes engedélyezési folyamatot, határidőket, szükséges dokumentumokat és a hatósági eljárás lépéseit.'},
+  {k:['közmű','elmű','víz','gáz','csatorna','kapacitás','közműkapacitás'],a:'A közmű kapacitás ellenőrzést a development.html-ben találod (Közmű Kapacitás tab). Segít felmérni a villamos (ELMŰ-ÉMÁSZ), gáz, víz és csatornahálózat kapacitását a tervezett fejlesztéshez. Fontos a land due diligence részeként!'},
+  {k:['telek','telekár','telek ár','telekszim','telekszerzés'],a:'Telekkel kapcsolatos elemzések:\n• simulator.html „Telek Szimulátor" tab: telekérték és fejlesztési potenciál\n• development.html „📍 F2 · Telekszerzés": Land Residual módszer, telekár benchmark 23 kerületre, Due Diligence checklist'},
+
+  // Business lines
+  {k:['ingatlankezelés','property management','kezelés','üzemeltetés','propertymanagement'],a:'Az Ingatlankezelés modult a property_mgmt.html oldalon találod. Tartalmaz: bérlői nyilvántartás, karbantartási naptár, pénzügyi kimutatások, tulajdonosi riportok, automatikus figyelmeztetések lejáró szerződésekre.'},
+  {k:['fejlesztés','development','projekt tracker','fejlesztési projekt'],a:'A Fejlesztési Projekt Tracker (development.html) a teljes ingatlanfejlesztési folyamatot lefedi 8+ fázisban: Piackutatás (F1), Telekszerzés (F2), Tervezés (F3), Engedélyezés (F4), Kivitelezés, Közmű, Adózás, Exit stratégia. Minden fázishoz kalkulátor és checklist tartozik.'},
+
+  // General
+  {k:['frissítés','update','mikor frissül','adat frissítés','frissülnek az adatok'],a:'Az adatok félévente frissülnek: szeptember 15. és március 15. Az aktuális adatok a legutóbbi frissítési ciklusból származnak. A bérleti díjak és vásárlási árak a negyzetmeterarak.hu, ingatlan.com és KSH forrásokból származnak.'},
+  {k:['crm','bérlő kezelés','ügyfél','bérlői crm'],a:'A bérlői CRM rendszert a crm.html oldalon találod. Funkciók: bérlői adatbázis, szerződés kezelés, fizetési nyomon követés, kommunikációs napló, automatikus emlékeztetők, bérlő értékelés.'},
+  {k:['export','csv','letöltés','mentés'],a:'Szinte minden oldalon elérhető CSV export funkció. A táblázatok felett vagy mellett keresd az „Export" vagy „CSV" gombot. A teljes adatkészlet letölthető további elemzéshez Excelben vagy más eszközben.'},
+  {k:['memo','befektetői memo','investor memo'],a:'A Befektetői Memo generátort a memo.html oldalon találod. Automatikusan összeállít egy professzionális befektetői prezentációt a projekt adataiból: piaci összefoglaló, pénzügyi mutatók, kockázatelemzés, exit stratégia.'},
+  {k:['listing','hirdetés','hirdetésfigyelő'],a:'A Hirdetésfigyelő modult a listings.html oldalon találod. Valós idejű hirdetés adatokat gyűjt és elemez: árszint monitoring, piacra kerülési idő, ár/m² összehasonlítás kerületenként.'},
+  {k:['kihasználtság','occupancy','üresedés','vacancy'],a:'A Kihasználtsági Elemzést az occupancy.html oldalon találod. Nyomon követi a bérleti kihasználtságot, üresedési rátákat, szezonális trendeket és segít optimalizálni a bérleti stratégiát.'},
+  {k:['lakásátalakító','converter','átalakítás','apartment converter'],a:'A Lakásátalakító kalkulátort az apartment_converter.html oldalon találod. Kiszámolja a lakás → diákszálló/airbnb átalakítás költségeit, megtérülését és a szükséges engedélyeket.'},
+  {k:['portfólió','portfolio'],a:'A Portfólió Elemző a simulator.html-ben található. Lehetővé teszi több ingatlanból álló portfólió összesített elemzését: diverzifikáció, kockázat, összesített hozam, értékváltozás tracking.'},
+  {k:['makro','gdp','infláció','kamat','gazdaság','makrogazdaság','szcenárió'],a:'A Makro Szcenáriók modult a simulator.html-ben találod. Három szcenáriót modellez (optimista, bázis, pesszimista) a magyar makrogazdasági mutatók alapján: GDP, infláció, jegybanki alapkamat, munkanélküliség, és ezek hatása az ingatlanpiacra.'},
+  {k:['rezsi','közös költség','villany','fűtés','üzemeltetési költség','utility'],a:'A Rezsi Benchmark-ot a simulator.html „🏠 Bérlői & Vásárlói eszközök" tabjában találod (Rezsi Benchmark al-tab). 23 kerület rezsiadatait tartalmazza: villany, gáz, víz, távfűtés, közös költség — összehasonlítható és szűrhető.'},
+  {k:['minőség','neighbourhood','szomszédság','kerület minőség','quality'],a:'A Lakókörnyezet Minőségi Index a simulator.html „🏠 Bérlői & Vásárlói eszközök" tabjában érhető el (Kerületi Minőség al-tab). 6 dimenzióban értékeli a kerületeket: közlekedés, zöldterület, szolgáltatások, biztonság, oktatás, egészségügy.'},
+  {k:['rent vs buy','bérlés vagy vásárlás','break even','megtérülés','bérelni vagy venni'],a:'A „Bérlés vs. Vásárlás" Break-even kalkulátort a simulator.html „🏠 Bérlői & Vásárlói eszközök" tabjában találod. Kiszámolja, hány év után térül meg a vásárlás a bérléshez képest, figyelembe véve: áremelkedés, bérleti díj növekedés, hitelköltség, alternatív befektetési hozam.'},
+  {k:['segítség','help','hogyan','útmutató','használat'],a:'Üdvözöllek! A rendszer 12 modulból áll:\n1. Főoldal (index.html) — piaci áttekintés\n2. Szimulátor — 18 kalkulátor\n3. Fejlesztés — projekt tracker\n4. CRM — bérlő kezelés\n5. Befektetői oldal — investor tools\n6. Memo — befektetői memo\n7. Kihasználtság — occupancy\n8. Hirdetések — listings\n9. Diáklakás — student intel\n10. Ingatlankezelés — property mgmt\n11. Parkoló — parking intel\n12. Átalakító — converter\nKérdezz bátran bármelyikről!'}
+];
+
+function getAssistantResponse(q) {
+  var ql = q.toLowerCase().replace(/[?!.,]/g, '');
+  var best = null, bestScore = 0;
+  for (var i = 0; i < KB.length; i++) {
+    var score = 0;
+    for (var j = 0; j < KB[i].k.length; j++) {
+      if (ql.indexOf(KB[i].k[j]) !== -1) {
+        score += KB[i].k[j].length;
+      }
+    }
+    if (score > bestScore) { bestScore = score; best = KB[i]; }
+  }
+  if (best) return best.a;
+  // Fallback — try to suggest relevant pages
+  var suggestions = [];
+  if (/kerület|district/.test(ql)) suggestions.push('index.html (piaci áttekintés)', 'simulator.html (fordított keresés)');
+  if (/pénz|cost|ár|price/.test(ql)) suggestions.push('simulator.html (kalkulátorok)', 'development.html (pro forma)');
+  if (/bérl|rent/.test(ql)) suggestions.push('index.html (bérleti térkép)', 'crm.html (bérlő kezelés)');
+  if (/fejleszt|build|épít/.test(ql)) suggestions.push('development.html (fejlesztési tracker)');
+  if (suggestions.length > 0) {
+    return 'Ezt a kérdést nem találom az adatbázisomban, de lehet, hogy ezeken az oldalakon megtalálod, amit keresel:\n• ' + suggestions.join('\n• ') + '\nPróbáld pontosítani a kérdést!';
+  }
+  return 'Ezt a kérdést nem találom az adatbázisomban. Próbáld pontosítani, vagy kérdezz rá a következő témákra: szimulátor, bérleti díjak, hozamszámítás, adózás, fejlesztés, OTÉK, due diligence, CRM, parkoló, kollégium, ingatlankezelés.';
+}
+
+/* ── Build DOM ────────────────────────────────────────── */
+// Floating button
+var btn = document.createElement('button');
+btn.id = 'ib-chat-btn';
+btn.setAttribute('aria-label', 'IB Assistant megnyitása');
+btn.innerHTML = '<svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H5.2L4 17.2V4h16v12z"/><path d="M7 9h10v2H7zm0-3h10v2H7z"/></svg><span class="ib-badge">?</span>';
+document.body.appendChild(btn);
+
+// Chat panel
+var panel = document.createElement('div');
+panel.id = 'ib-chat-panel';
+panel.innerHTML = '<div class="ib-header"><div class="ib-header-left"><h3>IB Assistant</h3><p>Hogyan segíthetek?</p></div><button class="ib-close" aria-label="Bezárás">&times;</button></div><div class="ib-messages" id="ib-msgs"></div><div class="ib-chips" id="ib-chips"></div><div class="ib-input-bar"><input id="ib-input" type="text" placeholder="Kérdezz valamit..." autocomplete="off"/><button class="ib-send" aria-label="Küldés"><svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg></button></div>';
+document.body.appendChild(panel);
+
+var msgs = document.getElementById('ib-msgs');
+var input = document.getElementById('ib-input');
+var chips = document.getElementById('ib-chips');
+var closeBtn = panel.querySelector('.ib-close');
+var sendBtn = panel.querySelector('.ib-send');
+var isOpen = false;
+var chipsShown = true;
+
+// Init chat history store
+if (typeof window._APP_STORE === 'undefined') window._APP_STORE = {};
+if (!window._APP_STORE.chatHistory) window._APP_STORE.chatHistory = [];
+
+var SUGGESTED = [
+  'Hogyan számolok fejlesztési hozamot?',
+  'Melyik kerületbe érdemes beruházni?',
+  'Hol találom az adózási kalkulátort?',
+  'Mi a Land Residual módszer?',
+  'Hogyan működik a közmű kapacitás ellenőrzés?',
+  'Mikor frissülnek az adatok?'
+];
+
+// Render chips
+SUGGESTED.forEach(function(txt) {
+  var c = document.createElement('button');
+  c.className = 'ib-chip';
+  c.textContent = txt;
+  c.addEventListener('click', function() { sendMessage(txt); });
+  chips.appendChild(c);
+});
+
+function ts() {
+  var d = new Date();
+  return (d.getHours() < 10 ? '0' : '') + d.getHours() + ':' + (d.getMinutes() < 10 ? '0' : '') + d.getMinutes();
+}
+
+function addMsg(text, who) {
+  var div = document.createElement('div');
+  div.className = 'ib-msg ' + who;
+  div.innerHTML = text.replace(/\n/g, '<br>') + '<span class="ib-ts">' + ts() + '</span>';
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+  window._APP_STORE.chatHistory.push({who: who, text: text, time: ts()});
+}
+
+function showTyping() {
+  var t = document.createElement('div');
+  t.className = 'ib-typing';
+  t.id = 'ib-typing';
+  t.innerHTML = '<span></span><span></span><span></span>';
+  msgs.appendChild(t);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function hideTyping() {
+  var t = document.getElementById('ib-typing');
+  if (t) t.remove();
+}
+
+function sendMessage(text) {
+  if (!text || !text.trim()) return;
+  addMsg(text.trim(), 'user');
+  input.value = '';
+  // Hide chips after first user message
+  if (chipsShown) { chips.style.display = 'none'; chipsShown = false; }
+  // Typing indicator
+  showTyping();
+  setTimeout(function() {
+    hideTyping();
+    var answer = getAssistantResponse(text.trim());
+    addMsg(answer, 'bot');
+  }, 600);
+}
+
+// Toggle panel
+btn.addEventListener('click', function() {
+  isOpen = !isOpen;
+  if (isOpen) {
+    panel.classList.add('open');
+    btn.querySelector('.ib-badge').style.display = 'none';
+    input.focus();
+    // Restore previous messages
+    if (msgs.children.length === 0 && window._APP_STORE.chatHistory.length === 0) {
+      addMsg('Üdvözöllek! 👋 Az IB Assistant vagyok. Kérdezz bátran a Budapest Dashboard rendszerről — segítek eligazodni a modulok, kalkulátorok és adatok között.', 'bot');
+    }
+  } else {
+    panel.classList.remove('open');
+  }
+});
+
+closeBtn.addEventListener('click', function() {
+  isOpen = false;
+  panel.classList.remove('open');
+});
+
+// Send on Enter or click
+input.addEventListener('keydown', function(e) { if (e.key === 'Enter') sendMessage(input.value); });
+sendBtn.addEventListener('click', function() { sendMessage(input.value); });
+
+})();
+</script>
+</body>
+</html>

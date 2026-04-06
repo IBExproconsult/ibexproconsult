@@ -1,0 +1,1876 @@
+<!DOCTYPE html>
+<!--
+  
+  Ingatlankezelés — IB Exproconsult
+  © 2026
+-->
+<html lang="hu" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IB Exproconsult — Ingatlankezelés</title>
+<meta name="description" content="Ingatlankezelési platform — IB Exproconsult Budapest">
+<link rel="stylesheet" href="libs/leaflet.css">
+<script src="libs/leaflet.js"></script>
+<script src="libs/chart.min.js"></script>
+<style>
+/* =========================================================
+   DESIGN TOKENS
+   ========================================================= */
+:root {
+  --bg: #F5F5F7;
+  --surface: #FFFFFF;
+  --surface-2: #F5F5F7;
+  --surface2: #F5F5F7;
+  --surface-3: #E5E5EA;
+  --border: rgba(0,0,0,0.08);
+  --border-h: rgba(0,0,0,0.14);
+  --accent: #0071E3;
+  --accent-hover: #0077ED;
+  --accent-light: rgba(0,113,227,0.12);
+  --primary: #0071E3;
+  --primary-h: #0077ED;
+  --ib-blue: #0071E3;
+  --ib-blue-h: #0077ED;
+  --ib-blue-glow: rgba(0,113,227,0.15);
+  --gold: #FF9F0A;
+  --green: #34C759;
+  --red: #FF3B30;
+  --orange: #FF9500;
+  --purple: #AF52DE;
+  --teal: #5AC8FA;
+  --cyan: #5AC8FA;
+  --success: #34C759;
+  --warning: #FF9F0A;
+  --danger: #FF3B30;
+  --info: #5AC8FA;
+  --text: #1D1D1F;
+  --text-muted: #6E6E73;
+  --text-dim: #AEAEB2;
+  --text-faint: #AEAEB2;
+  --radius: 10px;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 18px;
+  --shadow: 0 4px 24px rgba(0,0,0,0.4);
+  --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  --text-xs: 10px;
+  --text-sm: 12px;
+  --text-base: 13px;
+  --text-md: 14px;
+  --text-lg: 16px;
+  --text-xl: 20px;
+  --text-2xl: 28px;
+
+      --header-h: 56px;
+      --sidebar-w: 340px;
+    }
+
+/* RESET */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; background: var(--bg); color: var(--text); font-family: var(--font); font-size: 14px; line-height: 1.5; overflow-x: hidden; }
+a { color: var(--accent); text-decoration: none; }
+button { cursor: pointer; border: none; font-family: inherit; }
+input, select, textarea { font-family: inherit; }
+.tabular { font-variant-numeric: tabular-nums lining-nums; }
+
+/* PAGE */
+.page { min-height: 100vh; display: flex; flex-direction: column; }
+
+/* NAV */
+.nav {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 0 24px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  flex-shrink: 0;
+}
+.nav-logo { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 15px; color: var(--text); }
+.nav-logo svg { flex-shrink: 0; }
+.nav-back {
+  display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--text-muted);
+  padding: 6px 12px; border-radius: 6px; background: var(--surface2);
+  border: 1px solid var(--border); transition: all 0.15s;
+}
+.nav-back:hover { color: var(--text); border-color: var(--accent); }
+.nav-links { display: flex; gap: 6px; align-items: center; }
+.nav-link {
+  font-size: 12px; padding: 5px 12px; border-radius: 6px;
+  border: 1px solid var(--border); background: var(--surface2);
+  color: var(--text-muted); transition: all 0.15s; font-weight: 500;
+}
+.nav-link:hover { color: var(--text); border-color: var(--accent); }
+.nav-spacer { flex: 1; }
+.nav-badge {
+  font-size: 11px; background: rgba(0,113,227,0.12); color: var(--accent);
+  border: 1px solid rgba(0,113,227,0.3); padding: 3px 10px; border-radius: 20px;
+  font-weight: 600; letter-spacing: 0.03em;
+}
+
+/* MAIN */
+.main-content { flex: 1; padding: 24px; max-width: 1440px; margin: 0 auto; width: 100%; }
+
+/* TABS */
+.tab-bar {
+  display: flex; gap: 4px; background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 4px; margin-bottom: 24px; overflow-x: auto;
+}
+.tab-btn {
+  padding: 10px 20px; border-radius: 8px; font-size: 13px; font-weight: 600;
+  background: transparent; color: var(--text-muted); white-space: nowrap; transition: all 0.15s;
+}
+.tab-btn:hover { color: var(--text); background: var(--surface2); }
+.tab-btn.active { background: var(--accent); color: #fff; }
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+
+/* CARD */
+.card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius-lg); padding: 20px; margin-bottom: 16px;
+}
+.card h3 { font-size: 15px; margin-bottom: 16px; font-weight: 700; }
+
+/* KPI */
+.kpi-grid { display: grid; grid-template-columns: 1fr; gap: 10px; }
+.kpi-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 14px 16px; text-align: center;
+}
+.kpi-label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px; }
+.kpi-value { font-size: 22px; font-weight: 800; color: var(--text); font-variant-numeric: tabular-nums; }
+.kpi-unit { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+
+/* TABLE */
+.data-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.data-table thead th {
+  padding: 10px 12px; text-align: left; color: var(--text-muted);
+  font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em;
+  border-bottom: 2px solid var(--border); font-weight: 600; white-space: nowrap;
+}
+.data-table tbody td { padding: 10px 12px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+.data-table tbody tr:hover { background: var(--surface2); }
+.data-table th.right, .data-table td.right { text-align: right; }
+.data-table th.center, .data-table td.center { text-align: center; }
+
+/* BADGES */
+.badge {
+  display: inline-block; padding: 3px 10px; border-radius: 20px;
+  font-size: 11px; font-weight: 600; white-space: nowrap;
+}
+.badge-green { background: rgba(16,185,129,0.15); color: var(--green); }
+.badge-red { background: rgba(239,68,68,0.15); color: var(--red); }
+.badge-yellow { background: rgba(245,158,11,0.15); color: var(--gold); }
+.badge-blue { background: rgba(0,113,227,0.15); color: var(--accent); }
+.badge-orange { background: rgba(249,115,22,0.15); color: var(--orange); }
+.badge-purple { background: rgba(168,85,247,0.15); color: var(--purple); }
+
+/* BUTTONS */
+.btn {
+  padding: 8px 18px; border-radius: 8px; font-size: 13px; font-weight: 600;
+  transition: all 0.15s; display: inline-flex; align-items: center; gap: 6px;
+}
+.btn-primary { background: var(--accent); color: #fff; }
+.btn-primary:hover { background: var(--accent-hover); }
+.btn-secondary { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
+.btn-secondary:hover { border-color: var(--accent); }
+.btn-sm { padding: 5px 12px; font-size: 12px; }
+.btn-green { background: rgba(16,185,129,0.15); color: var(--green); border: 1px solid rgba(16,185,129,0.3); }
+.btn-green:hover { background: rgba(16,185,129,0.25); }
+
+/* MODAL */
+.modal-overlay {
+  display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6);
+  z-index: 200; align-items: center; justify-content: center; padding: 20px;
+}
+.modal-overlay.open { display: flex; }
+.modal {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius-lg); padding: 28px; max-width: 700px;
+  width: 100%; max-height: 85vh; overflow-y: auto; box-shadow: var(--shadow);
+}
+.modal h3 { font-size: 17px; margin-bottom: 20px; }
+.modal-close {
+  float: right; background: none; color: var(--text-muted); font-size: 20px;
+  padding: 4px 8px; border-radius: 6px;
+}
+.modal-close:hover { color: var(--text); background: var(--surface2); }
+
+/* FORM */
+.form-group { margin-bottom: 16px; }
+.form-label { display: block; font-size: 12px; color: var(--text-muted); margin-bottom: 6px; font-weight: 600; }
+.form-input, .form-select, .form-textarea {
+  width: 100%; padding: 10px 14px; background: var(--surface2);
+  border: 1px solid var(--border); border-radius: 8px;
+  color: var(--text); font-size: 13px; transition: border-color 0.15s;
+}
+.form-input:focus, .form-select:focus, .form-textarea:focus { outline: none; border-color: var(--accent); }
+.form-textarea { resize: vertical; min-height: 80px; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+/* RANGE SLIDER */
+.range-group { margin-bottom: 14px; }
+.range-group label { display: flex; justify-content: space-between; font-size: 12px; color: var(--text-muted); margin-bottom: 4px; }
+.range-group label span { color: var(--text); font-weight: 600; }
+input[type="range"] {
+  -webkit-appearance: none; width: 100%; height: 6px; background: var(--border);
+  border-radius: 3px; outline: none;
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none; width: 16px; height: 16px; border-radius: 50%;
+  background: var(--accent); cursor: pointer;
+}
+
+/* LAYOUT HELPERS */
+.split { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.sidebar-layout { display: grid; grid-template-columns: 280px 1fr; gap: 20px; }
+.three-col { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+
+/* FOOTER */
+.site-footer {
+  text-align: center; padding: 20px; color: var(--text-dim);
+  font-size: 12px; border-top: 1px solid var(--border);
+}
+.site-footer a { color: var(--text-muted); }
+
+/* TEMPLATE CARD */
+.template-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius-lg); padding: 20px; display: flex;
+  flex-direction: column; gap: 12px;
+}
+.template-card h4 { font-size: 14px; font-weight: 700; }
+.template-card p { font-size: 12px; color: var(--text-muted); line-height: 1.6; flex: 1; }
+.template-actions { display: flex; gap: 8px; }
+
+/* QA CARD */
+.qa-item {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius-lg); padding: 20px; margin-bottom: 12px;
+}
+.qa-item .qa-q { font-weight: 700; font-size: 14px; margin-bottom: 8px; color: var(--accent); }
+.qa-item .qa-a { font-size: 13px; color: var(--text-muted); line-height: 1.7; }
+
+/* PRINT REPORT AREA */
+.report-area {
+  background: #FFFFFF; border: 1px solid var(--border);
+  border-radius: var(--radius-lg); padding: 24px; margin-top: 16px;
+  font-size: 13px; line-height: 1.7;
+}
+.report-area h2 { font-size: 18px; margin-bottom: 16px; color: var(--accent); }
+.report-area h4 { font-size: 14px; margin-top: 16px; margin-bottom: 8px; }
+.report-area table { width: 100%; border-collapse: collapse; margin: 10px 0; }
+.report-area table th, .report-area table td { padding: 6px 10px; border-bottom: 1px solid var(--border); text-align: left; font-size: 12px; }
+.report-area table th { color: var(--text-muted); font-size: 11px; text-transform: uppercase; }
+
+/* RESPONSIVE */
+@media (max-width: 1024px) {
+  .sidebar-layout { grid-template-columns: 1fr; }
+  .split { grid-template-columns: 1fr; }
+  .three-col { grid-template-columns: 1fr; }
+}
+@media (max-width: 768px) {
+  .nav { padding: 0 12px; gap: 8px; }
+  .nav-links { display: none; }
+  .main-content { padding: 16px; }
+  .form-row { grid-template-columns: 1fr; }
+}
+
+/* ── Dark mode ──────────────────────────────────────────── */
+[data-theme="dark"] {
+  --bg: #1C1C1E;
+  --surface: #2C2C2E;
+  --surface-2: #3A3A3C;
+  --surface-3: #48484A;
+  --border: rgba(255,255,255,0.10);
+  --text: #F5F5F7;
+  --text-muted: #AEAEB2;
+  --text-dim: #636366;
+  --text-faint: #48484A;
+  --accent: #0A84FF;
+  --primary: #0A84FF;
+  --primary-h: #409CFF;
+  --shadow: 0 4px 24px rgba(0,0,0,0.6);
+}
+
+/* ── Kétszintes nav ── */
+.ib-header-wrap { position:sticky; top:0; z-index:200; }
+.ib-header-top {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:0 20px; height:48px;
+  background:rgba(255,255,255,0.92);
+  border-bottom:1px solid rgba(0,0,0,0.06);
+  backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px);
+}
+.ib-header-nav {
+  display:flex; align-items:center; justify-content:center;
+  flex-wrap:wrap; gap:2px;
+  padding:4px 16px;
+  background:rgba(255,255,255,0.85);
+  border-bottom:1px solid rgba(0,0,0,0.08);
+  backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px);
+}
+[data-theme="dark"] .ib-header-top,
+[data-theme="dark"] .ib-header-nav {
+  background:rgba(28,28,30,0.92);
+  border-color:rgba(255,255,255,0.08);
+}
+
+</style>
+<link rel="stylesheet" href="libs/ib-design-system.css">
+</head>
+<body>
+<div class="page">
+
+<div class="ib-header-wrap">
+  <div class="ib-header-top">
+    <div style="display:flex;align-items:center;gap:10px;flex-shrink:0;">
+      <div style="width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,#0071E3,#0055B3);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#fff;letter-spacing:-0.5px;flex-shrink:0;">IB</div>
+      <div>
+        <div style="font-size:14px;font-weight:700;color:#1D1D1F;letter-spacing:-0.02em;line-height:1.2;">IB Expro</div>
+        <div style="font-size:10px;color:#6E6E73;letter-spacing:0.03em;line-height:1.2;">Figyelő Platform</div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
+<div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
+    <span id="selected-district-badge" style="font-size:11px;color:#6E6E73;font-weight:500;padding:4px 10px;background:#F5F5F7;border-radius:6px;border:1px solid rgba(0,0,0,0.08);white-space:nowrap;">Összes kerület</span>
+    <button style="width:32px;height:32px;border-radius:8px;background:#F5F5F7;border:1px solid rgba(0,0,0,0.08);color:#6E6E73;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all 0.15s;" data-theme-toggle aria-label="Téma váltás" onmouseover="this.style.borderColor='#0071E3';this.style.color='#0071E3'" onmouseout="this.style.borderColor='rgba(0,0,0,0.08)';this.style.color='#6E6E73'">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+    </button>
+  </div>
+    </div>
+  </div>
+  <nav class="ib-header-nav" id="main-nav">
+    <a href="index.html" class="ib-nav-link">Dashboard</a>
+    <a href="simulator.html" class="ib-nav-link">Szimulátor</a>
+    <a href="development.html" class="ib-nav-link">Fejlesztés</a>
+    <a href="property_mgmt.html" class="ib-nav-link active">Kezelés</a>
+    <a href="occupancy.html" class="ib-nav-link">Kihasználtság</a>
+    <a href="investor.html" class="ib-nav-link">Befektetők</a>
+    <a href="investment_calculator.html" class="ib-nav-link">Kalkulátor</a>
+    <a href="apartment_converter.html" class="ib-nav-link">Diáklakás</a>
+    <a href="student_intel.html" class="ib-nav-link">Diák Intel</a>
+    <a href="parking_intel.html" class="ib-nav-link">Parkoló</a>
+    <a href="property_managers.html" class="ib-nav-link">Kezelők</a>
+    <a href="crm.html" class="ib-nav-link">CRM</a>
+    <a href="memo.html" class="ib-nav-link">Memo</a>
+    <a href="listings.html" class="ib-nav-link">Hirdetések</a>
+    <a href="adatkozpont.html" class="ib-nav-link">Adatközpont</a>
+  </nav>
+</div>
+
+<!-- CONTENT -->
+<div class="main-content">
+
+<!-- TAB BAR -->
+<div class="tab-bar">
+  <button class="tab-btn active" onclick="switchTab(0)">🏠 Portfólió áttekintés</button>
+  <button class="tab-btn" onclick="switchTab(1)">🔧 Karbantartás & Rezsi</button>
+  <button class="tab-btn" onclick="switchTab(2)">📊 Hozam & Benchmark</button>
+  <button class="tab-btn" onclick="switchTab(3)">📋 Dokumentumok & Sablonok</button>
+  <button class="tab-btn" onclick="switchTab(4)">⚖️ Jogi & Adó</button>
+</div>
+
+<!-- TAB PANELS -->
+<div id="tab-0" class="tab-panel active"></div>
+<div id="tab-1" class="tab-panel"></div>
+<div id="tab-2" class="tab-panel"></div>
+<div id="tab-3" class="tab-panel"></div>
+<div id="tab-4" class="tab-panel"></div>
+</div>
+
+<!-- MODALS -->
+<div id="ticket-modal" class="modal-overlay">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('ticket-modal')">&times;</button>
+    <h3>Új karbantartási ticket</h3>
+    <div class="form-group">
+      <label class="form-label">Ingatlan</label>
+      <select id="ticket-property" class="form-select"></select>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Típus</label>
+        <select id="ticket-type" class="form-select">
+          <option>Vízszerelés</option><option>Villanyszerelés</option><option>Fűtés</option><option>Festés</option><option>Egyéb</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Prioritás</label>
+        <select id="ticket-priority" class="form-select">
+          <option>Sürgős</option><option>Normál</option><option>Alacsony</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Leírás</label>
+      <textarea id="ticket-desc" class="form-textarea" placeholder="Hiba leírása..."></textarea>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Becsült költség (Ft)</label>
+      <input type="number" id="ticket-cost" class="form-input" placeholder="pl. 45000">
+    </div>
+    <button class="btn btn-primary" onclick="addTicket()">Ticket létrehozása</button>
+  </div>
+</div>
+
+<div id="template-modal" class="modal-overlay">
+  <div class="modal" style="max-width:800px;">
+    <button class="modal-close" onclick="closeModal('template-modal')">&times;</button>
+    <h3 id="template-modal-title">Sablon szerkesztő</h3>
+    <textarea id="template-editor" class="form-textarea" style="min-height:400px;font-size:13px;line-height:1.7;white-space:pre-wrap;"></textarea>
+    <div style="margin-top:16px;display:flex;gap:10px;">
+      <button class="btn btn-primary" onclick="closeModal('template-modal')">Bezárás</button>
+      <button class="btn btn-secondary" onclick="downloadTemplate()">📥 Letöltés TXT</button>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer class="site-footer">
+  
+</footer>
+</div>
+
+<script>
+/* =========================================================
+   DATA
+   ========================================================= */
+const MANAGED_PROPERTIES = [
+  {id:"MP-001", address:"V. ker. Váci utca 12.", district:"V", type:"Lakás", sqm:65, tenant:"Kovács Péter", rent:420000, status:"Bérelt", lease_end:"2026-08-31", owner:"Kiss János", floors:3},
+  {id:"MP-002", address:"XIII. ker. Lehel tér 8.", district:"XIII", type:"Lakás", sqm:52, tenant:"Nagy Éva", rent:295000, status:"Bérelt", lease_end:"2026-04-30", owner:"Kiss János", floors:2},
+  {id:"MP-003", address:"XI. ker. Móricz Zs. 14.", district:"XI", type:"Lakás", sqm:78, tenant:"Szabó László", rent:420000, status:"Bérelt", lease_end:"2027-01-31", owner:"Tóth Kft.", floors:1},
+  {id:"MP-004", address:"IX. ker. Üllői út 43.", district:"IX", type:"Lakás", sqm:48, tenant:null, rent:270000, status:"Szabad", lease_end:null, owner:"Tóth Kft.", floors:4},
+  {id:"MP-005", address:"XIV. ker. Zugló u. 7.", district:"XIV", type:"Lakás", sqm:60, tenant:"Fekete Anna", rent:290000, status:"Bérelt", lease_end:"2026-05-31", owner:"Molnár Bt.", floors:2},
+  {id:"MP-006", address:"II. ker. Pasaréti út 22.", district:"II", type:"Lakás", sqm:92, tenant:"Horváth Gábor", rent:520000, status:"Bérelt", lease_end:"2026-07-31", owner:"Kiss János", floors:5},
+  {id:"MP-007", address:"VI. ker. Andrássy út 55.", district:"VI", type:"Iroda", sqm:120, tenant:"Global Tech Kft.", rent:780000, status:"Bérelt", lease_end:"2027-03-31", owner:"IB Exproconsult", floors:2},
+  {id:"MP-008", address:"VIII. ker. Baross u. 18.", district:"VIII", type:"Lakás", sqm:42, tenant:"Varga Zsolt", rent:230000, status:"Bérelt", lease_end:"2026-09-30", owner:"Papp Zrt.", floors:3},
+  {id:"MP-009", address:"III. ker. Bécsi út 112.", district:"III", type:"Lakás", sqm:55, tenant:null, rent:245000, status:"Karbantartás", lease_end:null, owner:"Papp Zrt.", floors:2},
+  {id:"MP-010", address:"VII. ker. Erzsébet krt. 33.", district:"VII", type:"Lakás", sqm:70, tenant:"Simon Orsolya", rent:380000, status:"Bérelt", lease_end:"2026-12-31", owner:"IB Exproconsult", floors:4},
+  {id:"MP-011", address:"I. ker. Attila út 9.", district:"I", type:"Lakás", sqm:85, tenant:"Németh Balázs", rent:480000, status:"Bérelt", lease_end:"2026-06-30", owner:"Kiss János", floors:3},
+  {id:"MP-012", address:"XV. ker. Kassai tér 5.", district:"XV", type:"Lakás", sqm:68, tenant:"Lukács Mária", rent:270000, status:"Bérelt", lease_end:"2027-02-28", owner:"Tóth Kft.", floors:1},
+  {id:"MP-013", address:"IV. ker. Árpád út 23.", district:"IV", type:"Lakás", sqm:73, tenant:null, rent:260000, status:"Szabad", lease_end:null, owner:"Molnár Bt.", floors:2},
+  {id:"MP-014", address:"X. ker. Maglódi út 15.", district:"X", type:"Lakás", sqm:58, tenant:"Balogh István", rent:235000, status:"Bérelt", lease_end:"2026-10-31", owner:"IB Exproconsult", floors:3},
+  {id:"MP-015", address:"XII. ker. Bérc utca 3.", district:"XII", type:"Lakás", sqm:95, tenant:"Farkas Katalin", rent:530000, status:"Bérelt", lease_end:"2027-04-30", owner:"Kiss János", floors:2},
+  {id:"MP-016", address:"XVI. ker. Veres Péter út 8.", district:"XVI", type:"Lakás", sqm:80, tenant:"Dobos Tibor", rent:280000, status:"Bérelt", lease_end:"2026-11-30", owner:"Papp Zrt.", floors:1},
+  {id:"MP-017", address:"XI. ker. Andor utca 41.", district:"XI", type:"Lakás", sqm:45, tenant:"Mészáros Réka", rent:210000, status:"Bérelt", lease_end:"2026-03-31", owner:"Tóth Kft.", floors:4},
+  {id:"MP-018", address:"IX. ker. Soroksári út 12.", district:"IX", type:"Raktár", sqm:200, tenant:"Logistics Bt.", rent:380000, status:"Bérelt", lease_end:"2027-06-30", owner:"IB Exproconsult", floors:0},
+  {id:"MP-019", address:"II. ker. Fillér utca 5.", district:"II", type:"Lakás", sqm:110, tenant:"Csizmadia Péter", rent:620000, status:"Bérelt", lease_end:"2026-08-31", owner:"Kiss János", floors:3},
+{id:"MP-020", address:"XIII. ker. Váci út 70.", district:"XIII", type:"Iroda", sqm:150, tenant:"Marketing Pro Kft.", rent:720000, status:"Bérelt", lease_end:"2027-12-31", owner:"IB Exproconsult", floors:5},
+  // ── IB Exproconsult valós portfólió (forrás: Google Sheets 2026-03-19) ──
+  {id:"IB-001", address:"VIII. ker. Rákóczi út 17.", district:"VIII", type:"Diáklakás", sqm:212, tenant:"19 ágy – diáklakás", rent:2664800, status:"Bérelt", lease_end:"2026-08-31", owner:"IB Exproconsult", floors:3, beds:19, annual_cost:3345746, annual_revenue:27980400, note:"Rákóczi portfólió"},
+  {id:"IB-002", address:"VIII. ker. Bródy Sándor u. 23.", district:"VIII", type:"Diáklakás", sqm:128, tenant:"12 ágy – diáklakás", rent:1779200, status:"Bérelt", lease_end:"2026-08-31", owner:"IB Exproconsult", floors:3, beds:12, annual_cost:2468653, annual_revenue:18681600, note:"Bródy portfólió"},
+  {id:"IB-003", address:"VIII. ker. Baross u. 10.", district:"VIII", type:"Diáklakás", sqm:129, tenant:"11 ágy – diáklakás", rent:1848400, status:"Bérelt", lease_end:"2026-08-31", owner:"IB Exproconsult", floors:2, beds:11, annual_cost:1924470, annual_revenue:19408200, note:"Baross portfólió"},
+  {id:"MP-021", address:"VIII. ker. Köztársaság tér 12.", district:"VIII", type:"Lakás", sqm:62, tenant:null, rent:285000, status:"Szabad", lease_end:null, owner:"Papp Zrt.", floors:2},
+  {id:"MP-022", address:"XI. ker. Kelenföldi út 8.", district:"XI", type:"Lakás", sqm:74, tenant:"Szeged Annamária", rent:340000, status:"Bérelt", lease_end:"2026-07-15", owner:"Molnár Bt.", floors:3},
+  {id:"MP-023", address:"XIV. ker. Mexikói út 33.", district:"XIV", type:"Lakás", sqm:88, tenant:"Hegedűs Béla", rent:400000, status:"Bérelt", lease_end:"2026-09-30", owner:"Kiss János", floors:2}
+];
+
+// Maintenance tickets
+const TICKETS = [
+  {id:"TK-001", property:"MP-009", type:"Vízszerelés", priority:"Sürgős", desc:"Csőtörés a fürdőszobában, vízszivárgás a szomszédba", cost:85000, status:"Nyitott", date:"2026-03-10"},
+  {id:"TK-002", property:"MP-002", type:"Fűtés", priority:"Normál", desc:"Radiátor szelep cseréje szükséges (2 db)", cost:70000, status:"Folyamatban", date:"2026-03-05"},
+  {id:"TK-003", property:"MP-008", type:"Villanyszerelés", priority:"Sürgős", desc:"FI relé folyamatosan kiold, teljes hálózat ellenőrzés", cost:45000, status:"Nyitott", date:"2026-03-12"},
+  {id:"TK-004", property:"MP-005", type:"Festés", priority:"Alacsony", desc:"Nappali falfelület felújítása, 2 réteg festés", cost:120000, status:"Lezárt", date:"2026-02-15"},
+  {id:"TK-005", property:"MP-011", type:"Vízszerelés", priority:"Normál", desc:"WC tartály csere (monoblokkos)", cost:40000, status:"Folyamatban", date:"2026-03-01"},
+  {id:"TK-006", property:"MP-017", type:"Fűtés", priority:"Sürgős", desc:"Kazán szerviz — CO érzékelő riasztás", cost:35000, status:"Lezárt", date:"2026-02-20"},
+  {id:"TK-007", property:"MP-006", type:"Egyéb", priority:"Alacsony", desc:"Erkély korlát rozsdásodás, újrafestés szükséges", cost:60000, status:"Nyitott", date:"2026-03-08"},
+  {id:"TK-008", property:"MP-010", type:"Villanyszerelés", priority:"Normál", desc:"Konnektor csere (3 db) a konyhában", cost:32000, status:"Lezárt", date:"2026-01-28"},
+  {id:"TK-009", property:"MP-003", type:"Egyéb", priority:"Normál", desc:"Bejárati ajtó zárcsere, biztonsági zár felszerelés", cost:55000, status:"Folyamatban", date:"2026-03-09"},
+  {id:"TK-010", property:"MP-019", type:"Festés", priority:"Alacsony", desc:"Hálószoba + nappali teljes festése bérlőváltáskor", cost:200000, status:"Nyitott", date:"2026-03-14"}
+];
+
+// Estimated property values for yield calc
+const PROPERTY_VALUES = {
+  "V": 1200000, "II": 1100000, "I": 1150000, "XII": 1050000,
+  "VI": 950000, "VII": 750000, "XIII": 800000, "XI": 850000,
+  "IX": 700000, "XIV": 650000, "III": 750000, "VIII": 600000,
+  "X": 550000, "XV": 500000, "XVI": 520000, "IV": 580000
+};
+
+// District benchmark yields
+const YIELD_BENCHMARKS = {
+  "I": 3.8, "II": 3.5, "III": 4.5, "IV": 5.2, "V": 4.0,
+  "VI": 5.0, "VII": 5.5, "VIII": 6.0, "IX": 5.8, "X": 5.5,
+  "XI": 4.8, "XII": 4.0, "XIII": 5.0, "XIV": 5.2, "XV": 5.5,
+  "XVI": 5.3
+};
+
+// Utility benchmarks per sqm range
+const UTILITY_BENCHMARKS = {
+  gas: {small: 8000, medium: 13000, large: 18000},
+  electric: {small: 4500, medium: 6400, large: 7800},
+  water: {small: 2000, medium: 3500, large: 5000},
+  common: {small: 12000, medium: 18000, large: 25000}
+};
+
+// Document templates
+const TEMPLATES = {
+  berleti: {
+    title: "Bérleti szerződés sablon",
+    desc: "Teljes lakásbérleti szerződés sablon, amely tartalmazza a felek adatait, az ingatlan leírását, a bérleti díj és kaució feltételeit, valamint a felmondási szabályokat.",
+    content: `LAKÁSBÉRLETI SZERZŐDÉS
+
+Amely létrejött egyrészről:
+Bérbeadó neve: ___________________________
+Születési helye, ideje: ___________________________
+Anyja neve: ___________________________
+Személyi ig. szám: ___________________________
+Lakcíme: ___________________________
+
+másrészről:
+Bérlő neve: ___________________________
+Születési helye, ideje: ___________________________
+Anyja neve: ___________________________
+Személyi ig. szám: ___________________________
+Lakcíme: ___________________________
+
+(a továbbiakban: Felek) között az alábbi feltételek mellett:
+
+1. A BÉRLET TÁRGYA
+A Bérbeadó bérbe adja, a Bérlő pedig bérbe veszi a ___________________________
+címen található _____ m² alapterületű, _____ szobás lakást, _____ emelet _____ ajtó szám alatt.
+
+2. A BÉRLET IDŐTARTAMA
+A bérlet határozott / határozatlan időre szól.
+Kezdő dátuma: ___________________________
+Lejárati dátuma: ___________________________ (határozott idő esetén)
+
+3. BÉRLETI DÍJ
+Havi bérleti díj: _________________________ Ft (azaz _________________________ forint)
+A bérleti díj minden hónap ___. napjáig esedékes.
+Fizetés módja: átutalás / készpénz
+Bankszámlaszám: ___________________________
+
+4. KAUCIÓ
+A Bérlő a szerződés aláírásakor _____ havi bérleti díjnak megfelelő, azaz összesen _________________________ Ft kauciót fizet a Bérbeadónak.
+A kaució a bérlet megszűnésekor a lakás rendeltetésszerű állapotban történő visszaadása után visszajár.
+
+5. KÖZÜZEMI DÍJAK
+A közüzemi szolgáltatások (gáz, villany, víz) díja a Bérlőt terheli.
+A közös költség a Bérbeadót / Bérlőt terheli (megfelelő aláhúzandó).
+
+6. A LAKÁS HASZNÁLATA
+A Bérlő a lakást kizárólag lakás céljára használja.
+A lakásba a Bérlőn kívül bejelentett személyek: ___________________________
+A Bérlő a lakást albérletbe nem adhatja.
+
+7. KARBANTARTÁS, FELÚJÍTÁS
+A rendeltetésszerű használatból eredő kisebb karbantartási munkákat a Bérlő végzi és viseli a költségét.
+A nagyobb, életveszélyt elhárító és az épület állagát érintő munkálatokat a Bérbeadó végzi.
+
+8. FELMONDÁS
+Határozatlan idejű szerződés: Bármelyik fél a hónap 15. napjáig közölt írásbeli felmondással, a következő hónap utolsó napjára mondhatja fel.
+Határozott idejű szerződés: A szerződés a lejárati napon automatikusan megszűnik. Előzetes felmondás kizárólag a szerződésben rögzített okból lehetséges.
+
+9. ZÁRÓ RENDELKEZÉSEK
+A jelen szerződésben nem szabályozott kérdésekben a Polgári Törvénykönyvről szóló 2013. évi V. törvény és az 1993. évi LXXVIII. törvény rendelkezései az irányadóak.
+
+A Felek a szerződést elolvasás és értelmezés után, mint akaratukkal mindenben megegyezőt, jóváhagyólag aláírják.
+
+Kelt: Budapest, ___________________________
+
+____________________________          ____________________________
+          Bérbeadó                                Bérlő`
+  },
+  atadas: {
+    title: "Átadás-átvételi jegyzőkönyv sablon",
+    desc: "Lakás átadás-átvételi jegyzőkönyv a lakás állapotának dokumentálásához beköltözéskor és kiköltözéskor.",
+    content: `LAKÁS ÁTADÁS-ÁTVÉTELI JEGYZŐKÖNYV
+
+Dátum: ___________________________
+Ingatlan címe: ___________________________
+
+ÁTADÓ (Bérbeadó): ___________________________
+ÁTVEVŐ (Bérlő): ___________________________
+
+1. KÖZÜZEMI MÉRŐÓRÁK ÁLLÁSA
+   - Villanyóra állás: ____________ kWh   Mérő száma: _______________
+   - Gázóra állás: ____________ m³       Mérő száma: _______________
+   - Vízóra (hideg) állás: _________ m³  Mérő száma: _______________
+   - Vízóra (meleg) állás: _________ m³  Mérő száma: _______________
+
+2. ÁTADOTT KULCSOK
+   - Bejárati ajtó: _____ db
+   - Postaláda: _____ db
+   - Pince/tároló: _____ db
+   - Kaputelefon kód: _______________
+
+3. HELYISÉGEK ÁLLAPOTA
+
+ELŐSZOBA:
+   Falak: □ Kifogástalan  □ Elfogadható  □ Javítandó
+   Padló: □ Kifogástalan  □ Elfogadható  □ Javítandó
+   Megjegyzés: ___________________________
+
+NAPPALI:
+   Falak: □ Kifogástalan  □ Elfogadható  □ Javítandó
+   Padló: □ Kifogástalan  □ Elfogadható  □ Javítandó
+   Ablakok: □ Kifogástalan  □ Elfogadható  □ Javítandó
+   Megjegyzés: ___________________________
+
+HÁLÓSZOBA:
+   Falak: □ Kifogástalan  □ Elfogadható  □ Javítandó
+   Padló: □ Kifogástalan  □ Elfogadható  □ Javítandó
+   Ablakok: □ Kifogástalan  □ Elfogadható  □ Javítandó
+   Megjegyzés: ___________________________
+
+KONYHA:
+   Falak/csempe: □ Kifogástalan  □ Elfogadható  □ Javítandó
+   Padló: □ Kifogástalan  □ Elfogadható  □ Javítandó
+   Beépített gépek: □ Kifogástalan  □ Elfogadható  □ Javítandó
+   Megjegyzés: ___________________________
+
+FÜRDŐSZOBA:
+   Falak/csempe: □ Kifogástalan  □ Elfogadható  □ Javítandó
+   Padló: □ Kifogástalan  □ Elfogadható  □ Javítandó
+   Szaniterek: □ Kifogástalan  □ Elfogadható  □ Javítandó
+   Megjegyzés: ___________________________
+
+4. BÚTORZAT / BERENDEZÉSEK (ha bútorozott)
+   ________________________________________________
+   ________________________________________________
+   ________________________________________________
+
+5. ÉSZREVÉTELEK, MEGJEGYZÉSEK
+   ________________________________________________
+   ________________________________________________
+
+A felek a jegyzőkönyvet elfogadják és aláírják.
+
+____________________________          ____________________________
+          Átadó                                 Átvevő`
+  },
+  felmondas: {
+    title: "Felmondási értesítő sablon",
+    desc: "Bérleti szerződés felmondási értesítő sablon bérlő részére, a jogszabályi előírásoknak megfelelően.",
+    content: `BÉRLETI SZERZŐDÉS FELMONDÁSA
+
+Budapest, ___________________________
+
+Tisztelt ___________________________!
+
+Alulírott ___________________________ (bérbeadó), mint a Budapest, ___________________________
+címen található ingatlan tulajdonosa / kezelője, a ___________________________-án / -én kelt bérleti szerződést ezennel felmondja.
+
+Felmondás oka: ___________________________
+
+A Polgári Törvénykönyv és az 1993. évi LXXVIII. törvény rendelkezései alapján a felmondási idő _____ nap / hónap, ezért a bérleti jogviszony ___________________________-án / -én szűnik meg.
+
+A felmondási idő lejártáig kérem, hogy:
+1. A lakást eredeti, rendeltetésszerű állapotban adja vissza.
+2. Közüzemi díjhátralékait rendezze.
+3. A kulcsokat az átadás-átvételi eljárás keretében adja át.
+
+A kaució visszafizetésére a lakás rendben történő átadását és a közüzemi számlák végelszámolását követően kerül sor.
+
+Kérem, hogy jelen felmondást szíveskedjék tudomásul venni és az átvételt aláírásával igazolni.
+
+Tisztelettel,
+
+____________________________
+Bérbeadó neve / cégszerű aláírás
+
+Átvételi igazolás:
+Alulírott ___________________________ a fenti felmondást ___________________________ napon átvettem.
+
+____________________________
+Bérlő aláírása`
+  },
+  karbantartas: {
+    title: "Karbantartási megbízólevél sablon",
+    desc: "Karbantartási munka megrendelő sablon szakemberek részére, a munka leírásával és díjazással.",
+    content: `KARBANTARTÁSI MEGBÍZÓLEVÉL
+
+Dátum: ___________________________
+Megbízó: IB Exproconsult / ___________________________
+Megbízott (vállalkozó): ___________________________
+
+1. MEGRENDELÉS TÁRGYA
+   Ingatlan címe: ___________________________
+   Hiba leírása: ___________________________
+   ___________________________
+
+2. ELVÉGZENDŐ MUNKA
+   □ Vízszerelés    □ Villanyszerelés    □ Fűtés    □ Festés    □ Egyéb
+   Részletes leírás: ___________________________
+   ___________________________
+
+3. HATÁRIDŐ
+   Elvégzés várható időpontja: ___________________________
+   Sürgősség: □ Azonnali (24h)  □ Normál (1 hét)  □ Alacsony (1 hónap)
+
+4. DÍJAZÁS
+   Becsült munkadíj: _________________________ Ft + ÁFA
+   Becsült anyagköltség: _________________________ Ft + ÁFA
+   Összesen (bruttó): _________________________ Ft
+   Fizetési mód: átutalás / készpénz
+   Fizetési határidő: elvégzést követő _____ nap
+
+5. EGYÉB FELTÉTELEK
+   - A Megbízott garanciát vállal az elvégzett munkára: _____ hónap
+   - Kapcsolattartó: ___________________________
+   - Telefon: ___________________________
+
+____________________________          ____________________________
+         Megbízó                               Megbízott`
+  },
+  riport: {
+    title: "Havi tulajdonosi riport sablon",
+    desc: "Tulajdonos felé küldendő havi összefoglaló riport sablon — bevételek, kiadások, karbantartási helyzet.",
+    content: `HAVI TULAJDONOSI RIPORT
+
+Készítette: IB Exproconsult
+Időszak: ___________________________
+Tulajdonos: ___________________________
+
+1. PORTFÓLIÓ ÖSSZEFOGLALÓ
+   Kezelt ingatlanok száma: _____
+   Bérelt: _____  |  Szabad: _____  |  Karbantartás alatt: _____
+
+2. PÉNZÜGYI ÖSSZESÍTŐ
+   Havi bérleti bevétel (bruttó): _________________________ Ft
+   Havi közüzemi költség: _________________________ Ft
+   Karbantartási költség: _________________________ Ft
+   Ingatlankezelői díj: _________________________ Ft
+   Nettó bevétel: _________________________ Ft
+
+3. INGATLANONKÉNTI RÉSZLETEZÉS
+   Ingatlan      Bérlő            Bérleti díj    Rezsi     Nettó
+   ___________   _______________  ___________    ________  ________
+   ___________   _______________  ___________    ________  ________
+
+4. KARBANTARTÁSI ESEMÉNYEK
+   ___________________________
+   ___________________________
+
+5. LEJÁRÓ SZERZŐDÉSEK (következő 90 nap)
+   ___________________________
+   ___________________________
+
+6. AJÁNLOTT INTÉZKEDÉSEK
+   ___________________________
+   ___________________________
+
+Megjegyzések: ___________________________
+
+Készült: Budapest, ___________________________
+IB Exproconsult`
+  }
+};
+
+/* =========================================================
+   STORE (window._APP_STORE)
+   ========================================================= */
+if (!window._APP_STORE) window._APP_STORE = {};
+window._APP_STORE.pmTickets = [...TICKETS];
+let ticketCounter = 10;
+
+/* =========================================================
+   CHART INSTANCES
+   ========================================================= */
+let revenueChart = null;
+let districtDonut = null;
+let currentTemplateKey = null;
+
+/* =========================================================
+   HELPERS
+   ========================================================= */
+function fmt(n) { return n.toLocaleString('hu-HU'); }
+function fmtFt(n) { return fmt(n) + ' Ft'; }
+
+function switchTab(idx) {
+  document.querySelectorAll('.tab-btn').forEach((b, i) => b.classList.toggle('active', i === idx));
+  document.querySelectorAll('.tab-panel').forEach((p, i) => p.classList.toggle('active', i === idx));
+  if (idx === 0) renderTab0();
+  if (idx === 1) renderTab1();
+  if (idx === 2) renderTab2();
+  if (idx === 3) renderTab3();
+  if (idx === 4) renderTab4();
+}
+
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+function statusBadge(s) {
+  if (s === 'Bérelt') return '<span class="badge badge-green">Bérelt</span>';
+  if (s === 'Szabad') return '<span class="badge badge-red">Szabad</span>';
+  return '<span class="badge badge-yellow">Karbantartás</span>';
+}
+
+function priorityBadge(p) {
+  if (p === 'Sürgős') return '<span class="badge badge-red">Sürgős</span>';
+  if (p === 'Normál') return '<span class="badge badge-blue">Normál</span>';
+  return '<span class="badge badge-yellow">Alacsony</span>';
+}
+
+function ticketStatusBadge(s) {
+  if (s === 'Nyitott') return '<span class="badge badge-red">Nyitott</span>';
+  if (s === 'Folyamatban') return '<span class="badge badge-orange">Folyamatban</span>';
+  return '<span class="badge badge-green">Lezárt</span>';
+}
+
+function animateCount(el, target, suffix, duration) {
+  const start = 0;
+  const startTime = performance.now();
+  function step(t) {
+    const p = Math.min((t - startTime) / duration, 1);
+    const ease = 1 - Math.pow(1 - p, 3);
+    const val = Math.round(start + (target - start) * ease);
+    el.textContent = fmt(val) + (suffix || '');
+    if (p < 1) requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+}
+
+function getPropertyById(id) { return MANAGED_PROPERTIES.find(p => p.id === id); }
+
+/* =========================================================
+   TAB 0 — PORTFÓLIÓ ÁTTEKINTÉS
+   ========================================================= */
+function renderTab0() {
+  const container = document.getElementById('tab-0');
+  const totalProps = 23;
+  const activeTenants = 19;
+  const monthlyRevenue = 5230000;
+  const monthlyExpense = 987000;
+  const netRevenue = 4243000;
+  const occupancy = '82,6';
+  const now = new Date('2026-03-15');
+  const d90 = new Date(now.getTime() + 90 * 86400000);
+  const expiring = MANAGED_PROPERTIES.filter(p => p.lease_end && new Date(p.lease_end) <= d90 && new Date(p.lease_end) >= now).length;
+
+  // District counts
+  const districtMap = {};
+  MANAGED_PROPERTIES.forEach(p => { districtMap[p.district] = (districtMap[p.district] || 0) + 1; });
+
+  // Monthly revenue/expense data (12 months trailing)
+  const months = ['2025 ápr','2025 máj','2025 jún','2025 júl','2025 aug','2025 szep','2025 okt','2025 nov','2025 dec','2026 jan','2026 feb','2026 már'];
+  const revData = [4100000,4250000,4350000,4500000,4650000,4700000,4800000,4900000,5050000,5100000,5180000,5230000];
+  const expData = [820000,840000,860000,890000,910000,920000,940000,960000,970000,975000,980000,987000];
+
+  container.innerHTML = `
+    <div class="sidebar-layout">
+      <div>
+        <div class="kpi-grid">
+          <div class="kpi-card"><div class="kpi-label">Kezelt ingatlanok</div><div class="kpi-value" data-count="${totalProps}" data-suffix=" db">0</div></div>
+          <div class="kpi-card"><div class="kpi-label">Aktív bérlők</div><div class="kpi-value" data-count="${activeTenants}" data-suffix=" fő">0</div></div>
+          <div class="kpi-card"><div class="kpi-label">Havi bevétel összesen</div><div class="kpi-value" data-count="${monthlyRevenue}" data-suffix=" Ft">0</div></div>
+          <div class="kpi-card"><div class="kpi-label">Havi kiadás (rezsi+karb.)</div><div class="kpi-value" data-count="${monthlyExpense}" data-suffix=" Ft" style="color:var(--orange)">0</div></div>
+          <div class="kpi-card"><div class="kpi-label">Nettó havi bevétel</div><div class="kpi-value" data-count="${netRevenue}" data-suffix=" Ft" style="color:var(--green)">0</div></div>
+          <div class="kpi-card"><div class="kpi-label">Átlagos kihasználtság</div><div class="kpi-value" style="color:var(--accent)">${occupancy}%</div></div>
+          <div class="kpi-card"><div class="kpi-label">Lejáró szerződések (90 nap)</div><div class="kpi-value" data-count="${expiring}" data-suffix=" db" style="color:${expiring > 0 ? 'var(--gold)' : 'var(--green)'}">0</div></div>
+        </div>
+      </div>
+      <div>
+        <!-- Property Table -->
+        <div class="card" style="overflow-x:auto;">
+          <h3>Ingatlan-lista</h3>
+          <table class="data-table">
+            <thead><tr>
+              <th>ID</th><th>Cím</th><th class="center">Ker.</th><th>Típus</th><th class="right">m²</th><th>Bérlő</th><th class="right">Havi díj</th><th class="center">Státusz</th><th class="center">Szerz. lejárat</th>
+            </tr></thead>
+            <tbody>
+              ${MANAGED_PROPERTIES.map(p => `<tr>
+                <td style="color:var(--text-muted);font-size:12px;">${p.id}</td>
+                <td style="font-weight:600;white-space:nowrap;">${p.address}</td>
+                <td class="center">${p.district}.</td>
+                <td>${p.type}</td>
+                <td class="right">${p.sqm}</td>
+                <td>${p.tenant || '<span style="color:var(--text-dim)">—</span>'}</td>
+                <td class="right" style="font-weight:600;">${fmtFt(p.rent)}</td>
+                <td class="center">${statusBadge(p.status)}</td>
+                <td class="center">${p.lease_end || '—'}</td>
+              </tr>`).join('')}
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Charts row -->
+        <div class="split">
+          <div class="card">
+            <h3>Havi bevétel / kiadás (12 hónap)</h3>
+            <div style="height:280px;"><canvas id="revenue-chart"></canvas></div>
+          </div>
+          <div class="card">
+            <h3>Kerületi megoszlás</h3>
+            <div style="height:280px;"><canvas id="district-donut"></canvas></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+
+  // Animate KPIs
+  container.querySelectorAll('.kpi-value[data-count]').forEach(el => {
+    animateCount(el, parseInt(el.dataset.count), el.dataset.suffix || '', 1200);
+  });
+
+  // Revenue/Expense chart
+  if (revenueChart) revenueChart.destroy();
+  const ctx1 = document.getElementById('revenue-chart').getContext('2d');
+  revenueChart = new Chart(ctx1, {
+    type: 'bar',
+    data: {
+      labels: months,
+      datasets: [
+        { label: 'Bevétel', data: revData, backgroundColor: 'rgba(0,113,227,0.7)', borderColor: '#0071E3', borderWidth: 1 },
+        { label: 'Kiadás', data: expData, backgroundColor: 'rgba(239,68,68,0.5)', borderColor: '#FF3B30', borderWidth: 1 }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { labels: { color: '#6E6E73', font: { size: 11 } } },
+        tooltip: { callbacks: { label: ctx => ctx.dataset.label + ': ' + fmt(ctx.raw) + ' Ft' } }
+      },
+      scales: {
+        x: { ticks: { color: '#6E6E73', font: { size: 10 } }, grid: { color: 'rgba(45,50,80,0.3)' } },
+        y: { ticks: { color: '#6E6E73', callback: v => (v/1000000).toFixed(1) + 'M' }, grid: { color: 'rgba(45,50,80,0.3)' } }
+      }
+    }
+  });
+
+  // District donut
+  if (districtDonut) districtDonut.destroy();
+  const districts = Object.keys(districtMap).sort();
+  const dCounts = districts.map(d => districtMap[d]);
+  const colors = ['#0071E3','#34C759','#FF9F0A','#FF3B30','#a855f7','#FF9500','#5AC8FA','#ec4899','#84cc16','#6366f1','#14b8a6','#e11d48'];
+  const ctx2 = document.getElementById('district-donut').getContext('2d');
+  districtDonut = new Chart(ctx2, {
+    type: 'doughnut',
+    data: {
+      labels: districts.map(d => d + '. kerület'),
+      datasets: [{ data: dCounts, backgroundColor: colors.slice(0, districts.length), borderWidth: 0 }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false, cutout: '55%',
+      plugins: {
+        legend: { position: 'right', labels: { color: '#6E6E73', font: { size: 11 }, padding: 8 } },
+        tooltip: { callbacks: { label: ctx => ctx.label + ': ' + ctx.raw + ' db' } }
+      }
+    }
+  });
+}
+
+/* =========================================================
+   TAB 1 — KARBANTARTÁS & REZSI
+   ========================================================= */
+function renderTab1() {
+  const container = document.getElementById('tab-1');
+  const tickets = window._APP_STORE.pmTickets;
+  const open = tickets.filter(t => t.status === 'Nyitott').length;
+  const inProgress = tickets.filter(t => t.status === 'Folyamatban').length;
+  const closed = tickets.filter(t => t.status === 'Lezárt').length;
+  const totalCost = tickets.reduce((s, t) => s + t.cost, 0);
+
+  // Populate ticket modal dropdown
+  const dd = document.getElementById('ticket-property');
+  dd.innerHTML = MANAGED_PROPERTIES.map(p => `<option value="${p.id}">${p.id} — ${p.address}</option>`).join('');
+
+  container.innerHTML = `
+    <div class="split">
+      <!-- LEFT: Tickets -->
+      <div>
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+            <h3 style="margin:0;">Karbantartási ticket rendszer</h3>
+            <button class="btn btn-primary btn-sm" onclick="openModal('ticket-modal')">+ Új ticket</button>
+          </div>
+          <div style="display:flex;gap:12px;margin-bottom:16px;flex-wrap:wrap;">
+            <div style="padding:8px 16px;background:rgba(239,68,68,0.1);border-radius:8px;font-size:13px;">Nyitott: <strong style="color:var(--red)">${open}</strong></div>
+            <div style="padding:8px 16px;background:rgba(249,115,22,0.1);border-radius:8px;font-size:13px;">Folyamatban: <strong style="color:var(--orange)">${inProgress}</strong></div>
+            <div style="padding:8px 16px;background:rgba(16,185,129,0.1);border-radius:8px;font-size:13px;">Lezárt: <strong style="color:var(--green)">${closed}</strong></div>
+            <div style="padding:8px 16px;background:rgba(0,113,227,0.1);border-radius:8px;font-size:13px;">Havi ktg: <strong style="color:var(--accent)">${fmtFt(totalCost)}</strong></div>
+          </div>
+          <div style="overflow-x:auto;">
+          <table class="data-table">
+            <thead><tr>
+              <th>ID</th><th>Ingatlan</th><th>Típus</th><th class="center">Prioritás</th><th>Leírás</th><th class="right">Ktg becslés</th><th class="center">Státusz</th><th class="center">Dátum</th>
+            </tr></thead>
+            <tbody>
+              ${tickets.map(t => {
+                const prop = getPropertyById(t.property);
+                return `<tr>
+                  <td style="color:var(--text-muted);font-size:12px;">${t.id}</td>
+                  <td style="white-space:nowrap;font-size:12px;">${prop ? prop.address : t.property}</td>
+                  <td>${t.type}</td>
+                  <td class="center">${priorityBadge(t.priority)}</td>
+                  <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${t.desc}">${t.desc}</td>
+                  <td class="right" style="font-weight:600;">${fmtFt(t.cost)}</td>
+                  <td class="center">${ticketStatusBadge(t.status)}</td>
+                  <td class="center" style="font-size:12px;">${t.date}</td>
+                </tr>`;
+              }).join('')}
+            </tbody>
+          </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT: Utility Calculator -->
+      <div>
+        <div class="card">
+          <h3>Rezsikalkulátor & Benchmark</h3>
+          <div class="form-group">
+            <label class="form-label">Ingatlan kiválasztása</label>
+            <select id="utility-property" class="form-select" onchange="updateUtilityCalc()">
+              ${MANAGED_PROPERTIES.map(p => `<option value="${p.id}">${p.id} — ${p.address} (${p.sqm} m²)</option>`).join('')}
+            </select>
+          </div>
+          <div id="utility-info" style="display:flex;gap:12px;margin-bottom:16px;">
+            <span class="badge badge-blue">${MANAGED_PROPERTIES[0].sqm} m²</span>
+            <span class="badge badge-purple">${MANAGED_PROPERTIES[0].type}</span>
+          </div>
+
+          <div class="range-group">
+            <label>Gáz (Ft/hó) <span id="gas-val">${fmt(13000)}</span></label>
+            <input type="range" id="gas-slider" min="2000" max="50000" step="500" value="13000" oninput="updateUtilityCalc()">
+          </div>
+          <div class="range-group">
+            <label>Villany (Ft/hó) <span id="elec-val">${fmt(6400)}</span></label>
+            <input type="range" id="elec-slider" min="2000" max="20000" step="500" value="6400" oninput="updateUtilityCalc()">
+          </div>
+          <div class="range-group">
+            <label>Víz (Ft/hó) <span id="water-val">${fmt(3500)}</span></label>
+            <input type="range" id="water-slider" min="1000" max="10000" step="250" value="3500" oninput="updateUtilityCalc()">
+          </div>
+          <div class="range-group">
+            <label>Közös költség (Ft/hó) <span id="common-val">${fmt(18000)}</span></label>
+            <input type="range" id="common-slider" min="5000" max="50000" step="500" value="18000" oninput="updateUtilityCalc()">
+          </div>
+
+          <div id="utility-results" style="margin-top:16px;"></div>
+        </div>
+      </div>
+    </div>
+  `;
+  updateUtilityCalc();
+}
+
+function updateUtilityCalc() {
+  const propId = document.getElementById('utility-property')?.value;
+  if (!propId) return;
+  const prop = getPropertyById(propId);
+  if (!prop) return;
+
+  const infoEl = document.getElementById('utility-info');
+  if (infoEl) infoEl.innerHTML = `<span class="badge badge-blue">${prop.sqm} m²</span><span class="badge badge-purple">${prop.type}</span><span class="badge badge-green">${prop.district}. ker.</span>`;
+
+  // Set sliders to benchmark based on sqm
+  const sizeKey = prop.sqm <= 60 ? 'small' : prop.sqm <= 80 ? 'medium' : 'large';
+
+  const gas = parseInt(document.getElementById('gas-slider')?.value || UTILITY_BENCHMARKS.gas[sizeKey]);
+  const elec = parseInt(document.getElementById('elec-slider')?.value || UTILITY_BENCHMARKS.electric[sizeKey]);
+  const water = parseInt(document.getElementById('water-slider')?.value || UTILITY_BENCHMARKS.water[sizeKey]);
+  const common = parseInt(document.getElementById('common-slider')?.value || UTILITY_BENCHMARKS.common[sizeKey]);
+
+  document.getElementById('gas-val').textContent = fmt(gas);
+  document.getElementById('elec-val').textContent = fmt(elec);
+  document.getElementById('water-val').textContent = fmt(water);
+  document.getElementById('common-val').textContent = fmt(common);
+
+  const totalMonthly = gas + elec + water + common;
+  const annual = totalMonthly * 12;
+  const perSqm = Math.round(totalMonthly / prop.sqm);
+  const marketAvg = prop.sqm <= 60 ? 600 : prop.sqm <= 80 ? 500 : 450;
+  const delta = perSqm - marketAvg;
+
+  // Maintenance budget
+  const estValue = (PROPERTY_VALUES[prop.district] || 700000) * prop.sqm;
+  const maintBudget = Math.round(estValue * 0.015 / 12);
+
+  const results = document.getElementById('utility-results');
+  if (!results) return;
+  results.innerHTML = `
+    <div style="background:var(--surface2);border-radius:var(--radius);padding:16px;margin-bottom:12px;">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        <div><span style="font-size:11px;color:var(--text-muted);display:block;">Havi rezsi összesen</span><strong style="font-size:18px;">${fmtFt(totalMonthly)}</strong></div>
+        <div><span style="font-size:11px;color:var(--text-muted);display:block;">Éves projekció</span><strong style="font-size:18px;">${fmtFt(annual)}</strong></div>
+        <div><span style="font-size:11px;color:var(--text-muted);display:block;">Rezsi / m²</span><strong style="font-size:16px;">${fmt(perSqm)} Ft/m²</strong></div>
+        <div><span style="font-size:11px;color:var(--text-muted);display:block;">Piaci átlag / m²</span><strong style="font-size:16px;color:${delta > 50 ? 'var(--red)' : delta < -50 ? 'var(--green)' : 'var(--text)'};">${fmt(marketAvg)} Ft/m² (${delta >= 0 ? '+' : ''}${fmt(delta)})</strong></div>
+      </div>
+    </div>
+    <div style="background:var(--surface2);border-radius:var(--radius);padding:16px;">
+      <span style="font-size:11px;color:var(--text-muted);display:block;margin-bottom:4px;">Karbantartási büdzsé javaslat</span>
+      <div style="font-size:13px;color:var(--text-muted);margin-bottom:8px;">Becsült ingatlanérték: ${fmtFt(estValue)} × 1,5% / 12</div>
+      <strong style="font-size:18px;color:var(--accent);">${fmtFt(maintBudget)} / hó</strong>
+      <span style="font-size:12px;color:var(--text-muted);margin-left:8px;">(${fmtFt(maintBudget * 12)} / év)</span>
+    </div>
+  `;
+}
+
+function addTicket() {
+  ticketCounter++;
+  const prop = document.getElementById('ticket-property').value;
+  const type = document.getElementById('ticket-type').value;
+  const priority = document.getElementById('ticket-priority').value;
+  const desc = document.getElementById('ticket-desc').value || 'Nincs leírás';
+  const cost = parseInt(document.getElementById('ticket-cost').value) || 0;
+  window._APP_STORE.pmTickets.unshift({
+    id: 'TK-' + String(ticketCounter).padStart(3, '0'),
+    property: prop, type, priority, desc, cost,
+    status: 'Nyitott',
+    date: new Date().toISOString().split('T')[0]
+  });
+  closeModal('ticket-modal');
+  document.getElementById('ticket-desc').value = '';
+  document.getElementById('ticket-cost').value = '';
+  renderTab1();
+}
+
+/* =========================================================
+   TAB 2 — HOZAM & BENCHMARK
+   ========================================================= */
+function renderTab2() {
+  const container = document.getElementById('tab-2');
+
+  // Per-property yield table
+  const yieldRows = MANAGED_PROPERTIES.filter(p => p.status === 'Bérelt').map(p => {
+    const perSqmValue = PROPERTY_VALUES[p.district] || 700000;
+    const estValue = perSqmValue * p.sqm;
+    const grossYield = ((p.rent * 12) / estValue * 100);
+    const netYield = ((p.rent * 0.85 * 12) / estValue * 100);
+    const benchmark = YIELD_BENCHMARKS[p.district] || 5.06;
+    const delta = netYield - benchmark;
+    return { ...p, estValue, grossYield, netYield, benchmark, delta };
+  });
+
+  container.innerHTML = `
+    <!-- Section A: Yield Table -->
+    <div class="card" style="overflow-x:auto;">
+      <h3>Ingatlanonkénti hozamszámítás</h3>
+      <div style="display:flex;gap:12px;margin-bottom:16px;flex-wrap:wrap;">
+        <div style="padding:8px 14px;background:rgba(0,113,227,0.1);border-radius:8px;font-size:12px;">Budapest átlag bruttó hozam: <strong style="color:var(--accent)">5,06%</strong></div>
+        <div style="padding:8px 14px;background:rgba(16,185,129,0.1);border-radius:8px;font-size:12px;">VIII-IX. ker: <strong style="color:var(--green)">5,5–7%</strong></div>
+        <div style="padding:8px 14px;background:rgba(245,158,11,0.1);border-radius:8px;font-size:12px;">I-II-V. ker: <strong style="color:var(--gold)">3,5–4,5%</strong></div>
+        <div style="padding:8px 14px;background:rgba(168,85,247,0.1);border-radius:8px;font-size:12px;">Külső ker.: <strong style="color:var(--purple)">5–6%</strong></div>
+      </div>
+      <table class="data-table">
+        <thead><tr>
+          <th>Ingatlan</th><th class="center">Ker.</th><th class="right">Havi díj</th><th class="right">Becsült érték</th><th class="right">Bruttó hozam</th><th class="right">Nettó hozam</th><th class="right">Piaci medián</th><th class="right">Delta</th>
+        </tr></thead>
+        <tbody>
+          ${yieldRows.map(r => `<tr>
+            <td style="font-weight:600;white-space:nowrap;font-size:12px;">${r.address}</td>
+            <td class="center">${r.district}.</td>
+            <td class="right">${fmtFt(r.rent)}</td>
+            <td class="right" style="color:var(--text-muted);">${fmt(r.estValue)} Ft</td>
+            <td class="right" style="font-weight:700;">${r.grossYield.toFixed(2)}%</td>
+            <td class="right" style="font-weight:700;color:var(--accent);">${r.netYield.toFixed(2)}%</td>
+            <td class="right" style="color:var(--text-muted);">${r.benchmark.toFixed(1)}%</td>
+            <td class="right" style="font-weight:700;color:${r.delta >= 0 ? 'var(--green)' : 'var(--red)'};">${r.delta >= 0 ? '+' : ''}${r.delta.toFixed(2)}%</td>
+          </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Section B: Rental Indexation Calculator -->
+    <div class="card">
+      <h3>Bérlői díj indexálás kalkulátor</h3>
+      <div class="form-row" style="grid-template-columns:1fr 1fr 1fr 1fr;gap:12px;">
+        <div class="form-group">
+          <label class="form-label">Jelenlegi bérleti díj (Ft)</label>
+          <input type="number" id="idx-rent" class="form-input" value="300000">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Utolsó emelés dátuma</label>
+          <input type="date" id="idx-date" class="form-input" value="2025-03-01">
+        </div>
+        <div class="form-group">
+          <label class="form-label">KSH infláció (%)</label>
+          <input type="number" id="idx-inflation" class="form-input" value="4.4" step="0.1">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Indexálási mód</label>
+          <select id="idx-mode" class="form-select">
+            <option value="inflation">KSH infláció alapján</option>
+            <option value="inflPlus2">Infláció + 2%</option>
+            <option value="inflPlus3">Infláció + 3%</option>
+            <option value="fixed5">Fix 5%</option>
+            <option value="fixed10">Fix 10%</option>
+          </select>
+        </div>
+      </div>
+      <button class="btn btn-primary" onclick="calcIndexation()">Kalkuláció</button>
+      <div id="idx-result" style="margin-top:16px;"></div>
+    </div>
+
+    <!-- Section C: Tax Optimization -->
+    <div class="card">
+      <h3>Adóoptimalizálás — SZJA összehasonlítás</h3>
+      <div style="overflow-x:auto;">
+      <table class="data-table">
+        <thead><tr>
+          <th>Ingatlan</th><th class="right">Éves bevétel</th><th class="right">10% ktghányad (SZJA)</th><th class="right">Tételes (becsült)</th><th class="right">Megtakarítás</th><th class="center">Javasolt mód</th>
+        </tr></thead>
+        <tbody>
+          ${MANAGED_PROPERTIES.filter(p => p.status === 'Bérelt').map(p => {
+            const annual = p.rent * 12;
+            const szja10 = Math.round(annual * 0.9 * 0.15);
+            // Assume ~25% actual deductible costs for itemized
+            const costs = Math.round(annual * 0.25);
+            const szjaTeteles = Math.round((annual - costs) * 0.15);
+            const savings = szja10 - szjaTeteles;
+            const recommended = savings > 0 ? 'Tételes' : '10% átalány';
+            return `<tr>
+              <td style="font-size:12px;white-space:nowrap;">${p.address}</td>
+              <td class="right">${fmtFt(annual)}</td>
+              <td class="right" style="color:var(--orange);">${fmtFt(szja10)}</td>
+              <td class="right" style="color:var(--green);">${fmtFt(szjaTeteles)}</td>
+              <td class="right" style="font-weight:700;color:${savings > 0 ? 'var(--green)' : 'var(--text-muted)'};">${savings > 0 ? fmtFt(savings) : '—'}</td>
+              <td class="center"><span class="badge ${savings > 0 ? 'badge-green' : 'badge-blue'}">${recommended}</span></td>
+            </tr>`;
+          }).join('')}
+        </tbody>
+      </table>
+      </div>
+      <div style="margin-top:16px;padding:14px;background:var(--surface2);border-radius:var(--radius);font-size:12px;color:var(--text-muted);line-height:1.7;">
+        <strong style="color:var(--text);">Számítási módszer:</strong><br>
+        • 10%-os költséghányad: Bevétel × 90% × 15% = SZJA<br>
+        • Tételes elszámolás: (Bevétel − dokumentált költségek) × 15% = SZJA<br>
+        • A tételes becslésnél 25%-os tényleges költséghányaddal számolunk (rezsi, karbantartás, értékcsökkenés, biztosítás).<br>
+        • SZOCHO nem terheli a bérbeadásból származó jövedelmet.
+      </div>
+    </div>
+  `;
+}
+
+function calcIndexation() {
+  const rent = parseInt(document.getElementById('idx-rent').value) || 300000;
+  const inflation = parseFloat(document.getElementById('idx-inflation').value) || 4.4;
+  const mode = document.getElementById('idx-mode').value;
+  const lastDate = document.getElementById('idx-date').value;
+
+  let pct;
+  switch(mode) {
+    case 'inflation': pct = inflation; break;
+    case 'inflPlus2': pct = inflation + 2; break;
+    case 'inflPlus3': pct = inflation + 3; break;
+    case 'fixed5': pct = 5; break;
+    case 'fixed10': pct = 10; break;
+    default: pct = inflation;
+  }
+
+  const newRent = Math.round(rent * (1 + pct / 100));
+  const diff = newRent - rent;
+
+  const el = document.getElementById('idx-result');
+  el.innerHTML = `
+    <div style="background:var(--surface2);border-radius:var(--radius);padding:16px;">
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:16px;">
+        <div><span style="font-size:11px;color:var(--text-muted);display:block;">Jelenlegi díj</span><strong style="font-size:16px;">${fmtFt(rent)}</strong></div>
+        <div><span style="font-size:11px;color:var(--text-muted);display:block;">Javasolt új díj</span><strong style="font-size:16px;color:var(--accent);">${fmtFt(newRent)}</strong></div>
+        <div><span style="font-size:11px;color:var(--text-muted);display:block;">Emelés mértéke</span><strong style="font-size:16px;color:var(--green);">+${fmtFt(diff)} (+${pct.toFixed(1)}%)</strong></div>
+      </div>
+      <div style="padding:14px;background:var(--bg);border-radius:8px;font-size:12px;line-height:1.8;color:var(--text-muted);">
+        <strong style="color:var(--text);">Értesítő szöveg sablon:</strong><br><br>
+        Tisztelt Bérlő!<br><br>
+        Tájékoztatjuk, hogy a bérleti szerződésünk indexálási záradéka alapján, a KSH által közzétett ${inflation}%-os éves infláció figyelembevételével,
+        ${new Date(lastDate).toLocaleDateString('hu-HU', {year:'numeric',month:'long',day:'numeric'})} óta eltelt időszakra tekintettel
+        a havi bérleti díjat <strong style="color:var(--text);">${fmtFt(rent)}-ról ${fmtFt(newRent)}-ra</strong> emeljük.<br><br>
+        Az új bérleti díj ________ hónap 1. napjától érvényes.<br><br>
+        Kérjük a tudomásul vételt és a módosított összeg átutalását a megadott bankszámlaszámra.<br><br>
+        Üdvözlettel,<br>
+        IB Exproconsult
+      </div>
+    </div>
+  `;
+}
+
+/* =========================================================
+   TAB 3 — DOKUMENTUMOK & SABLONOK
+   ========================================================= */
+function renderTab3() {
+  const container = document.getElementById('tab-3');
+  const templateKeys = Object.keys(TEMPLATES);
+
+  container.innerHTML = `
+    <div style="display:grid;grid-template-columns:repeat(auto-fill, minmax(280px, 1fr));gap:16px;margin-bottom:24px;">
+      ${templateKeys.map(key => {
+        const t = TEMPLATES[key];
+        return `<div class="template-card">
+          <h4>${t.title}</h4>
+          <p>${t.desc}</p>
+          <div class="template-actions">
+            <button class="btn btn-primary btn-sm" onclick="openTemplate('${key}')">Megnyitás / Szerkesztés</button>
+            <button class="btn btn-secondary btn-sm" onclick="downloadTemplateDirect('${key}')">📥 Letöltés TXT</button>
+          </div>
+        </div>`;
+      }).join('')}
+    </div>
+
+    <!-- Monthly Report Generator -->
+    <div class="card">
+      <h3>Havi riport generátor</h3>
+      <div style="display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap;">
+        <div class="form-group" style="margin:0;flex:1;min-width:200px;">
+          <label class="form-label">Tulajdonos kiválasztása</label>
+          <select id="report-owner" class="form-select">
+            <option>Kiss János</option>
+            <option>Tóth Kft.</option>
+            <option>Molnár Bt.</option>
+            <option>Papp Zrt.</option>
+            <option>IB Exproconsult</option>
+          </select>
+        </div>
+        <button class="btn btn-primary" onclick="generateReport()">Riport generálása</button>
+        <button class="btn btn-secondary" id="print-report-btn" style="display:none;" onclick="printReport()">🖨️ Nyomtatás</button>
+      </div>
+      <div id="report-output"></div>
+    </div>
+  `;
+}
+
+function openTemplate(key) {
+  currentTemplateKey = key;
+  const t = TEMPLATES[key];
+  document.getElementById('template-modal-title').textContent = t.title;
+  document.getElementById('template-editor').value = t.content;
+  openModal('template-modal');
+}
+
+function downloadTemplate() {
+  if (!currentTemplateKey) return;
+  const content = document.getElementById('template-editor').value;
+  const t = TEMPLATES[currentTemplateKey];
+  const blob = new Blob([content], {type: 'text/plain;charset=utf-8'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = t.title.replace(/\s+/g, '_') + '.txt';
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+function downloadTemplateDirect(key) {
+  const t = TEMPLATES[key];
+  const blob = new Blob([t.content], {type: 'text/plain;charset=utf-8'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = t.title.replace(/\s+/g, '_') + '.txt';
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+function generateReport() {
+  const owner = document.getElementById('report-owner').value;
+  const props = MANAGED_PROPERTIES.filter(p => p.owner === owner);
+  const tickets = window._APP_STORE.pmTickets;
+
+  if (props.length === 0) {
+    document.getElementById('report-output').innerHTML = '<p style="margin-top:16px;color:var(--text-muted);">Nincs ingatlan ehhez a tulajdonoshoz.</p>';
+    return;
+  }
+
+  const rented = props.filter(p => p.status === 'Bérelt');
+  const free = props.filter(p => p.status === 'Szabad');
+  const maint = props.filter(p => p.status === 'Karbantartás');
+  const totalIncome = rented.reduce((s, p) => s + p.rent, 0);
+  const avgUtility = Math.round(props.reduce((s, p) => s + p.sqm * 350, 0));
+  const mgmtFee = Math.round(totalIncome * 0.15);
+  const netIncome = totalIncome - avgUtility - mgmtFee;
+
+  const now = new Date('2026-03-15');
+  const d90 = new Date(now.getTime() + 90 * 86400000);
+  const expiring = props.filter(p => p.lease_end && new Date(p.lease_end) <= d90 && new Date(p.lease_end) >= now);
+
+  const ownerTickets = tickets.filter(t => {
+    const prop = getPropertyById(t.property);
+    return prop && prop.owner === owner && t.status !== 'Lezárt';
+  });
+
+  document.getElementById('print-report-btn').style.display = 'inline-flex';
+
+  document.getElementById('report-output').innerHTML = `
+    <div class="report-area" id="printable-report">
+      <h2>Havi tulajdonosi riport — ${owner}</h2>
+      <div style="color:var(--text-muted);font-size:12px;margin-bottom:16px;">Időszak: 2026. március | Készítette: IB Exproconsult | Dátum: 2026-03-15</div>
+
+      <h4>1. Portfólió összefoglaló</h4>
+      <div style="display:flex;gap:16px;margin-bottom:16px;flex-wrap:wrap;">
+        <div style="padding:8px 16px;background:rgba(0,113,227,0.1);border-radius:8px;">Összes: <strong>${props.length} db</strong></div>
+        <div style="padding:8px 16px;background:rgba(16,185,129,0.1);border-radius:8px;">Bérelt: <strong style="color:var(--green)">${rented.length}</strong></div>
+        <div style="padding:8px 16px;background:rgba(239,68,68,0.1);border-radius:8px;">Szabad: <strong style="color:var(--red)">${free.length}</strong></div>
+        <div style="padding:8px 16px;background:rgba(245,158,11,0.1);border-radius:8px;">Karbantartás: <strong style="color:var(--gold)">${maint.length}</strong></div>
+      </div>
+
+      <h4>2. Pénzügyi összesítő</h4>
+      <table>
+        <tr><td>Havi bérleti bevétel (bruttó)</td><td style="text-align:right;font-weight:700;">${fmtFt(totalIncome)}</td></tr>
+        <tr><td>Becsült közüzemi költség</td><td style="text-align:right;color:var(--orange);">-${fmtFt(avgUtility)}</td></tr>
+        <tr><td>Ingatlankezelői díj (15%)</td><td style="text-align:right;color:var(--orange);">-${fmtFt(mgmtFee)}</td></tr>
+        <tr style="border-top:2px solid var(--border);"><td><strong>Nettó bevétel</strong></td><td style="text-align:right;font-weight:700;color:var(--green);">${fmtFt(netIncome)}</td></tr>
+      </table>
+
+      <h4>3. Ingatlanonkénti részletezés</h4>
+      <table>
+        <thead><tr><th>Cím</th><th>Bérlő</th><th style="text-align:right">Bérleti díj</th><th style="text-align:center">Státusz</th><th style="text-align:center">Szerz. lejárat</th></tr></thead>
+        <tbody>
+          ${props.map(p => `<tr>
+            <td>${p.address}</td>
+            <td>${p.tenant || '—'}</td>
+            <td style="text-align:right;font-weight:600;">${fmtFt(p.rent)}</td>
+            <td style="text-align:center;">${statusBadge(p.status)}</td>
+            <td style="text-align:center;">${p.lease_end || '—'}</td>
+          </tr>`).join('')}
+        </tbody>
+      </table>
+
+      ${ownerTickets.length > 0 ? `
+        <h4>4. Nyitott karbantartási feladatok</h4>
+        <table>
+          <thead><tr><th>Ingatlan</th><th>Típus</th><th>Leírás</th><th style="text-align:right">Ktg</th><th style="text-align:center">Státusz</th></tr></thead>
+          <tbody>
+            ${ownerTickets.map(t => {
+              const prop = getPropertyById(t.property);
+              return `<tr>
+                <td>${prop ? prop.address : t.property}</td>
+                <td>${t.type}</td>
+                <td>${t.desc}</td>
+                <td style="text-align:right;">${fmtFt(t.cost)}</td>
+                <td style="text-align:center;">${ticketStatusBadge(t.status)}</td>
+              </tr>`;
+            }).join('')}
+          </tbody>
+        </table>
+      ` : '<h4>4. Karbantartás</h4><p style="color:var(--text-muted);">Nincs nyitott karbantartási feladat.</p>'}
+
+      ${expiring.length > 0 ? `
+        <h4>5. Lejáró szerződések (90 napon belül)</h4>
+        <table>
+          <thead><tr><th>Ingatlan</th><th>Bérlő</th><th style="text-align:center">Lejárat</th><th style="text-align:right">Havi díj</th></tr></thead>
+          <tbody>
+            ${expiring.map(p => `<tr>
+              <td>${p.address}</td>
+              <td>${p.tenant}</td>
+              <td style="text-align:center;color:var(--gold);">${p.lease_end}</td>
+              <td style="text-align:right;">${fmtFt(p.rent)}</td>
+            </tr>`).join('')}
+          </tbody>
+        </table>
+      ` : '<h4>5. Lejáró szerződések</h4><p style="color:var(--text-muted);">Nincs lejáró szerződés a következő 90 napban.</p>'}
+
+      <h4>6. Ajánlott intézkedések</h4>
+      <ul style="color:var(--text-muted);padding-left:20px;font-size:13px;line-height:2;">
+        ${free.length > 0 ? `<li>Üres ingatlan(ok) hirdetése: ${free.map(p => p.address).join(', ')}</li>` : ''}
+        ${maint.length > 0 ? `<li>Karbantartás alatt álló ingatlan(ok): ${maint.map(p => p.address).join(', ')}</li>` : ''}
+        ${expiring.length > 0 ? `<li>Szerződés-megújítás egyeztetése: ${expiring.map(p => p.tenant).join(', ')}</li>` : ''}
+        ${ownerTickets.length > 0 ? `<li>Karbantartási munkák jóváhagyása: ${ownerTickets.length} db nyitott ticket</li>` : ''}
+        <li>Éves bérleti díj indexálás felülvizsgálata (KSH infláció: 4,4%)</li>
+      </ul>
+    </div>
+  `;
+}
+
+function printReport() {
+  const el = document.getElementById('printable-report');
+  if (!el) return;
+  const css = 'body{font-family:Arial,sans-serif;padding:30px;font-size:13px;line-height:1.7;}table{width:100%;border-collapse:collapse;margin:10px 0;}th,td{padding:6px 10px;border-bottom:1px solid #ddd;text-align:left;}h2{color:#0071E3;}h4{margin-top:18px;margin-bottom:6px;}.badge{padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600;}';
+  const html = '<html><head><title>Tulajdonosi Riport</title><style>' + css + '<\/style><\/head><body>' + el.innerHTML + '<\/body><\/html>';
+  const blob = new Blob([html], {type: 'text/html'});
+  const url = URL.createObjectURL(blob);
+  const w = window.open(url, '_blank');
+  setTimeout(function() { if (w) { w.print(); } URL.revokeObjectURL(url); }, 600);
+}
+
+/* =========================================================
+   TAB 4 — JOGI & ADÓ
+   ========================================================= */
+function renderTab4() {
+  const container = document.getElementById('tab-4');
+  container.innerHTML = `
+    <!-- Reference cards -->
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px;margin-bottom:24px;">
+
+      <div class="card">
+        <h3 style="color:var(--accent);">💰 SZJA kulcsok</h3>
+        <ul style="font-size:13px;color:var(--text-muted);padding-left:18px;line-height:2;">
+          <li><strong style="color:var(--text);">Alap SZJA kulcs:</strong> 15%</li>
+          <li><strong style="color:var(--text);">10%-os költséghányad:</strong> Bevétel × 90% × 15%</li>
+          <li><strong style="color:var(--text);">Tételes elszámolás:</strong> (Bevétel − ktg) × 15%</li>
+          <li>SZOCHO <strong style="color:var(--green);">nem terheli</strong> a bérbeadást</li>
+          <li>ÁFA általában <strong>mentes</strong>; rövid távnál 5% választható</li>
+          <li>Negyedévente adóelőleg fizetés kötelező</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h3 style="color:var(--gold);">📜 Felmondási szabályok</h3>
+        <ul style="font-size:13px;color:var(--text-muted);padding-left:18px;line-height:2;">
+          <li><strong style="color:var(--text);">Határozatlan:</strong> Hó 15-ig → következő hó végére</li>
+          <li><strong style="color:var(--text);">Határozott:</strong> Alapesetben nem mondható fel idő előtt</li>
+          <li><strong style="color:var(--text);">Nemfizetés:</strong> Felszólítás → 8 nap → felmondás → 15 nap</li>
+          <li><strong style="color:var(--text);">Súlyos eset:</strong> 8 napon belül, felszólítás nélkül</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h3 style="color:var(--green);">🏦 Kaució</h3>
+        <ul style="font-size:13px;color:var(--text-muted);padding-left:18px;line-height:2;">
+          <li><strong style="color:var(--text);">Tipikus:</strong> 2 havi bérleti díj</li>
+          <li>Jogi maximum: <strong>nincs</strong> (szabad megállapodás)</li>
+          <li>Belváros / prémium: akár 3 havi</li>
+          <li>Visszajár a lakás rendben történő visszaadásakor</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h3 style="color:var(--orange);">📈 Bérleti díj emelés</h3>
+        <ul style="font-size:13px;color:var(--text-muted);padding-left:18px;line-height:2;">
+          <li><strong style="color:var(--text);">Szokásos mód:</strong> KSH infláció alapján évente</li>
+          <li><strong style="color:var(--text);">2025 KSH infláció:</strong> 4,4%</li>
+          <li>Tipikus emelés: infláció + 0–3%</li>
+          <li>Kereskedelmi bérletben HICP index is gyakori</li>
+          <li>A szerződésben rögzíteni kell az indexálási módot</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h3 style="color:var(--purple);">📋 Szükséges dokumentumok</h3>
+        <ul style="font-size:13px;color:var(--text-muted);padding-left:18px;line-height:2;">
+          <li>☑️ Bérleti szerződés (2 eredeti példány)</li>
+          <li>☑️ Átadás-átvételi jegyzőkönyv</li>
+          <li>☑️ Személyi ig. / útlevél másolat</li>
+          <li>☑️ Tulajdoni lap másolat (30 napnál frissebb)</li>
+          <li>☑️ Közüzemi mérőóra-állások rögzítése</li>
+          <li>☑️ Lakásbiztosítás igazolása</li>
+          <li>☑️ Energetikai tanúsítvány</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h3 style="color:var(--red);">🏨 Airbnb moratórium 2025–2026</h3>
+        <ul style="font-size:13px;color:var(--text-muted);padding-left:18px;line-height:2;">
+          <li><strong style="color:var(--text);">Időszak:</strong> 2025.01.01 – 2026.12.31</li>
+          <li>Új rövid távú szálláshely engedély <strong style="color:var(--red);">nem adható ki</strong></li>
+          <li>Budapesti átalányadó: <strong>150 000 Ft/szoba/év</strong></li>
+          <li>2024-ben még 38 400 Ft volt — ~4× emelés</li>
+          <li>Rövid táv bruttó hozam: 5–10%</li>
+          <li>Hosszú táv bruttó hozam: 3–5%</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Useful links -->
+    <div class="card">
+      <h3>🔗 Hasznos linkek</h3>
+      <div style="display:flex;gap:12px;flex-wrap:wrap;">
+        <a href="https://nav.gov.hu" target="_blank" class="btn btn-secondary btn-sm">NAV — Adóhivatal</a>
+        <a href="https://www.bm.gov.hu" target="_blank" class="btn btn-secondary btn-sm">BM — Belügyminisztérium</a>
+        <a href="https://www.mkik.hu" target="_blank" class="btn btn-secondary btn-sm">MKIK — Kereskedelmi Kamara</a>
+        <a href="https://net.jogtar.hu/jogszabaly?docid=99300078.tv" target="_blank" class="btn btn-secondary btn-sm">Lakástörvény (1993. évi LXXVIII.)</a>
+        <a href="https://www.ksh.hu" target="_blank" class="btn btn-secondary btn-sm">KSH — Statisztikai Hivatal</a>
+      </div>
+    </div>
+
+    <!-- Q&A -->
+    <div class="card">
+      <h3>❓ 10 leggyakoribb jogi kérdés</h3>
+      <div style="display:flex;flex-direction:column;gap:12px;margin-top:12px;">
+
+        <div class="qa-item">
+          <div class="qa-q">1. Kötelező-e írásos bérleti szerződést kötni?</div>
+          <div class="qa-a">Igen, a lakásbérleti szerződést kötelezően írásba kell foglalni. Szóbeli megállapodás érvénytelen. A szerződésnek tartalmaznia kell: a felek adatait, az ingatlan pontos megjelölését, a bérleti díj összegét és fizetési módját, valamint a bérlet időtartamát.</div>
+        </div>
+
+        <div class="qa-item">
+          <div class="qa-q">2. Maximum hány havi kauciót kérhetek?</div>
+          <div class="qa-a">Magyarországon nincs törvényi felső határ a kaució mértékére. A felek szabadon állapodnak meg. A piacon a legtipikusabb a 2 havi bérleti díjnak megfelelő kaució, belvárosi prémium ingatlanoknál 3 havi is szokásos.</div>
+        </div>
+
+        <div class="qa-item">
+          <div class="qa-q">3. Hogyan mondhatok fel határozatlan idejű bérleti szerződést?</div>
+          <div class="qa-a">Határozatlan idejű szerződés esetén bármelyik fél felmondhatja a bérletet a hónap 15. napjáig közölt írásbeli felmondással, amely a következő hónap utolsó napjára szól. Ha a felmondás 15-e után érkezik, a felmondási idő egy hónappal meghosszabbodik.</div>
+        </div>
+
+        <div class="qa-item">
+          <div class="qa-q">4. Mit tehetek, ha a bérlő nem fizet?</div>
+          <div class="qa-a">1. Írásos fizetési felszólítás küldése. 2. Ha 8 napon belül nem rendezi: írásbeli felmondás közlése. 3. Minimum 15 napos felmondási idő biztosítása. 4. A bérleti jogviszony a következő hónap végén szűnik meg. Kilakoltatáshoz bírósági végrehajtás szükséges — önhatalmú kilakoltatás tilos.</div>
+        </div>
+
+        <div class="qa-item">
+          <div class="qa-q">5. Milyen adót kell fizetnem lakás bérbeadása után?</div>
+          <div class="qa-a">15% SZJA, amelyet kétféleképpen számolhat: (a) 10%-os költséghányad: bevétel × 90% × 15%, vagy (b) tételes elszámolás: (bevétel − dokumentált költségek) × 15%. SZOCHO nem terheli. ÁFA általában mentes. Negyedévente adóelőleg fizetés kötelező, éves bevallás minden esetben.</div>
+        </div>
+
+        <div class="qa-item">
+          <div class="qa-q">6. Köthetek-e határozott idejű szerződést és felmondhatom-e idő előtt?</div>
+          <div class="qa-a">Igen, köthető határozott idejű szerződés. Alapesetben a lejárat előtt nem mondható fel, kivéve ha a szerződés kifejezetten tartalmaz felmondási záradékot, vagy ha a másik fél súlyosan megsérti a szerződéses kötelezettségeit.</div>
+        </div>
+
+        <div class="qa-item">
+          <div class="qa-q">7. Ki viseli a karbantartási költségeket?</div>
+          <div class="qa-a">A kisebb, rendeltetésszerű használatból eredő javításokat (pl. csaptelep, konnektor) általában a bérlő viseli. A nagyobb, az épület állagát érintő munkálatokat (pl. fűtési rendszer, tetőjavítás) a bérbeadó köteles elvégezni. Érdemes a szerződésben részletesen szabályozni a határvonalat.</div>
+        </div>
+
+        <div class="qa-item">
+          <div class="qa-q">8. Szükséges-e lakásbiztosítás?</div>
+          <div class="qa-a">Nem kötelező sem a bérbeadónak, sem a bérlőnek, de erősen ajánlott. A bérbeadónak az ingatlanra kötött vagyonbiztosítás, a bérlőnek felelősségbiztosítás javasolt. Átlagos éves díj 2024-ben ~60 000 Ft volt. 2025–2026-ban a biztosítói díjak befagyasztva.</div>
+        </div>
+
+        <div class="qa-item">
+          <div class="qa-q">9. Változott-e az Airbnb szabályozás 2025-ben?</div>
+          <div class="qa-a">Igen. 2025. január 1-től 2026. december 31-ig moratórium van érvényben: Budapesten új rövid távú szálláshely engedély nem adható ki. A meglévő engedélyeknél a tételes átalányadó 150 000 Ft/szoba/évre emelkedett (2024-ben 38 400 Ft volt). Az 5%-os ÁFA továbbra is választható fizetővendéglátásnál.</div>
+        </div>
+
+        <div class="qa-item">
+          <div class="qa-q">10. Hogyan emelhető a bérleti díj egy futó szerződés alatt?</div>
+          <div class="qa-a">A bérleti díj emelése a szerződésben rögzített indexálási záradék szerint történhet, jellemzően a KSH éves inflációjához kötötten. 2025-ben a KSH infláció éves átlaga 4,4% volt. Az emelésről a bérlőt írásban, kellő időben (általában 30 nappal előre) kell értesíteni. Indexálási záradék hiányában a felek közös megegyezésével módosítható.</div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+/* =========================================================
+   INIT
+   ========================================================= */
+renderTab0();
+
+// Close modals
+document.querySelectorAll('.modal-overlay').forEach(overlay => {
+  overlay.addEventListener('click', e => { if (e.target === overlay) overlay.classList.remove('open'); });
+});
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') document.querySelectorAll('.modal-overlay.open').forEach(m => m.classList.remove('open'));
+});
+</script>
+<!-- IB Assistant Chat Widget -->
+<script>
+(function(){
+/* ── Styles ───────────────────────────────────────────── */
+var css = document.createElement('style');
+css.textContent = `
+@keyframes ibPulse{0%{box-shadow:0 0 0 0 rgba(0,113,227,.55)}70%{box-shadow:0 0 0 18px rgba(0,113,227,0)}100%{box-shadow:0 0 0 0 rgba(0,113,227,0)}}
+@keyframes ibDot{0%,80%,100%{transform:scale(0)}40%{transform:scale(1)}}
+#ib-chat-btn{position:fixed;bottom:28px;right:28px;z-index:9999;width:56px;height:56px;border-radius:50%;background:#0071E3;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(0,113,227,.45);animation:ibPulse 2s ease-out 3;transition:transform .2s}
+#ib-chat-btn:hover{transform:scale(1.08)}
+#ib-chat-btn svg{width:28px;height:28px;fill:#fff}
+#ib-chat-btn .ib-badge{position:absolute;top:-2px;right:-2px;background:#FF9F0A;color:#F5F5F7;font-size:11px;font-weight:800;width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center}
+#ib-chat-panel{position:fixed;bottom:96px;right:28px;z-index:9999;width:380px;height:520px;background:#FFFFFF;border:1px solid rgba(0,113,227,.25);border-radius:16px;display:none;flex-direction:column;overflow:hidden;box-shadow:0 12px 48px rgba(0,0,0,.55);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif}
+#ib-chat-panel.open{display:flex}
+.ib-header{background:linear-gradient(135deg,#0071E3 0%,#3a5fcc 100%);padding:16px 18px;display:flex;align-items:center;justify-content:space-between}
+.ib-header-left h3{margin:0;font-size:15px;font-weight:700;color:#fff}
+.ib-header-left p{margin:2px 0 0;font-size:11px;color:rgba(255,255,255,.7)}
+.ib-close{background:none;border:none;color:rgba(255,255,255,.8);font-size:22px;cursor:pointer;padding:0 4px;line-height:1}
+.ib-close:hover{color:#fff}
+.ib-messages{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px}
+.ib-messages::-webkit-scrollbar{width:5px}
+.ib-messages::-webkit-scrollbar-thumb{background:#333;border-radius:4px}
+.ib-msg{max-width:88%;padding:10px 14px;border-radius:14px;font-size:13px;line-height:1.55;color:#1D1D1F;word-wrap:break-word}
+.ib-msg.bot{align-self:flex-start;background:#F5F5F7;border-bottom-left-radius:4px}
+.ib-msg.user{align-self:flex-end;background:#0071E3;color:#fff;border-bottom-right-radius:4px}
+.ib-msg .ib-ts{display:block;font-size:10px;color:rgba(255,255,255,.35);margin-top:5px}
+.ib-msg.bot .ib-ts{color:rgba(255,255,255,.3)}
+.ib-chips{display:flex;flex-wrap:wrap;gap:6px;padding:0 14px 10px}
+.ib-chip{background:#F5F5F7;border:1px solid rgba(0,113,227,.3);color:#6E6E73;font-size:11px;padding:6px 12px;border-radius:20px;cursor:pointer;transition:all .15s}
+.ib-chip:hover{background:#0071E3;color:#fff;border-color:#0071E3}
+.ib-typing{align-self:flex-start;display:flex;gap:4px;padding:10px 18px;background:#F5F5F7;border-radius:14px;border-bottom-left-radius:4px}
+.ib-typing span{width:7px;height:7px;background:#0071E3;border-radius:50%;animation:ibDot 1.4s infinite ease-in-out both}
+.ib-typing span:nth-child(1){animation-delay:-.32s}
+.ib-typing span:nth-child(2){animation-delay:-.16s}
+.ib-input-bar{display:flex;padding:10px;gap:8px;border-top:1px solid rgba(255,255,255,.07);background:#F5F5F7}
+.ib-input-bar input{flex:1;background:#F5F5F7;border:1px solid rgba(255,255,255,.1);border-radius:24px;padding:10px 16px;color:#1D1D1F;font-size:13px;outline:none}
+.ib-input-bar input::placeholder{color:#555}
+.ib-input-bar input:focus{border-color:#0071E3}
+.ib-send{background:#0071E3;border:none;border-radius:50%;width:38px;height:38px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s}
+.ib-send:hover{background:#3a5fcc}
+.ib-send svg{width:18px;height:18px;fill:#fff}
+`;
+document.head.appendChild(css);
+
+/* ── Knowledge Base ───────────────────────────────────── */
+var KB = [
+  // Navigation
+  {k:['szimulátor','szimulator','simulator','kalkulátor'],a:'A Szimulátor (simulator.html) 18 különböző kalkulátor tabot tartalmaz. A navigációs sávban a „Szimulátor" gombra kattintva éred el. Tartalmaz: ingatlan elemzés, fordított keresés, portfólió, cash-flow, kollégium, parkolóház, adózás, makro szcenáriók, befektetői mérőszámok, bérlői eszközök és még sok más modult.'},
+  {k:['land residual','telekérték','telek residual','residual módszer'],a:'A Land Residual (maradékérték) módszer a telek maximális vételárát határozza meg. Képlet: GDV (bruttó fejlesztési érték) – építési költség – soft költségek – finanszírozás – célprofit = maximális telekár. Megtalálod a development.html „📍 F2 · Telekszerzés" tabján.'},
+  {k:['pro forma','proforma','pénzügyi terv'],a:'A Pro Forma kalkulátor a fejlesztési projekt teljes pénzügyi modelljét készíti el. Tartalmaz: bevétel-előrejelzés, költségbecslés, hozamszámítás (ROI, IRR, cash-on-cash yield). Megtalálod a development.html „💰 Pro Forma" tabján.'},
+  {k:['bérleti díj','albérlet','bérleti','hol vannak a bérleti'],a:'A bérleti díj adatokat több helyen is megtalálod:\n• index.html: interaktív koropletikus térkép kerületenkénti átlagokkal\n• simulator.html: részletes elemzés és összehasonlítás\nAz adatok a rent_detailed.json fájlból származnak, forrásuk a negyzetmeterarak.hu.'},
+  {k:['oték','otk','övezeti','övezet','zóna besorolás'],a:'Az OTÉK (Országos Településrendezési és Építési Követelmények) meghatározza az egyes kerületek építési paramétereit: szintterületi mutató (SZM), maximális beépítési arány, emeletszám és parkolási norma. Az OTÉK elemzőt a development.html „🔍 F1 · Piackutatás" tabjában találod.'},
+  {k:['due diligence','dd checklist','átvilágítás'],a:'A Due Diligence (átvilágítási) checklist 22 ellenőrzési pontot tartalmaz 4 kategóriában: Jogi (6), Területhasználat (6), Műszaki (6), Pénzügyi (4). A kitöltöttségi állapot automatikusan mentődik. Megtalálod a development.html „📍 F2 · Telekszerzés" tabján.'},
+  {k:['mi ez a rendszer','mi ez az oldal','platform','dashboard','mire való'],a:'Ez az IB Exproconsult Budapest Ingatlanelemzési Platform — 12 HTML modulból álló komplex elemző rendszer. Tartalmaz: piaci adatok (index.html), szimulátorok (simulator.html), fejlesztési tracker (development.html), CRM (crm.html), befektetői memo (memo.html), kihasználtsági elemzés, hirdetésfigyelő, diáklakás elemző, ingatlankezelés, parkolóház elemző és lakásátalakító modult.'},
+
+  // Calculators
+  {k:['hozam számol','hozamot','hozamszámítás','yield','mekkora a hozam'],a:'Hozamszámításhoz használd a simulator.html „Ingatlan Elemzés" (forward) tabját. Add meg a vételárat, bérleti díjat, költségeket — és azonnal látod a bruttó/nettó hozamot, cap rate-et és cash-on-cash metrikai mutatókat. A fejlesztési hozamhoz a development.html Pro Forma kalkulátorát ajánlom.'},
+  {k:['melyik kerület','kerületbe érdemes','hová érdemes','befektetés hol','beruházni','beruház'],a:'A „Fordított Keresés" (simulator.html 2. tab) segít megtalálni a legjobb kerületet. Add meg az elvárásaidat (hozam, büdzsé, típus) és a rendszer rangsorolja a kerületeket. Emellett a „🔍 F1 · Piackutatás" tab (development.html) piaci rés elemzőjében látod az összes kerület bruttó hozamát összehasonlítva.'},
+  {k:['jelzálog','hitel','mortgage','törlesztő','hitelkalkul'],a:'A Hitelkalkulátor a simulator.html-ben található. Megadhatod a hitelt összeget, futamidőt, kamatot és a kalkulátor kiszámolja a havi törlesztőt, teljes visszafizetést és a hitel költségét. A „Cash-flow Előrejelzés" tabbal kombinálva láthatod a hitel hatását a pénzáramlásra.'},
+  {k:['adó','áfa','szja','adózás','illeték','tax'],a:'Adózási kalkulátort két helyen is találsz:\n• simulator.html „Adózás" tab: SZJA, szocho, önkormányzati adó, áfa kalkulátor befektetők számára\n• development.html F7 tab: fejlesztési projekt adózási elemzés\nMindkettő tartalmazza a hatályos magyar adókulcsokat.'},
+  {k:['exit','eladás','mikor adjam el','exit stratégia','kiszállás'],a:'Az Exit Stratégia kalkulátort a development.html-ben találod. Segít eldönteni a legjobb kiszállási időpontot a projekt hozam görbéje alapján. Figyelembe veszi a piaci ciklusokat, SZJA kedvezményeket (5 év tartás után) és az alternatív költséget.'},
+  {k:['cash flow','pénzáramlás','cashflow','cf előrejelzés'],a:'A Cash-flow Előrejelzés a simulator.html-ben található. 10 éves előrejelzést készít havi bontásban: bérleti bevétel, üzemeltetési költségek, hiteltörlesztés, adók, nettó pénzáramlás. Grafikonon is megjeleníti a trendeket.'},
+
+  // Data
+  {k:['vásárlási ár','eladási ár','purchase','ingatlanárak','négyzetméterár'],a:'A vásárlási árak adatait a purchase_prices.json fájl tartalmazza kerületenkénti bontásban. Az index.html főoldalon interaktív térképen és táblázatban is megtekintheted. A simulator.html-ben részletes szűrési és összehasonlítási lehetőségek vannak.'},
+  {k:['kollégium','diák','student','diáklakás','kollégiumi'],a:'A diáklakás/kollégium elemzést két modulban találod:\n• student_intel.html: Egyetemek körüli kereslet-elemzés, hallgatói statisztikák\n• apartment_converter.html: Lakás → diákszálló átalakítási kalkulátor\nA simulator.html „Kollégium" tabja is tartalmaz releváns kalkulátorokat.'},
+  {k:['parkoló','parking','parkolóház','garázs'],a:'A parkolóház elemzést a parking_intel.html modulban találod. Tartalmaz: kerületenkénti parkolóhely kereslet, árszintek, fejlesztési potenciál, ROI kalkulátor. A simulator.html „Parkolóház" tabja is tartalmaz parkolóház-specifikus kalkulátort.'},
+  {k:['engedély','építési engedély','engedélyezés','hatóság','permitting'],a:'Az építési engedélyezés nyomon követését a development.html „F4 · Engedélyezés" tabján találod. Tartalmazza a teljes engedélyezési folyamatot, határidőket, szükséges dokumentumokat és a hatósági eljárás lépéseit.'},
+  {k:['közmű','elmű','víz','gáz','csatorna','kapacitás','közműkapacitás'],a:'A közmű kapacitás ellenőrzést a development.html-ben találod (Közmű Kapacitás tab). Segít felmérni a villamos (ELMŰ-ÉMÁSZ), gáz, víz és csatornahálózat kapacitását a tervezett fejlesztéshez. Fontos a land due diligence részeként!'},
+  {k:['telek','telekár','telek ár','telekszim','telekszerzés'],a:'Telekkel kapcsolatos elemzések:\n• simulator.html „Telek Szimulátor" tab: telekérték és fejlesztési potenciál\n• development.html „📍 F2 · Telekszerzés": Land Residual módszer, telekár benchmark 23 kerületre, Due Diligence checklist'},
+
+  // Business lines
+  {k:['ingatlankezelés','property management','kezelés','üzemeltetés','propertymanagement'],a:'Az Ingatlankezelés modult a property_mgmt.html oldalon találod. Tartalmaz: bérlői nyilvántartás, karbantartási naptár, pénzügyi kimutatások, tulajdonosi riportok, automatikus figyelmeztetések lejáró szerződésekre.'},
+  {k:['fejlesztés','development','projekt tracker','fejlesztési projekt'],a:'A Fejlesztési Projekt Tracker (development.html) a teljes ingatlanfejlesztési folyamatot lefedi 8+ fázisban: Piackutatás (F1), Telekszerzés (F2), Tervezés (F3), Engedélyezés (F4), Kivitelezés, Közmű, Adózás, Exit stratégia. Minden fázishoz kalkulátor és checklist tartozik.'},
+
+  // General
+  {k:['frissítés','update','mikor frissül','adat frissítés','frissülnek az adatok'],a:'Az adatok félévente frissülnek: szeptember 15. és március 15. Az aktuális adatok a legutóbbi frissítési ciklusból származnak. A bérleti díjak és vásárlási árak a negyzetmeterarak.hu, ingatlan.com és KSH forrásokból származnak.'},
+  {k:['crm','bérlő kezelés','ügyfél','bérlői crm'],a:'A bérlői CRM rendszert a crm.html oldalon találod. Funkciók: bérlői adatbázis, szerződés kezelés, fizetési nyomon követés, kommunikációs napló, automatikus emlékeztetők, bérlő értékelés.'},
+  {k:['export','csv','letöltés','mentés'],a:'Szinte minden oldalon elérhető CSV export funkció. A táblázatok felett vagy mellett keresd az „Export" vagy „CSV" gombot. A teljes adatkészlet letölthető további elemzéshez Excelben vagy más eszközben.'},
+  {k:['memo','befektetői memo','investor memo'],a:'A Befektetői Memo generátort a memo.html oldalon találod. Automatikusan összeállít egy professzionális befektetői prezentációt a projekt adataiból: piaci összefoglaló, pénzügyi mutatók, kockázatelemzés, exit stratégia.'},
+  {k:['listing','hirdetés','hirdetésfigyelő'],a:'A Hirdetésfigyelő modult a listings.html oldalon találod. Valós idejű hirdetés adatokat gyűjt és elemez: árszint monitoring, piacra kerülési idő, ár/m² összehasonlítás kerületenként.'},
+  {k:['kihasználtság','occupancy','üresedés','vacancy'],a:'A Kihasználtsági Elemzést az occupancy.html oldalon találod. Nyomon követi a bérleti kihasználtságot, üresedési rátákat, szezonális trendeket és segít optimalizálni a bérleti stratégiát.'},
+  {k:['lakásátalakító','converter','átalakítás','apartment converter'],a:'A Lakásátalakító kalkulátort az apartment_converter.html oldalon találod. Kiszámolja a lakás → diákszálló/airbnb átalakítás költségeit, megtérülését és a szükséges engedélyeket.'},
+  {k:['portfólió','portfolio'],a:'A Portfólió Elemző a simulator.html-ben található. Lehetővé teszi több ingatlanból álló portfólió összesített elemzését: diverzifikáció, kockázat, összesített hozam, értékváltozás tracking.'},
+  {k:['makro','gdp','infláció','kamat','gazdaság','makrogazdaság','szcenárió'],a:'A Makro Szcenáriók modult a simulator.html-ben találod. Három szcenáriót modellez (optimista, bázis, pesszimista) a magyar makrogazdasági mutatók alapján: GDP, infláció, jegybanki alapkamat, munkanélküliség, és ezek hatása az ingatlanpiacra.'},
+  {k:['rezsi','közös költség','villany','fűtés','üzemeltetési költség','utility'],a:'A Rezsi Benchmark-ot a simulator.html „🏠 Bérlői & Vásárlói eszközök" tabjában találod (Rezsi Benchmark al-tab). 23 kerület rezsiadatait tartalmazza: villany, gáz, víz, távfűtés, közös költség — összehasonlítható és szűrhető.'},
+  {k:['minőség','neighbourhood','szomszédság','kerület minőség','quality'],a:'A Lakókörnyezet Minőségi Index a simulator.html „🏠 Bérlői & Vásárlói eszközök" tabjában érhető el (Kerületi Minőség al-tab). 6 dimenzióban értékeli a kerületeket: közlekedés, zöldterület, szolgáltatások, biztonság, oktatás, egészségügy.'},
+  {k:['rent vs buy','bérlés vagy vásárlás','break even','megtérülés','bérelni vagy venni'],a:'A „Bérlés vs. Vásárlás" Break-even kalkulátort a simulator.html „🏠 Bérlői & Vásárlói eszközök" tabjában találod. Kiszámolja, hány év után térül meg a vásárlás a bérléshez képest, figyelembe véve: áremelkedés, bérleti díj növekedés, hitelköltség, alternatív befektetési hozam.'},
+  {k:['segítség','help','hogyan','útmutató','használat'],a:'Üdvözöllek! A rendszer 12 modulból áll:\n1. Főoldal (index.html) — piaci áttekintés\n2. Szimulátor — 18 kalkulátor\n3. Fejlesztés — projekt tracker\n4. CRM — bérlő kezelés\n5. Befektetői oldal — investor tools\n6. Memo — befektetői memo\n7. Kihasználtság — occupancy\n8. Hirdetések — listings\n9. Diáklakás — student intel\n10. Ingatlankezelés — property mgmt\n11. Parkoló — parking intel\n12. Átalakító — converter\nKérdezz bátran bármelyikről!'}
+];
+
+function getAssistantResponse(q) {
+  var ql = q.toLowerCase().replace(/[?!.,]/g, '');
+  var best = null, bestScore = 0;
+  for (var i = 0; i < KB.length; i++) {
+    var score = 0;
+    for (var j = 0; j < KB[i].k.length; j++) {
+      if (ql.indexOf(KB[i].k[j]) !== -1) {
+        score += KB[i].k[j].length;
+      }
+    }
+    if (score > bestScore) { bestScore = score; best = KB[i]; }
+  }
+  if (best) return best.a;
+  // Fallback — try to suggest relevant pages
+  var suggestions = [];
+  if (/kerület|district/.test(ql)) suggestions.push('index.html (piaci áttekintés)', 'simulator.html (fordított keresés)');
+  if (/pénz|cost|ár|price/.test(ql)) suggestions.push('simulator.html (kalkulátorok)', 'development.html (pro forma)');
+  if (/bérl|rent/.test(ql)) suggestions.push('index.html (bérleti térkép)', 'crm.html (bérlő kezelés)');
+  if (/fejleszt|build|épít/.test(ql)) suggestions.push('development.html (fejlesztési tracker)');
+  if (suggestions.length > 0) {
+    return 'Ezt a kérdést nem találom az adatbázisomban, de lehet, hogy ezeken az oldalakon megtalálod, amit keresel:\n• ' + suggestions.join('\n• ') + '\nPróbáld pontosítani a kérdést!';
+  }
+  return 'Ezt a kérdést nem találom az adatbázisomban. Próbáld pontosítani, vagy kérdezz rá a következő témákra: szimulátor, bérleti díjak, hozamszámítás, adózás, fejlesztés, OTÉK, due diligence, CRM, parkoló, kollégium, ingatlankezelés.';
+}
+
+/* ── Build DOM ────────────────────────────────────────── */
+// Floating button
+var btn = document.createElement('button');
+btn.id = 'ib-chat-btn';
+btn.setAttribute('aria-label', 'IB Assistant megnyitása');
+btn.innerHTML = '<svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H5.2L4 17.2V4h16v12z"/><path d="M7 9h10v2H7zm0-3h10v2H7z"/></svg><span class="ib-badge">?</span>';
+document.body.appendChild(btn);
+
+// Chat panel
+var panel = document.createElement('div');
+panel.id = 'ib-chat-panel';
+panel.innerHTML = '<div class="ib-header"><div class="ib-header-left"><h3>IB Assistant</h3><p>Hogyan segíthetek?</p></div><button class="ib-close" aria-label="Bezárás">&times;</button></div><div class="ib-messages" id="ib-msgs"></div><div class="ib-chips" id="ib-chips"></div><div class="ib-input-bar"><input id="ib-input" type="text" placeholder="Kérdezz valamit..." autocomplete="off"/><button class="ib-send" aria-label="Küldés"><svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg></button></div>';
+document.body.appendChild(panel);
+
+var msgs = document.getElementById('ib-msgs');
+var input = document.getElementById('ib-input');
+var chips = document.getElementById('ib-chips');
+var closeBtn = panel.querySelector('.ib-close');
+var sendBtn = panel.querySelector('.ib-send');
+var isOpen = false;
+var chipsShown = true;
+
+// Init chat history store
+if (typeof window._APP_STORE === 'undefined') window._APP_STORE = {};
+if (!window._APP_STORE.chatHistory) window._APP_STORE.chatHistory = [];
+
+var SUGGESTED = [
+  'Hogyan számolok fejlesztési hozamot?',
+  'Melyik kerületbe érdemes beruházni?',
+  'Hol találom az adózási kalkulátort?',
+  'Mi a Land Residual módszer?',
+  'Hogyan működik a közmű kapacitás ellenőrzés?',
+  'Mikor frissülnek az adatok?'
+];
+
+// Render chips
+SUGGESTED.forEach(function(txt) {
+  var c = document.createElement('button');
+  c.className = 'ib-chip';
+  c.textContent = txt;
+  c.addEventListener('click', function() { sendMessage(txt); });
+  chips.appendChild(c);
+});
+
+function ts() {
+  var d = new Date();
+  return (d.getHours() < 10 ? '0' : '') + d.getHours() + ':' + (d.getMinutes() < 10 ? '0' : '') + d.getMinutes();
+}
+
+function addMsg(text, who) {
+  var div = document.createElement('div');
+  div.className = 'ib-msg ' + who;
+  div.innerHTML = text.replace(/\n/g, '<br>') + '<span class="ib-ts">' + ts() + '</span>';
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+  window._APP_STORE.chatHistory.push({who: who, text: text, time: ts()});
+}
+
+function showTyping() {
+  var t = document.createElement('div');
+  t.className = 'ib-typing';
+  t.id = 'ib-typing';
+  t.innerHTML = '<span></span><span></span><span></span>';
+  msgs.appendChild(t);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function hideTyping() {
+  var t = document.getElementById('ib-typing');
+  if (t) t.remove();
+}
+
+function sendMessage(text) {
+  if (!text || !text.trim()) return;
+  addMsg(text.trim(), 'user');
+  input.value = '';
+  // Hide chips after first user message
+  if (chipsShown) { chips.style.display = 'none'; chipsShown = false; }
+  // Typing indicator
+  showTyping();
+  setTimeout(function() {
+    hideTyping();
+    var answer = getAssistantResponse(text.trim());
+    addMsg(answer, 'bot');
+  }, 600);
+}
+
+// Toggle panel
+btn.addEventListener('click', function() {
+  isOpen = !isOpen;
+  if (isOpen) {
+    panel.classList.add('open');
+    btn.querySelector('.ib-badge').style.display = 'none';
+    input.focus();
+    // Restore previous messages
+    if (msgs.children.length === 0 && window._APP_STORE.chatHistory.length === 0) {
+      addMsg('Üdvözöllek! 👋 Az IB Assistant vagyok. Kérdezz bátran a Budapest Dashboard rendszerről — segítek eligazodni a modulok, kalkulátorok és adatok között.', 'bot');
+    }
+  } else {
+    panel.classList.remove('open');
+  }
+});
+
+closeBtn.addEventListener('click', function() {
+  isOpen = false;
+  panel.classList.remove('open');
+});
+
+// Send on Enter or click
+input.addEventListener('keydown', function(e) { if (e.key === 'Enter') sendMessage(input.value); });
+sendBtn.addEventListener('click', function() { sendMessage(input.value); });
+
+})();
+</script>
+</body>
+</html>

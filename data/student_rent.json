@@ -1,0 +1,72 @@
+{
+  "meta": {
+    "source": "Piackutatás: albérlet.hu, ingatlan.com, ksh.hu, tudastar.ingatlan.com",
+    "last_updated": "2026-03-14",
+    "currency": "HUF",
+    "unit": "Ft/hó",
+    "notes": "Diákszállás bérleti díjak Budapesten. Állami kollégium adatok az EMMI/felsőoktatási intézmények weboldalairól. Privát adatok becslés, piackutatás alapján."
+  },
+  "categories": {
+    "allami_kollegium": {
+      "label": "Állami kollégium",
+      "min": 20000,
+      "mid": 32000,
+      "max": 45000,
+      "notes": "Erősen szubvencionált, felvételi pont alapján. Férőhely korlátozott."
+    },
+    "magán_kollegium": {
+      "label": "Magán kollégium (kereskedelmi)",
+      "min": 90000,
+      "mid": 125000,
+      "max": 160000,
+      "notes": "Szoba/ágybérlés, közös terek, étkezési opció. Pl. Milestone, Campus Kollégium."
+    },
+    "garzon_szoba": {
+      "label": "Önálló garzon / egyágyas szoba",
+      "min": 140000,
+      "mid": 170000,
+      "max": 200000,
+      "notes": "Bútorozva, rezsi nélkül. Diák célú albérlet."
+    },
+    "osztott_lakas": {
+      "label": "Közös lakás, saját szoba",
+      "min": 80000,
+      "mid": 100000,
+      "max": 120000,
+      "notes": "3–5 fős lakásban egy szoba. Budapest-szerte."
+    },
+    "ossz_koltseg_egyszemelyes": {
+      "label": "Teljes havi költség (1 fő, garzon)",
+      "min": 180000,
+      "mid": 210000,
+      "max": 250000,
+      "notes": "Bérlet + rezsi + internet. Nem tartalmaz étkezést."
+    }
+  },
+  "district_premiums": {
+    "notes": "Relatív felár/kedvezmény a Budapest átlaghoz képest (%). Pozitív = drágább.",
+    "I": 25,
+    "II": 18,
+    "III": 5,
+    "IV": -15,
+    "V": 30,
+    "VI": 20,
+    "VII": 15,
+    "VIII": 8,
+    "IX": 10,
+    "X": -10,
+    "XI": 12,
+    "XII": 20,
+    "XIII": 15,
+    "XIV": 0,
+    "XV": -8,
+    "XVI": -10,
+    "XVII": -15,
+    "XVIII": -12,
+    "XIX": -8,
+    "XX": -18,
+    "XXI": -18,
+    "XXII": -5,
+    "XXIII": -12
+  }
+}

@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="hu" data-theme="light">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Adatközpont — IB Exproconsult</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root {
+  --bg: #F5F5F7;
+  --surface: #FFFFFF;
+  --surface-2: #F5F5F7;
+  --surface2: #F5F5F7;
+  --surface-3: #E5E5EA;
+  --border: rgba(0,0,0,0.08);
+  --border-h: rgba(0,0,0,0.14);
+  --accent: #0071E3;
+  --accent-hover: #0077ED;
+  --accent-light: rgba(0,113,227,0.12);
+  --primary: #0071E3;
+  --primary-h: #0077ED;
+  --ib-blue: #0071E3;
+  --ib-blue-h: #0077ED;
+  --ib-blue-glow: rgba(0,113,227,0.15);
+  --gold: #FF9F0A;
+  --green: #34C759;
+  --red: #FF3B30;
+  --orange: #FF9500;
+  --purple: #AF52DE;
+  --teal: #5AC8FA;
+  --cyan: #5AC8FA;
+  --success: #34C759;
+  --warning: #FF9F0A;
+  --danger: #FF3B30;
+  --info: #5AC8FA;
+  --text: #1D1D1F;
+  --text-muted: #6E6E73;
+  --text-dim: #AEAEB2;
+  --text-faint: #AEAEB2;
+  --radius: 10px;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 18px;
+  --shadow: 0 4px 24px rgba(0,0,0,0.4);
+  --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  --text-xs: 10px;
+  --text-sm: 12px;
+  --text-base: 13px;
+  --text-md: 14px;
+  --text-lg: 16px;
+  --text-xl: 20px;
+  --text-2xl: 28px;
+
+      --header-h: 56px;
+      --sidebar-w: 340px;
+    }
+body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;min-height:100vh;line-height:1.5}
+a{color:inherit;text-decoration:none}
+
+/* ── Header ── */
+.header{display:flex;align-items:center;justify-content:space-between;padding:14px 24px;background:var(--surface);border-bottom:1px solid var(--border)}
+.header-left{display:flex;align-items:center;gap:12px}
+.logo svg{display:block}
+.header-title{font-size:16px;font-weight:700;color:#1D1D1F}
+.header-subtitle{font-size:11px;color:var(--text-muted)}
+.header-actions{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+
+/* ── Main ── */
+.main{max-width:1340px;margin:0 auto;padding:28px 24px 80px}
+.page-title{font-size:26px;font-weight:800;color:#1D1D1F;margin-bottom:4px}
+.page-subtitle{font-size:14px;color:var(--text-muted);margin-bottom:28px}
+
+/* ── KPI Row ── */
+.kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:28px}
+.kpi{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-md);padding:18px 20px;text-align:center}
+.kpi-value{font-size:24px;font-weight:800;color:var(--primary)}
+.kpi-label{font-size:12px;color:var(--text-muted);margin-top:4px}
+.kpi.green .kpi-value{color:var(--green)}
+.kpi.gold .kpi-value{color:var(--gold)}
+.kpi.purple .kpi-value{color:var(--purple)}
+
+/* ── Filter Bar ── */
+.filter-bar{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:24px}
+.filter-btn{padding:8px 18px;font-size:13px;font-weight:600;border:1px solid var(--border);border-radius:24px;background:var(--surface);color:var(--text-muted);cursor:pointer;transition:all .18s}
+.filter-btn:hover{border-color:rgba(0,113,227,.4);color:var(--primary)}
+.filter-btn.active{background:rgba(0,113,227,.15);border-color:rgba(0,113,227,.5);color:var(--primary)}
+
+/* ── Category Section ── */
+.cat-section{margin-bottom:32px}
+.cat-title{font-size:16px;font-weight:700;color:#1D1D1F;margin-bottom:14px;padding-left:12px;border-left:3px solid var(--primary)}
+
+/* ── Cards Grid ── */
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(295px,1fr));gap:16px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-md);padding:20px;transition:border-color .18s,transform .18s}
+.card:hover{border-color:rgba(0,113,227,.35);transform:translateY(-2px)}
+.card-head{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.card-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.card-icon.blue{background:rgba(0,113,227,.15)}
+.card-icon.green{background:rgba(16,185,129,.15)}
+.card-icon.gold{background:rgba(245,158,11,.15)}
+.card-icon.purple{background:rgba(168,85,247,.15)}
+.card-icon.cyan{background:rgba(6,182,212,.15)}
+.card-icon.red{background:rgba(239,68,68,.15)}
+.card-icon.orange{background:rgba(249,115,22,.15)}
+.card-name{font-size:14px;font-weight:700;color:#1D1D1F;line-height:1.3}
+.card-file{font-size:11px;color:var(--text-dim);font-family:monospace}
+.card-desc{font-size:12px;color:var(--text-muted);margin-bottom:14px;line-height:1.5}
+.card-metrics{display:flex;flex-wrap:wrap;gap:8px}
+.metric{background:var(--surface-2);border-radius:var(--radius-sm);padding:6px 10px;font-size:11px}
+.metric .mv{font-weight:700;color:var(--primary)}
+.metric .ml{color:var(--text-dim)}
+.metric.green .mv{color:var(--green)}
+.metric.gold .mv{color:var(--gold)}
+.metric.red .mv{color:var(--red)}
+.metric.purple .mv{color:var(--purple)}
+
+/* ── Footer ── */
+.footer{text-align:center;padding:32px;font-size:12px;color:var(--text-dim)}
+.footer a{color:var(--primary);text-decoration:underline}
+
+/* ── Responsive ── */
+@media(max-width:768px){
+  .kpi-row{grid-template-columns:repeat(2,1fr)}
+  .cards{grid-template-columns:1fr}
+  .header{flex-direction:column;gap:12px}
+  .main{padding:20px 14px 80px}
+}
+
+/* ── Dark mode ──────────────────────────────────────────── */
+[data-theme="dark"] {
+  --bg: #1C1C1E;
+  --surface: #2C2C2E;
+  --surface-2: #3A3A3C;
+  --surface-3: #48484A;
+  --border: rgba(255,255,255,0.10);
+  --text: #F5F5F7;
+  --text-muted: #AEAEB2;
+  --text-dim: #636366;
+  --text-faint: #48484A;
+  --accent: #0A84FF;
+  --primary: #0A84FF;
+  --primary-h: #409CFF;
+  --shadow: 0 4px 24px rgba(0,0,0,0.6);
+}
+
+/* ── Kétszintes nav ── */
+.ib-header-wrap { position:sticky; top:0; z-index:200; }
+.ib-header-top {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:0 20px; height:48px;
+  background:rgba(255,255,255,0.92);
+  border-bottom:1px solid rgba(0,0,0,0.06);
+  backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px);
+}
+.ib-header-nav {
+  display:flex; align-items:center; justify-content:center;
+  flex-wrap:wrap; gap:2px;
+  padding:4px 16px;
+  background:rgba(255,255,255,0.85);
+  border-bottom:1px solid rgba(0,0,0,0.08);
+  backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px);
+}
+[data-theme="dark"] .ib-header-top,
+[data-theme="dark"] .ib-header-nav {
+  background:rgba(28,28,30,0.92);
+  border-color:rgba(255,255,255,0.08);
+}
+
+</style>
+<link rel="stylesheet" href="libs/ib-design-system.css">
+</head>
+<body>
+
+<div class="ib-header-wrap">
+  <div class="ib-header-top">
+    <div style="display:flex;align-items:center;gap:10px;flex-shrink:0;">
+      <div style="width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,#0071E3,#0055B3);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#fff;letter-spacing:-0.5px;flex-shrink:0;">IB</div>
+      <div>
+        <div style="font-size:14px;font-weight:700;color:#1D1D1F;letter-spacing:-0.02em;line-height:1.2;">IB Expro</div>
+        <div style="font-size:10px;color:#6E6E73;letter-spacing:0.03em;line-height:1.2;">Figyelő Platform</div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
+<div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
+    <span id="selected-district-badge" style="font-size:11px;color:#6E6E73;font-weight:500;padding:4px 10px;background:#F5F5F7;border-radius:6px;border:1px solid rgba(0,0,0,0.08);white-space:nowrap;">Összes kerület</span>
+    <button style="width:32px;height:32px;border-radius:8px;background:#F5F5F7;border:1px solid rgba(0,0,0,0.08);color:#6E6E73;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all 0.15s;" data-theme-toggle aria-label="Téma váltás" onmouseover="this.style.borderColor='#0071E3';this.style.color='#0071E3'" onmouseout="this.style.borderColor='rgba(0,0,0,0.08)';this.style.color='#6E6E73'">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+    </button>
+  </div>
+    </div>
+  </div>
+  <nav class="ib-header-nav" id="main-nav">
+    <a href="index.html" class="ib-nav-link">Dashboard</a>
+    <a href="simulator.html" class="ib-nav-link">Szimulátor</a>
+    <a href="development.html" class="ib-nav-link">Fejlesztés</a>
+    <a href="property_mgmt.html" class="ib-nav-link">Kezelés</a>
+    <a href="occupancy.html" class="ib-nav-link">Kihasználtság</a>
+    <a href="investor.html" class="ib-nav-link">Befektetők</a>
+    <a href="investment_calculator.html" class="ib-nav-link">Kalkulátor</a>
+    <a href="apartment_converter.html" class="ib-nav-link">Diáklakás</a>
+    <a href="student_intel.html" class="ib-nav-link">Diák Intel</a>
+    <a href="parking_intel.html" class="ib-nav-link">Parkoló</a>
+    <a href="property_managers.html" class="ib-nav-link">Kezelők</a>
+    <a href="crm.html" class="ib-nav-link">CRM</a>
+    <a href="memo.html" class="ib-nav-link">Memo</a>
+    <a href="listings.html" class="ib-nav-link">Hirdetések</a>
+    <a href="adatkozpont.html" class="ib-nav-link active">Adatközpont</a>
+  </nav>
+</div>
+
+<!-- ══ MAIN ══════════════════════════════════════════════════ -->
+<main class="main">
+
+<h1 class="page-title">📊 Adatközpont</h1>
+<p class="page-subtitle">A Budapest Dashboard mind a 22 adatforrása egy helyen — kategóriák szerint szűrhető, metrikákkal</p>
+
+<!-- KPI Row -->
+<div class="kpi-row">
+  <div class="kpi"><div class="kpi-value">28</div><div class="kpi-label">Adatforrás</div></div>
+  <div class="kpi green"><div class="kpi-value">13</div><div class="kpi-label">JSON fájl félévente frissül</div></div>
+  <div class="kpi gold"><div class="kpi-value">2026-03-15</div><div class="kpi-label">Utolsó frissítés</div></div>
+  <div class="kpi purple"><div class="kpi-value">6</div><div class="kpi-label">Adatkategória</div></div>
+</div>
+
+<!-- Filter Bar -->
+<div class="filter-bar">
+  <button class="filter-btn active" data-cat="all">Összes</button>
+  <button class="filter-btn" data-cat="makro">Makrogazdasági</button>
+  <button class="filter-btn" data-cat="fejlesztesi">Fejlesztési piac</button>
+  <button class="filter-btn" data-cat="berleti">Bérleti piac</button>
+  <button class="filter-btn" data-cat="demografia">Demográfia</button>
+  <button class="filter-btn" data-cat="szabalyozas">Szabályozás & ESG</button>
+</div>
+
+<!-- ═══ A · Makrogazdasági ═══ -->
+<div class="cat-section" data-category="makro">
+<div class="cat-title">A · Makrogazdasági mutatók</div>
+<div class="cards">
+
+  <div class="card">
+    <div class="card-head">
+      <div class="card-icon blue">📈</div>
+      <div><div class="card-name">Makrogazdasági indikátorok</div><div class="card-file">macro_indicators.json</div></div>
+    </div>
+    <div class="card-desc">GDP, infláció, alapkamat, munkanélküliség, államadósság — évenkénti idősoros adatok, MNB és KSH forrásból.</div>
+    <div class="card-metrics">
+      <div class="metric green"><span class="mv">4,1%</span> <span class="ml">GDP növ.</span></div>
+      <div class="metric gold"><span class="mv">5,2%</span> <span class="ml">Infláció</span></div>
+      <div class="metric"><span class="mv">6,75%</span> <span class="ml">Alapkamat</span></div>
+      <div class="metric green"><span class="mv">4,0%</span> <span class="ml">Munkanélk.</span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <div class="card-icon green">🏦</div>
+      <div><div class="card-name">Jelzáloghitel piac</div><div class="card-file">mortgage_market.json</div></div>
+    </div>
+    <div class="card-desc">Átlagos kamat, hitelállomány, LTV limitek, CSOK kedvezmények — MNB és bankközi adatok.</div>
+    <div class="card-metrics">
+      <div class="metric gold"><span class="mv">7,2%</span> <span class="ml">Átl. kamat</span></div>
+      <div class="metric"><span class="mv">80%</span> <span class="ml">Max LTV</span></div>
+      <div class="metric green"><span class="mv">3 200 Mrd</span> <span class="ml">Hitelállomány</span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <div class="card-icon gold">📊</div>
+      <div><div class="card-name">Államkötvény hozamok</div><div class="card-file">bond_yields.json</div></div>
+    </div>
+    <div class="card-desc">Magyar államkötvény referencia hozamgörbe (1–15 éves), PMÁP és MÁP+ hozamok.</div>
+    <div class="card-metrics">
+      <div class="metric gold"><span class="mv">6,8%</span> <span class="ml">10 éves</span></div>
+      <div class="metric"><span class="mv">7,1%</span> <span class="ml">5 éves</span></div>
+      <div class="metric green"><span class="mv">6,5%</span> <span class="ml">MÁP+</span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <div class="card-icon purple">💰</div>
+      <div><div class="card-name">Háztartási jövedelmek</div><div class="card-file">household_income.json</div></div>
+    </div>
+    <div class="card-desc">Kerületenkénti medián jövedelem, vásárlóerő, jövedelemszint-változás — KSH TSTAR.</div>
+    <div class="card-metrics">
+      <div class="metric green"><span class="mv">485 000 Ft</span> <span class="ml">Medián bp.</span></div>
+      <div class="metric"><span class="mv">+8,4%</span> <span class="ml">YoY növ.</span></div>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<!-- ═══ B · Fejlesztési piac ═══ -->
+<div class="cat-section" data-category="fejlesztesi">
+<div class="cat-title">B · Fejlesztési piac</div>
+<div class="cards">
+
+  <div class="card">
+    <div class="card-head">
+      <div class="card-icon orange">🏗</div>
+      <div><div class="card-name">Építési engedélyek</div><div class="card-file">building_permits.json</div></div>
+    </div>
+    <div class="card-desc">Kiadott lakásépítési és felújítási engedélyek száma kerületenként — KSH STADAT.</div>
+    <div class="card-metrics">
+      <div class="metric green"><span class="mv">4 230</span> <span class="ml">Engedély/év</span></div>
+      <div class="metric"><span class="mv">+12%</span> <span class="ml">YoY</span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <div class="card-icon red">🧱</div>
+      <div><div class="card-name">Építési költségek</div><div class="card-file">construction_costs.json</div></div>
+    </div>
+    <div class="card-desc">Fajlagos építési költség (Ft/m²) lakás, iroda és kereskedelmi ingatlan típusonként — ÉKME, ÉMI.</div>
+    <div class="card-metrics">
+      <div class="metric red"><span class="mv">680 000</span> <span class="ml">Ft/m² lakás</span></div>
+      <div class="metric gold"><span class="mv">+15%</span> <span class="ml">YoY emelkedés</span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <div class="card-icon blue">🏢</div>
+      <div><div class="card-name">Fejlesztési pipeline</div><div class="card-file">construction_pipeline.json</div></div>
+    </div>
+    <div class="card-desc">Folyamatban lévő és tervezett lakásfejlesztési projektek, átadási ütemezés, lakásszám.</div>
+    <div class="card-metrics">
+      <div class="metric green"><span class="mv">18 500</span> <span class="ml">Lakás pipeline</span></div>
+      <div class="metric"><span class="mv">43</span> <span class="ml">Aktív projekt</span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <div class="card-icon gold">💵</div>
+      <div><div class="card-name">Tranzakciós árak</div><div class="card-file">transaction_prices.json</div></div>
+    </div>
+    <div class="card-desc">Valós adásvételi árak kerületenként és típusonként — NAV illetékbevallásokból.</div>
+    <div class="card-metrics">
+      <div class="metric gold"><span class="mv">895 000</span> <span class="ml">Ft/m² átlag</span></div>
+      <div class="metric green"><span class="mv">+9,3%</span> <span class="ml">YoY</span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <div class="card-icon cyan">🏬</div>
+      <div><div class="card-name">Irodapiaci adatok</div><div class="card-file">office_buildings.json</div></div>
+    </div>
+    <div class="card-desc">A-B kategóriás irodaházak, bérleti díj, üresedés, helyszín — CBRE, JLL riportok alapján.</div>
+    <div class="card-metrics">
+      <div class="metric"><span class="mv">14,5 €/m²</span> <span class="ml">Prime bérleti díj</span></div>
+      <div class="metric gold"><span class="mv">9,8%</span> <span class="ml">Üresedés</span></div>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<!-- ═══ C · Bérleti piac ═══ -->
+<div class="cat-section" data-category="berleti">
+<div class="cat-title">C · Bérleti piac</div>
+<div class="cards">
+
+  <div class="card">
+    <div class="card-head">
+      <div class="card-icon green">🏠</div>
+      <div><div class="card-name">Bérleti díjak (részletes)</div><div class="card-file">rent_detailed.json</div></div>
+    </div>
+    <div class="card-desc">Kerületenkénti bérleti díjak m²-enként, lakástípusonként — negyzetmeterarak.hu, ingatlan.com.</div>
+    <div class="card-metrics">
+      <div class="metric green"><span class="mv">4 200 Ft/m²</span> <span class="ml">Bp. átlag</span></div>
+      <div class="metric"><span class="mv">+7,5%</span> <span class="ml">YoY</span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <div class="card-icon blue">📉</div>
+      <div><div class="card-name">Bérleti trend történet</div><div class="card-file">rent_trend_history.json</div></div>
+    </div>
+    <div class="card-desc">3 éves havi bérleti díj idősoros adatok — trendvonallal, szezonalitás kiszűrésével.</div>
+    <div class="card-metrics">
+      <div class="metric green"><span class="mv">36</span> <span class="ml">Hónapnyi adat</span></div>
+      <div class="metric"><span class="mv">23 kerület</span> <span class="ml">Lefedettség</span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <div class="card-icon gold">🔑</div>
+      <div><div class="card-name">Üresedési ráta</div><div class="card-file">rent_vacancy.json</div></div>
+    </div>
+    <div class="card-desc">Bérleti kihasználtsági és üresedési ráta kerületenként — hirdetési portálokból számított.</div>
+    <div class="card-metrics">
+      <div class="metric green"><span class="mv">3,2%</span> <span class="ml">Bp. átlag üresedés</span></div>
+      <div class="metric red"><span class="mv">6,8%</span> <span class="ml">Max (XI.)</span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <div class="card-icon purple">📊</div>
+      <div><div class="card-name">Bérleti díj / Jövedelem arány</div><div class="card-file">rent_to_income.json</div></div>
+    </div>
+    <div class="card-desc">Medián bérleti díj és medián háztartási jövedelem aránya kerületenként — megfizethetőségi mutató.</div>
+    <div class="card-metrics">
+      <div class="metric gold"><span class="mv">38%</span> <span class="ml">Bp. átlag</span></div>
+      <div class="metric red"><span class="mv">52%</span> <span class="ml">Max (V.)</span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <div class="card-icon orange">🏨</div>
+      <div><div class="card-name">Rövid távú bérbeadás</div><div class="card-file">short_term_rental.json</div></div>
+    </div>
+    <div class="card-desc">Airbnb és booking.com kínálat, átlagár, kihasználtság, szabályozási státusz kerületenként.</div>
+    <div class="card-metrics">
+      <div class="metric"><span class="mv">12 400</span> <span class="ml">Aktív listing</span></div>
+      <div class="metric green"><span class="mv">72%</span> <span class="ml">Kihasználtság</span></div>
+      <div class="metric gold"><span class="mv">28 500 Ft</span> <span class="ml">Átl. éjszakánként</span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <div class="card-icon cyan">💡</div>
+      <div><div class="card-name">Közüzemi díjak</div><div class="card-file">utility_tariffs.json</div></div>
+    </div>
+    <div class="card-desc">Villamos, gáz, víz, távfűtés hatósági és piaci tarifák — MEKH, díjközlemények alapján.</div>
+    <div class="card-metrics">
+      <div class="metric gold"><span class="mv">36,9 Ft/kWh</span> <span class="ml">Villamos</span></div>
+      <div class="metric"><span class="mv">102 Ft/m³</span> <span class="ml">Gáz</span></div>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<!-- ═══ D · Demográfia ═══ -->
+<div class="cat-section" data-category="demografia">
+<div class="cat-title">D · Demográfia & Kereslet</div>
+<div class="cards">
+
+  <div class="card">
+    <div class="card-head">
+      <div class="card-icon cyan">👥</div>
+      <div><div class="card-name">Népességi trendek</div><div class="card-file">population_trend.json</div></div>
+    </div>
+    <div class="card-desc">Budapest népessége kerületenként, 10 éves trend, migráció, természetes szaporodás — KSH.</div>
+    <div class="card-metrics">
+      <div class="metric"><span class="mv">1,75 M</span> <span class="ml">Budapest összesen</span></div>
+      <div class="metric red"><span class="mv">-0,3%</span> <span class="ml">Éves változás</span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <div class="card-icon purple">🎓</div>
+      <div><div class="card-name">Egyetemi hallgatók</div><div class="card-file">student_housing.json</div></div>
+    </div>
+    <div class="card-desc">Hallgatói létszám intézményenként, kollégiumi férőhelyek, hiány becslés — OH, egyetemi adatok.</div>
+    <div class="card-metrics">
+      <div class="metric"><span class="mv">95 000</span> <span class="ml">Hallgató Bp.</span></div>
+      <div class="metric red"><span class="mv">38 000</span> <span class="ml">Férőhely hiány</span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <div class="card-icon green">🏘</div>
+      <div><div class="card-name">Lakásállomány</div><div class="card-file">private_housing.json</div></div>
+    </div>
+    <div class="card-desc">Lakások száma, korösszetétele, tulajdonosi struktúra kerületenként — KSH lakásstatisztika.</div>
+    <div class="card-metrics">
+      <div class="metric"><span class="mv">860 000</span> <span class="ml">Lakás összesen</span></div>
+      <div class="metric gold"><span class="mv">92%</span> <span class="ml">Magántulajdon</span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <div class="card-icon blue">🏪</div>
+      <div><div class="card-name">Bevásárlóközpontok</div><div class="card-file">shopping_centres.json</div></div>
+    </div>
+    <div class="card-desc">Bevásárlóközpontok helyszíne, mérete, forgalmi adatok — kereskedelmi ingatlan riportok.</div>
+    <div class="card-metrics">
+      <div class="metric"><span class="mv">32</span> <span class="ml">Mall Budapest</span></div>
+      <div class="metric green"><span class="mv">850 000 m²</span> <span class="ml">GLA összesen</span></div>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<!-- ═══ E · Szabályozás & ESG ═══ -->
+<div class="cat-section" data-category="szabalyozas">
+<div class="cat-title">E · Szabályozás & ESG</div>
+<div class="cards">
+
+  <div class="card">
+    <div class="card-head">
+      <div class="card-icon red">⚖</div>
+      <div><div class="card-name">Adószabályok</div><div class="card-file">tax_rules.json</div></div>
+    </div>
+    <div class="card-desc">SZJA, társasági adó, helyi iparűzési adó, ingatlan illeték — aktuális adókulcsok és kedvezmények.</div>
+    <div class="card-metrics">
+      <div class="metric"><span class="mv">15%</span> <span class="ml">SZJA</span></div>
+      <div class="metric"><span class="mv">9%</span> <span class="ml">TAO</span></div>
+      <div class="metric gold"><span class="mv">4%</span> <span class="ml">Illeték</span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <div class="card-icon green">🏡</div>
+      <div><div class="card-name">CSOK programok</div><div class="card-file">csok_programs.json</div></div>
+    </div>
+    <div class="card-desc">Családi Otthonteremtési Kedvezmény feltételei, összegek, jogosultsági táblázat — Kormányrendelet.</div>
+    <div class="card-metrics">
+      <div class="metric green"><span class="mv">10 M Ft</span> <span class="ml">Max CSOK (3+ gyerek)</span></div>
+      <div class="metric"><span class="mv">15 M Ft</span> <span class="ml">Falusi CSOK</span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <div class="card-icon cyan">🌿</div>
+      <div><div class="card-name">Zöld tanúsítványok</div><div class="card-file">green_certifications.json</div></div>
+    </div>
+    <div class="card-desc">BREEAM, LEED, DGNB tanúsított épületek listája, szint, felújítás dátuma — GBC Hungary.</div>
+    <div class="card-metrics">
+      <div class="metric green"><span class="mv">148</span> <span class="ml">Tanúsított épület</span></div>
+      <div class="metric"><span class="mv">72%</span> <span class="ml">BREEAM arány</span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <div class="card-icon gold">⚡</div>
+      <div><div class="card-name">Energetikai besorolás</div><div class="card-file">energy_performance.json</div></div>
+    </div>
+    <div class="card-desc">Épületek energetikai tanúsítványi besorolása (AA–JJ), fajlagos energiafogyasztás — e-tanúsítvány.</div>
+    <div class="card-metrics">
+      <div class="metric green"><span class="mv">23%</span> <span class="ml">BB vagy jobb</span></div>
+      <div class="metric red"><span class="mv">41%</span> <span class="ml">FF vagy rosszabb</span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <div class="card-icon blue">🌊</div>
+      <div><div class="card-name">Árvízkockázat</div><div class="card-file">flood_risk.json</div></div>
+    </div>
+    <div class="card-desc">Duna és mellékágak árvízi kockázati zónái, védelmi szintek, biztosítási kategóriák — OVF.</div>
+    <div class="card-metrics">
+      <div class="metric red"><span class="mv">8 kerület</span> <span class="ml">Magas kockázat</span></div>
+      <div class="metric green"><span class="mv">15 kerület</span> <span class="ml">Alacsony</span></div>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<!-- ═══ F · Infrastruktúra ═══ -->
+<div class="cat-section" data-category="demografia">
+<div class="cat-title">F · Infrastruktúra & Szolgáltatások</div>
+<div class="cards">
+
+  <div class="card">
+    <div class="card-head">
+      <div class="card-icon orange">🅿</div>
+      <div><div class="card-name">Parkolóházak</div><div class="card-file">parking_garages.json</div></div>
+    </div>
+    <div class="card-desc">Parkolóházak helyszíne, kapacitása, díjszabása, kihasználtsága — BKK, üzemeltetői adatok.</div>
+    <div class="card-metrics">
+      <div class="metric"><span class="mv">48</span> <span class="ml">Parkolóház</span></div>
+      <div class="metric gold"><span class="mv">78%</span> <span class="ml">Átl. kihasználtság</span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <div class="card-icon green">⚡</div>
+      <div><div class="card-name">EV töltőállomások</div><div class="card-file">ev_charging.json</div></div>
+    </div>
+    <div class="card-desc">Elektromos autó töltőpontok helye, típusa (AC/DC), teljesítmény — e-mobi, Mobiliti.</div>
+    <div class="card-metrics">
+      <div class="metric green"><span class="mv">1 240</span> <span class="ml">Töltőpont Bp.</span></div>
+      <div class="metric"><span class="mv">+45%</span> <span class="ml">YoY növekedés</span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <div class="card-icon blue">🔧</div>
+      <div><div class="card-name">Karbantartási költségek</div><div class="card-file">maintenance_costs.json</div></div>
+    </div>
+    <div class="card-desc">Társasházi és bérházkezelési fajlagos költségek épülettípusonként — MTESZ, kezelői adatok.</div>
+    <div class="card-metrics">
+      <div class="metric"><span class="mv">450 Ft/m²</span> <span class="ml">Átl. havi</span></div>
+      <div class="metric gold"><span class="mv">+11%</span> <span class="ml">YoY</span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <div class="card-icon purple">🏘</div>
+      <div><div class="card-name">Közös költség benchmark</div><div class="card-file">service_charge_benchmark.json</div></div>
+    </div>
+    <div class="card-desc">Közös költség szintek kerületenként és épülettípusonként — társasházkezelői felmérés.</div>
+    <div class="card-metrics">
+      <div class="metric"><span class="mv">35 000 Ft</span> <span class="ml">Bp. medián</span></div>
+      <div class="metric red"><span class="mv">68 000 Ft</span> <span class="ml">Max (V. belváros)</span></div>
+    </div>
+  </div>
+
+</div>
+</div>
+
+</main>
+
+<!-- ══ FOOTER ══════════════════════════════════════════════════ -->
+<footer class="footer">
+  
+</footer>
+
+<!-- ══ CATEGORY FILTER JS ══════════════════════════════════════ -->
+<script>
+(function(){
+  if(typeof window._APP_STORE==='undefined') window._APP_STORE={};
+  var btns=document.querySelectorAll('.filter-btn');
+  var sections=document.querySelectorAll('.cat-section');
+  btns.forEach(function(btn){
+    btn.addEventListener('click',function(){
+      btns.forEach(function(b){b.classList.remove('active')});
+      btn.classList.add('active');
+      var cat=btn.getAttribute('data-cat');
+      sections.forEach(function(sec){
+        if(cat==='all'){sec.style.display=''}
+        else{sec.style.display=sec.getAttribute('data-category')===cat?'':'none'}
+      });
+    });
+  });
+})();
+</script>
+
+<!-- IB Assistant Chat Widget -->
+<script>
+(function(){
+var css=document.createElement('style');
+css.textContent=`
+@keyframes ibPulse{0%{box-shadow:0 0 0 0 rgba(0,113,227,.55)}70%{box-shadow:0 0 0 18px rgba(0,113,227,0)}100%{box-shadow:0 0 0 0 rgba(0,113,227,0)}}
+@keyframes ibDot{0%,80%,100%{transform:scale(0)}40%{transform:scale(1)}}
+#ib-chat-btn{position:fixed;bottom:28px;right:28px;z-index:9999;width:56px;height:56px;border-radius:50%;background:#0071E3;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(0,113,227,.45);animation:ibPulse 2s ease-out 3;transition:transform .2s}
+#ib-chat-btn:hover{transform:scale(1.08)}
+#ib-chat-btn svg{width:28px;height:28px;fill:#fff}
+#ib-chat-btn .ib-badge{position:absolute;top:-2px;right:-2px;background:#FF9F0A;color:#F5F5F7;font-size:11px;font-weight:800;width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center}
+#ib-chat-panel{position:fixed;bottom:96px;right:28px;z-index:9999;width:380px;height:520px;background:#FFFFFF;border:1px solid rgba(0,113,227,.25);border-radius:16px;display:none;flex-direction:column;overflow:hidden;box-shadow:0 12px 48px rgba(0,0,0,.55);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif}
+#ib-chat-panel.open{display:flex}
+.ib-header{background:linear-gradient(135deg,#0071E3 0%,#3a5fcc 100%);padding:16px 18px;display:flex;align-items:center;justify-content:space-between}
+.ib-header-left h3{margin:0;font-size:15px;font-weight:700;color:#fff}
+.ib-header-left p{margin:2px 0 0;font-size:11px;color:rgba(255,255,255,.7)}
+.ib-close{background:none;border:none;color:rgba(255,255,255,.8);font-size:22px;cursor:pointer;padding:0 4px;line-height:1}
+.ib-close:hover{color:#fff}
+.ib-messages{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px}
+.ib-messages::-webkit-scrollbar{width:5px}
+.ib-messages::-webkit-scrollbar-thumb{background:#333;border-radius:4px}
+.ib-msg{max-width:88%;padding:10px 14px;border-radius:14px;font-size:13px;line-height:1.55;color:#1D1D1F;word-wrap:break-word}
+.ib-msg.bot{align-self:flex-start;background:#F5F5F7;border-bottom-left-radius:4px}
+.ib-msg.user{align-self:flex-end;background:#0071E3;color:#fff;border-bottom-right-radius:4px}
+.ib-msg .ib-ts{display:block;font-size:10px;color:rgba(255,255,255,.35);margin-top:5px}
+.ib-msg.bot .ib-ts{color:rgba(255,255,255,.3)}
+.ib-chips{display:flex;flex-wrap:wrap;gap:6px;padding:0 14px 10px}
+.ib-chip{background:#F5F5F7;border:1px solid rgba(0,113,227,.3);color:#6E6E73;font-size:11px;padding:6px 12px;border-radius:20px;cursor:pointer;transition:all .15s}
+.ib-chip:hover{background:#0071E3;color:#fff;border-color:#0071E3}
+.ib-typing{align-self:flex-start;display:flex;gap:4px;padding:10px 18px;background:#F5F5F7;border-radius:14px;border-bottom-left-radius:4px}
+.ib-typing span{width:7px;height:7px;background:#0071E3;border-radius:50%;animation:ibDot 1.4s infinite ease-in-out both}
+.ib-typing span:nth-child(1){animation-delay:-.32s}
+.ib-typing span:nth-child(2){animation-delay:-.16s}
+.ib-input-bar{display:flex;padding:10px;gap:8px;border-top:1px solid rgba(255,255,255,.07);background:#F5F5F7}
+.ib-input-bar input{flex:1;background:#F5F5F7;border:1px solid rgba(255,255,255,.1);border-radius:24px;padding:10px 16px;color:#1D1D1F;font-size:13px;outline:none}
+.ib-input-bar input::placeholder{color:#555}
+.ib-input-bar input:focus{border-color:#0071E3}
+.ib-send{background:#0071E3;border:none;border-radius:50%;width:38px;height:38px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s}
+.ib-send:hover{background:#3a5fcc}
+.ib-send svg{width:18px;height:18px;fill:#fff}
+`;
+document.head.appendChild(css);
+
+var KB=[
+{k:['szimulátor','szimulator','simulator','kalkulátor'],a:'A Szimulátor (simulator.html) 18 különböző kalkulátor tabot tartalmaz. A navigációs sávban a „Szimulátor" gombra kattintva éred el. Tartalmaz: ingatlan elemzés, fordított keresés, portfólió, cash-flow, kollégium, parkolóház, adózás, makró szcenáriók, befektetői mérőszámok, bérlői eszközök és még sok más modult.'},
+{k:['land residual','telekérték','telek residual','residual módszer'],a:'A Land Residual (maradékérték) módszer a telek maximális vételárát határozza meg. Képlet: GDV (bruttó fejlesztési érték) – építési költség – soft költségek – finanszírozás – célprofit = maximális telekár. Megtalálod a development.html „📍 F2 · Telekszerzés" tabján.'},
+{k:['pro forma','proforma','pénzügyi terv'],a:'A Pro Forma kalkulátor a fejlesztési projekt teljes pénzügyi modelljét készíti el. Tartalmaz: bevétel-előrejelzés, költségbecslés, hozamszámítás (ROI, IRR, cash-on-cash yield). Megtalálod a development.html „💰 Pro Forma" tabján.'},
+{k:['bérleti díj','albérlet','bérleti','hol vannak a bérleti'],a:'A bérleti díj adatokat több helyen is megtalálod:\n• index.html: interaktív koropletikus térkép kerületenkénti átlagokkal\n• simulator.html: részletes elemzés és összehasonlítás\nAz adatok a rent_detailed.json fájlból származnak, forrásuk a negyzetmeterarak.hu.'},
+{k:['oték','otk','övezeti','övezet','zóna besorolás'],a:'Az OTÉK (Országos Településrendezési és Építési Követelmények) meghatározza az egyes kerületek építési paramétereit: szintterületi mutató (SZM), maximális beépítési arány, emeletszám és parkolási norma. Az OTÉK elemzőt a development.html „🔍 F1 · Piackutatás" tabjában találod.'},
+{k:['due diligence','dd checklist','átvilágítás'],a:'A Due Diligence (átvilágítási) checklist 22 ellenőrzési pontot tartalmaz 4 kategóriában: Jogi (6), Területhasználat (6), Műszaki (6), Pénzügyi (4). A kitöltöttségi állapot automatikusan mentődik. Megtalálod a development.html „📍 F2 · Telekszerzés" tabján.'},
+{k:['mi ez a rendszer','mi ez az oldal','platform','dashboard','mire való'],a:'Ez az IB Exproconsult Budapest Ingatlanelemzési Platform — 12 HTML modulból álló komplex elemző rendszer. Tartalmaz: piaci adatok (index.html), szimulátorok (simulator.html), fejlesztési tracker (development.html), CRM (crm.html), befektetői memo (memo.html), kihasználtsági elemzés, hirdetésfigyelő, diáklakás elemző, ingatlankezelés, parkolóház elemző és lakásátalakító modult.'},
+{k:['hozam számol','hozamot','hozamszámítás','yield','mekkora a hozam'],a:'Hozamszámításhoz használd a simulator.html „Ingatlan Elemzés" (forward) tabját. Add meg a vételárat, bérleti díjat, költségeket — és azonnal látod a bruttó/nettó hozamot, cap rate-et és cash-on-cash metrikai mutatókat. A fejlesztési hozamhoz a development.html Pro Forma kalkulátorát ajánlom.'},
+{k:['melyik kerület','kerületbe érdemes','hová érdemes','befektetés hol','beruházni','beruház'],a:'A „Fordított Keresés" (simulator.html 2. tab) segít megtalálni a legjobb kerületet. Add meg az elvárásaidat (hozam, büdzsé, típus) és a rendszer rangsorolja a kerületeket. Emellett a „🔍 F1 · Piackutatás" tab (development.html) piaci rés elemzőjében látod az összes kerület bruttó hozamát összehasonlítva.'},
+{k:['jelzálog','hitel','mortgage','törlesztő','hitelkalkul'],a:'A Hitelkalkulátor a simulator.html-ben található. Megadhatod a hitelt összeget, futamidőt, kamatot és a kalkulátor kiszámolja a havi törlesztőt, teljes visszafizetést és a hitel költségét. A „Cash-flow Előrejelzés" tabbal kombinálva láthatod a hitel hatását a pénzáramlásra.'},
+{k:['adó','áfa','szja','adózás','illeték','tax'],a:'Adózási kalkulátort két helyen is találsz:\n• simulator.html „Adózás" tab: SZJA, szocho, önkormányzati adó, áfa kalkulátor befektetők számára\n• development.html F7 tab: fejlesztési projekt adózási elemzés\nMindkettő tartalmazza a hatályos magyar adókulcsokat.'},
+{k:['exit','eladás','mikor adjam el','exit stratégia','kiszállás'],a:'Az Exit Stratégia kalkulátort a development.html-ben találod. Segít eldönteni a legjobb kiszállási időpontot a projekt hozam görbéje alapján. Figyelembe veszi a piaci ciklusokat, SZJA kedvezményeket (5 év tartás után) és az alternatív költséget.'},
+{k:['cash flow','pénzáramlás','cashflow','cf előrejelzés'],a:'A Cash-flow Előrejelzés a simulator.html-ben található. 10 éves előrejelzést készít havi bontásban: bérleti bevétel, üzemeltetési költségek, hiteltörlesztés, adók, nettó pénzáramlás. Grafikonon is megjeleníti a trendeket.'},
+{k:['vásárlási ár','eladási ár','purchase','ingatlanárak','négyzetméterár'],a:'A vásárlási árak adatait a purchase_prices.json fájl tartalmazza kerületenkénti bontásban. Az index.html főoldalon interaktív térképen és táblázatban is megtekintheted. A simulator.html-ben részletes szűrési és összehasonlítási lehetőségek vannak.'},
+{k:['kollégium','diák','student','diáklakás','kollégiumi'],a:'A diáklakás/kollégium elemzést két modulban találod:\n• student_intel.html: Egyetemek körüli kereslet-elemzés, hallgatói statisztikák\n• apartment_converter.html: Lakás → diákszálló átalakítási kalkulátor\nA simulator.html „Kollégium" tabja is tartalmaz releváns kalkulátorokat.'},
+{k:['parkoló','parking','parkolóház','garázs'],a:'A parkolóház elemzést a parking_intel.html modulban találod. Tartalmaz: kerületenkénti parkolóhely kereslet, árszintek, fejlesztési potenciál, ROI kalkulátor. A simulator.html „Parkolóház" tabja is tartalmaz parkolóház-specifikus kalkulátort.'},
+{k:['engedély','építési engedély','engedélyezés','hatóság','permitting'],a:'Az építési engedélyezés nyomon követését a development.html „F4 · Engedélyezés" tabján találod. Tartalmazza a teljes engedélyezési folyamatot, határidőket, szükséges dokumentumokat és a hatósági eljárás lépéseit.'},
+{k:['közmű','elmű','víz','gáz','csatorna','kapacitás','közműkapacitás'],a:'A közmű kapacitás ellenőrzést a development.html-ben találod (Közmű Kapacitás tab). Segít felmérni a villamos (ELMŰ–ÉMÁSZ), gáz, víz és csatornahálózat kapacitását a tervezett fejlesztéshez. Fontos a land due diligence részeként!'},
+{k:['telek','telekár','telek ár','telekszim','telekszerzés'],a:'Telekkel kapcsolatos elemzések:\n• simulator.html „Telek Szimulátor" tab: telekérték és fejlesztési potenciál\n• development.html „📍 F2 · Telekszerzés": Land Residual módszer, telekár benchmark 23 kerületre, Due Diligence checklist'},
+{k:['ingatlankezelés','property management','kezelés','üzemeltetés','propertymanagement'],a:'Az Ingatlankezelés modult a property_mgmt.html oldalon találod. Tartalmaz: bérlői nyilvántartás, karbantartási naptár, pénzügyi kimutatások, tulajdonosi riportok, automatikus figyelmeztetések lejáró szerződésekre.'},
+{k:['fejlesztés','development','projekt tracker','fejlesztési projekt'],a:'A Fejlesztési Projekt Tracker (development.html) a teljes ingatlanfejlesztési folyamatot lefedi 8+ fázisban: Piackutatás (F1), Telekszerzés (F2), Tervezés (F3), Engedélyezés (F4), Kivitelezés, Közmű, Adózás, Exit stratégia. Minden fázishoz kalkulátor és checklist tartozik.'},
+{k:['frissítés','update','mikor frissül','adat frissítés','frissülnek az adatok'],a:'Az adatok félévente frissülnek: szeptember 15. és március 15. Az aktuális adatok a legutóbbi frissítési ciklusból származnak. A bérleti díjak és vásárlási árak a negyzetmeterarak.hu, ingatlan.com és KSH forrásokból származnak.'},
+{k:['crm','bérlő kezelés','ügyfél','bérlői crm'],a:'A bérlői CRM rendszert a crm.html oldalon találod. Funkciók: bérlői adatbázis, szerződés kezelés, fizetési nyomon követés, kommunikációs napló, automatikus emlékeztetők, bérlő értékelés.'},
+{k:['export','csv','letöltés','mentés'],a:'Szinte minden oldalon elérhető CSV export funkció. A táblázatok felett vagy mellett keresd az „Export" vagy „CSV" gombot. A teljes adatkészlet letölthető további elemzéshez Excelben vagy más eszközben.'},
+{k:['memo','befektetői memo','investor memo'],a:'A Befektetői Memo generátort a memo.html oldalon találod. Automatikusan összeállít egy professzionális befektetői prezentációt a projekt adataiból: piaci összefoglaló, pénzügyi mutatók, kockázatelemzés, exit stratégia.'},
+{k:['listing','hirdetés','hirdetésfigyelő'],a:'A Hirdetésfigyelő modult a listings.html oldalon találod. Valós idejű hirdetés adatokat gyűjt és elemez: árszint monitoring, piacra kerülési idő, ár/m² összehasonlítás kerületenként.'},
+{k:['kihasználtság','occupancy','üresedés','vacancy'],a:'A Kihasználtsági Elemzést az occupancy.html oldalon találod. Nyomon követi a bérleti kihasználtságot, üresedési rátákat, szezonális trendeket és segít optimalizálni a bérleti stratégiát.'},
+{k:['lakásátalakító','converter','átalakítás','apartment converter'],a:'A Lakásátalakító kalkulátort az apartment_converter.html oldalon találod. Kiszámolja a lakás → diákszálló/airbnb átalakítás költségeit, megtérülését és a szükséges engedélyeket.'},
+{k:['portfólió','portfolio'],a:'A Portfólió Elemző a simulator.html-ben található. Lehetővé teszi több ingatlanból álló portfólió összesített elemzését: diverzifikáció, kockázat, összesített hozam, értékváltozás tracking.'},
+{k:['makro','gdp','infláció','kamat','gazdaság','makrogazdaság','szcenárió'],a:'A Makro Szcenáriók modult a simulator.html-ben találod. Három szcenáriót modellez (optimista, bázis, pesszimista) a magyar makrogazdasági mutatók alapján: GDP, infláció, jegybanki alapkamat, munkanélküliség, és ezek hatása az ingatlanpiacra.'},
+{k:['rezsi','közös költség','villany','fűtés','üzemeltetési költség','utility'],a:'A Rezsi Benchmark-ot a simulator.html „🏠 Bérlői & Vásárlói eszközök" tabjában találod (Rezsi Benchmark al-tab). 23 kerület rezsiadatait tartalmazza: villany, gáz, víz, távfűtés, közös költség — összehasonlítható és szűrhető.'},
+{k:['minőség','neighbourhood','szomszédság','kerület minőség','quality'],a:'A Lakókörnyezet Minőségi Index a simulator.html „🏠 Bérlői & Vásárlói eszközök" tabjában érhető el (Kerületi Minőség al-tab). 6 dimenzióban értékeli a kerületeket: közlekedés, zöldterület, szolgáltatások, biztonság, oktatás, egészségügy.'},
+{k:['rent vs buy','bérlés vagy vásárlás','break even','megtérülés','bérelni vagy venni'],a:'A „Bérlés vs. Vásárlás" Break-even kalkulátort a simulator.html „🏠 Bérlői & Vásárlói eszközök" tabjában találod. Kiszámolja, hány év után térül meg a vásárlás a bérléshez képest, figyelembe véve: áremelkedés, bérleti díj növekedés, hitelköltség, alternatív befektetési hozam.'},
+{k:['segítség','help','hogyan','útmutató','használat'],a:'Üdvözöllek! A rendszer 12 modulból áll:\n1. Főoldal (index.html) — piaci áttekintés\n2. Szimulátor — 18 kalkulátor\n3. Fejlesztés — projekt tracker\n4. CRM — bérlő kezelés\n5. Befektetői oldal — investor tools\n6. Memo — befektetői memo\n7. Kihasználtság — occupancy\n8. Hirdetések — listings\n9. Diáklakás — student intel\n10. Ingatlankezelés — property mgmt\n11. Parkoló — parking intel\n12. Átalakító — converter\nKérdezz bátran bármelyikről!'}
+];
+
+function getAssistantResponse(q){
+var ql=q.toLowerCase().replace(/[?!.,]/g,'');
+var best=null,bestScore=0;
+for(var i=0;i<KB.length;i++){var score=0;for(var j=0;j<KB[i].k.length;j++){if(ql.indexOf(KB[i].k[j])!==-1)score+=KB[i].k[j].length}if(score>bestScore){bestScore=score;best=KB[i]}}
+if(best)return best.a;
+var suggestions=[];
+if(/kerület|district/.test(ql))suggestions.push('index.html (piaci áttekintés)','simulator.html (fordított keresés)');
+if(/pénz|cost|ár|price/.test(ql))suggestions.push('simulator.html (kalkulátorok)','development.html (pro forma)');
+if(/bérl|rent/.test(ql))suggestions.push('index.html (bérleti térkép)','crm.html (bérlő kezelés)');
+if(/fejleszt|build|épít/.test(ql))suggestions.push('development.html (fejlesztési tracker)');
+if(suggestions.length>0)return 'Ezt a kérdést nem találom az adatbázisomban, de lehet, hogy ezeken az oldalakon megtalálod:\n• '+suggestions.join('\n• ')+'\nPróbáld pontosítani a kérdést!';
+return 'Ezt a kérdést nem találom az adatbázisomban. Próbáld pontosítani, vagy kérdezz rá a következő témákra: szimulátor, bérleti díjak, hozamszámítás, adózás, fejlesztés, OTÉK, due diligence, CRM, parkoló, kollégium, ingatlankezelés.';
+}
+
+var btn=document.createElement('button');btn.id='ib-chat-btn';btn.setAttribute('aria-label','IB Assistant megnyitása');
+btn.innerHTML='<svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H5.2L4 17.2V4h16v12z"/><path d="M7 9h10v2H7zm0-3h10v2H7z"/></svg><span class="ib-badge">?</span>';
+document.body.appendChild(btn);
+
+var panel=document.createElement('div');panel.id='ib-chat-panel';
+panel.innerHTML='<div class="ib-header"><div class="ib-header-left"><h3>IB Assistant</h3><p>Hogyan segíthetek?</p></div><button class="ib-close" aria-label="Bezárás">&times;</button></div><div class="ib-messages" id="ib-msgs"></div><div class="ib-chips" id="ib-chips"></div><div class="ib-input-bar"><input id="ib-input" type="text" placeholder="Kérdezz valamit..." autocomplete="off"/><button class="ib-send" aria-label="Küldés"><svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg></button></div>';
+document.body.appendChild(panel);
+
+var msgs=document.getElementById('ib-msgs'),input=document.getElementById('ib-input'),chips=document.getElementById('ib-chips'),closeBtn=panel.querySelector('.ib-close'),sendBtn=panel.querySelector('.ib-send'),isOpen=false,chipsShown=true;
+if(typeof window._APP_STORE==='undefined')window._APP_STORE={};
+if(!window._APP_STORE.chatHistory)window._APP_STORE.chatHistory=[];
+
+var SUGGESTED=['Hogyan számolok fejlesztési hozamot?','Melyik kerületbe érdemes beruházni?','Hol találom az adózási kalkulátort?','Mi a Land Residual módszer?','Hogyan működik a közmű kapacitás ellenőrzés?','Mikor frissülnek az adatok?'];
+SUGGESTED.forEach(function(txt){var c=document.createElement('button');c.className='ib-chip';c.textContent=txt;c.addEventListener('click',function(){sendMessage(txt)});chips.appendChild(c)});
+
+function ts(){var d=new Date();return(d.getHours()<10?'0':'')+d.getHours()+':'+(d.getMinutes()<10?'0':'')+d.getMinutes()}
+function addMsg(text,who){var div=document.createElement('div');div.className='ib-msg '+who;div.innerHTML=text.replace(/\n/g,'<br>')+'<span class="ib-ts">'+ts()+'</span>';msgs.appendChild(div);msgs.scrollTop=msgs.scrollHeight;window._APP_STORE.chatHistory.push({who:who,text:text,time:ts()})}
+function showTyping(){var t=document.createElement('div');t.className='ib-typing';t.id='ib-typing';t.innerHTML='<span></span><span></span><span></span>';msgs.appendChild(t);msgs.scrollTop=msgs.scrollHeight}
+function hideTyping(){var t=document.getElementById('ib-typing');if(t)t.remove()}
+function sendMessage(text){if(!text||!text.trim())return;addMsg(text.trim(),'user');input.value='';if(chipsShown){chips.style.display='none';chipsShown=false}showTyping();setTimeout(function(){hideTyping();addMsg(getAssistantResponse(text.trim()),'bot')},600)}
+
+btn.addEventListener('click',function(){isOpen=!isOpen;if(isOpen){panel.classList.add('open');btn.querySelector('.ib-badge').style.display='none';input.focus();if(msgs.children.length===0&&window._APP_STORE.chatHistory.length===0)addMsg('Üdvözöllek! Az IB Assistant vagyok. Kérdezz bátran a Budapest Dashboard rendszerről — segítek eligazodni a modulok, kalkulátorok és adatok között.','bot')}else{panel.classList.remove('open')}});
+closeBtn.addEventListener('click',function(){isOpen=false;panel.classList.remove('open')});
+input.addEventListener('keydown',function(e){if(e.key==='Enter')sendMessage(input.value)});
+sendBtn.addEventListener('click',function(){sendMessage(input.value)});
+})();
+</script>
+</body>
+</html>

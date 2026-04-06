@@ -1,0 +1,259 @@
+{
+  "meta": {
+    "created": "2026-03-15",
+    "description": "IB Exproconsult — JSON adatforrások javasolt frissítési ütemterve",
+    "approval_required": true,
+    "approved": false,
+    "approved_by": null,
+    "approved_at": null,
+    "note": "A félévente frissítendő fájlok a meglévő cron jobokhoz igazodnak (március 15. és szeptember 15.)"
+  },
+  "groups": {
+    "havonta": {
+      "label": "Havonta (magas volatilitás)",
+      "color": "#ef4444",
+      "rationale": "Kamat- és árfolyamadatok gyorsan változnak — MNB üléseket és piaci mozgásokat követ",
+      "files": [
+        {
+          "file": "macro_indicators.json",
+          "reason": "MNB alapkamat, BUBOR, EUR/HUF árfolyam havonta mozog; CPI, GDP negyedévente, de a gyorsítótárak havi frissítést igényelnek",
+          "source": "mnb.hu, ksh.hu, ecb.europa.eu",
+          "auto_possible": true
+        },
+        {
+          "file": "bond_yields.json",
+          "reason": "PMÁP, MÁP+ kamatai havonta változhatnak, ÁKK aukciók folyamatosak",
+          "source": "akk.hu, allampapir.hu",
+          "auto_possible": true
+        },
+        {
+          "file": "mortgage_market.json",
+          "reason": "Banki kamatok (Erste, OTP, UniCredit) gyorsan változnak a BUBOR-ral",
+          "source": "bankmonitor.hu, hitelnet.hu",
+          "auto_possible": true
+        }
+      ]
+    },
+    "negyedevente": {
+      "label": "Negyedévente",
+      "color": "#f59e0b",
+      "rationale": "KSH adatközlési ritmus — GDP, foglalkoztatás, építési engedélyek negyedévente jelennek meg",
+      "files": [
+        {
+          "file": "building_permits.json",
+          "reason": "KSH építési engedélyek negyedéves bontásban, ÉTDR summary riport",
+          "source": "ksh.hu/epites, etdr.hu",
+          "auto_possible": false
+        },
+        {
+          "file": "construction_pipeline.json",
+          "reason": "Projektek státusza, új engedélyek, szüneteltetések negyedéves ritmusban",
+          "source": "matterport projekt figyelő, ÉTDR, sajtó",
+          "auto_possible": false
+        },
+        {
+          "file": "rent_vacancy.json",
+          "reason": "Üresedési ráta szezonálisan (tavaszi/őszi csúcs) — negyedéves pontosság elegendő",
+          "source": "ingatlan.com, ksh.hu",
+          "auto_possible": true
+        },
+        {
+          "file": "household_income.json",
+          "reason": "KSH kereseti statisztika negyedévente/havi gyorstájékoztató",
+          "source": "ksh.hu/keresetek",
+          "auto_possible": true
+        },
+        {
+          "file": "population_trend.json",
+          "reason": "Belső vándorlási adatok negyedéves KSH népmozgás-statisztika alapján",
+          "source": "ksh.hu/nepmozgas",
+          "auto_possible": false
+        }
+      ]
+    },
+    "felevente": {
+      "label": "Félévente (március 15. és szeptember 15.)",
+      "color": "#4f7cff",
+      "rationale": "A legtöbb ingatlanpiaci adat félévente frissíthető megbízhatóan — illeszkedik a meglévő cron ütemtervhez",
+      "files": [
+        {
+          "file": "rent_detailed.json",
+          "reason": "Kerületi medián bérleti díjak félévente érdemi mozgással bírnak",
+          "source": "negyzetmeterarak.hu, ingatlan.com, tudastar.ingatlan.com",
+          "auto_possible": true,
+          "cron_id": "9df1d406"
+        },
+        {
+          "file": "transaction_prices.json",
+          "reason": "MNB/KSH tranzakciós árak késleltetve jelennek meg — félévente pontos",
+          "source": "mnb.hu lakasp. jel., ksh.hu lakasarindex",
+          "auto_possible": true
+        },
+        {
+          "file": "rent_trend_history.json",
+          "reason": "Historikus trend — félévente egy új adatpont reális",
+          "source": "ksh.hu, ingatlan.com tudástár",
+          "auto_possible": true
+        },
+        {
+          "file": "short_term_rental.json",
+          "reason": "AirDNA/Airbnb adatok félévente frissülnek nyilvánosan",
+          "source": "airdna.co, airdna.co/hu/budapest",
+          "auto_possible": false
+        },
+        {
+          "file": "rent_to_income.json",
+          "reason": "Affordabilitás arány — bérek + bérleti díjak félévente",
+          "source": "ksh.hu, negyzetmeterarak.hu",
+          "auto_possible": true
+        },
+        {
+          "file": "construction_costs.json",
+          "reason": "Anyagárak, munkadíjak félévente érdemi elmozdulással bírnak",
+          "source": "ksh.hu/epitoipari-ar, epitoipari.hu",
+          "auto_possible": false
+        },
+        {
+          "file": "maintenance_costs.json",
+          "reason": "Fenntartási normák lassan változnak, félévente elegendő",
+          "source": "ingatlankezeles.hu, pm-szakmai közlönyek",
+          "auto_possible": false
+        },
+        {
+          "file": "service_charge_benchmark.json",
+          "reason": "Közös költség benchmark félévente releváns (rezsidíj változások hatása)",
+          "source": "tarsashaz.hu, ingatlan.com, közgyűlési anyagok",
+          "auto_possible": false
+        },
+        {
+          "file": "research_competitor_dorms.json",
+          "reason": "Versenytárs kollégiumok — félévente + manuális ellenőrzés",
+          "source": "magankollegium.hu, albérlet.hu, ingatlan.com",
+          "auto_possible": true,
+          "cron_id": "a21ad403 / c996569e"
+        },
+        {
+          "file": "research_student_demographics.json",
+          "reason": "Hallgatói létszámok évente változnak (szeptemberi beiratkozás)",
+          "source": "felvi.hu, tka.hu",
+          "auto_possible": false
+        }
+      ]
+    },
+    "evente": {
+      "label": "Évente (vagy eseményvezérelt)",
+      "color": "#10b981",
+      "rationale": "Lassan változó adatok — szabályozói döntések, ESG minősítések, infrastruktúra",
+      "files": [
+        {
+          "file": "tax_rules.json",
+          "reason": "Adótörvények évente változnak (január 1. hatályba lépés) — NAV közlemény alapján",
+          "source": "nav.gov.hu, njt.hu, leitnerleitner.hu",
+          "auto_possible": false,
+          "trigger": "Minden év január közepén"
+        },
+        {
+          "file": "csok_programs.json",
+          "reason": "CSOK/Otthon Start feltételek kormányrendelettel változnak — eseményvezérelt",
+          "source": "magyarallam.gov.hu, mnb.hu, bankmonitor.hu",
+          "auto_possible": false,
+          "trigger": "Jogszabályváltozásnál azonnal"
+        },
+        {
+          "file": "utility_tariffs.json",
+          "reason": "ELMŰ/FŐGÁZ/FCSzM tarifák évente + rendkívüli ármódosításokkor",
+          "source": "elmu.hu, fogazrt.hu, fcsm.hu, mekh.hu",
+          "auto_possible": false,
+          "trigger": "Január 1. + rendkívüli változásnál"
+        },
+        {
+          "file": "energy_performance.json",
+          "reason": "Épületenergetikai adatok, EU Taxonomy — évente/kétévente releváns",
+          "source": "epeszeti.bm.gov.hu, mnb.hu ESG keret",
+          "auto_possible": false
+        },
+        {
+          "file": "green_certifications.json",
+          "reason": "BREEAM/LEED tanúsítások lassan változnak, éves regiszter",
+          "source": "breeam.com, usgbc.org/leed, hgbc.hu",
+          "auto_possible": false
+        },
+        {
+          "file": "flood_risk.json",
+          "reason": "OVF árvízi kockázati térkép — évenként (nagy árvíz után aktualizálandó)",
+          "source": "ovf.hu, katasztrofavedelem.hu",
+          "auto_possible": false
+        },
+        {
+          "file": "ev_charging.json",
+          "reason": "EV penetráció gyorsan nő — évente minimum, de inkább félévente",
+          "source": "e-mobilitás.hu, nkm.hu, plugshare.com",
+          "auto_possible": false
+        },
+        {
+          "file": "research_accessibility.json",
+          "reason": "BKK/GTFS menetrend évente változik (kisebb mértékben)",
+          "source": "bkk.hu/gtfs, opendata.bkk.hu",
+          "auto_possible": true
+        },
+        {
+          "file": "research_institutional.json",
+          "reason": "Stipendium Hungaricum éves kvóta, intézményi szerződések",
+          "source": "tka.hu, stipendiumhungaricum.hu",
+          "auto_possible": false
+        }
+      ]
+    },
+    "statikus": {
+      "label": "Statikus / Ritkán frissítendő",
+      "color": "#64748b",
+      "rationale": "Alapadatok, referencia geometriák — csak nagy változásnál szükséges frissítés",
+      "files": [
+        {
+          "file": "district_osm_ids.json",
+          "reason": "OSM kerületi ID-k — csak ha az OSM adatbázis változik (rendkívül ritka)",
+          "auto_possible": false
+        },
+        {
+          "file": "overpass_districts.json",
+          "reason": "OSM GeoJSON kerületi határok — statikus referenciaadat",
+          "auto_possible": false
+        },
+        {
+          "file": "universities.json",
+          "reason": "Egyetemek elhelyezkedése — csak ha intézmény költözik/szűnik meg",
+          "auto_possible": false
+        },
+        {
+          "file": "university_streets.json",
+          "reason": "Campus utcajegyzék — statikus",
+          "auto_possible": false
+        },
+        {
+          "file": "research_development.json",
+          "reason": "Fejlesztési referencia adatok — manuálisan karbantartandó",
+          "auto_possible": false
+        },
+        {
+          "file": "research_parking.json",
+          "reason": "Parkolóházi referencia adatok — manuálisan karbantartandó",
+          "auto_possible": false
+        },
+        {
+          "file": "research_property_mgmt.json",
+          "reason": "Ingatlankezelési referencia normák — évente manuálisan ellenőrzendő",
+          "auto_possible": false
+        }
+      ]
+    }
+  },
+  "summary": {
+    "havonta_db": 3,
+    "negyedevente_db": 5,
+    "felevente_db": 10,
+    "evente_db": 9,
+    "statikus_db": 7,
+    "auto_frissitheto_ossz": 14,
+    "manualis_ossz": 20
+  }
+}

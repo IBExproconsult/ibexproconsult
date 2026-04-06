@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<!--
+  
+  Hirdetések — IB Exproconsult
+  © 2026
+-->
+<html lang="hu" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IB Exproconsult — Hirdetések</title>
+<meta name="description" content="Felszerzési Figyelő és Hirdetés Kezelő — IB Exproconsult">
+<script src="libs/chart.min.js"></script>
+<style>
+:root {
+  --bg: #F5F5F7; --surface: #FFFFFF; --surface-2: #F5F5F7; --surface2: #F5F5F7;
+  --surface-3: #E5E5EA; --border: rgba(0,0,0,0.08); --border-h: rgba(0,0,0,0.14);
+  --accent: #0071E3; --accent-hover: #0077ED; --accent-light: rgba(0,113,227,0.12);
+  --gold: #FF9F0A; --green: #34C759; --red: #FF3B30; --orange: #FF9500; --purple: #AF52DE;
+  --text: #1D1D1F; --text-muted: #6E6E73; --text-dim: #AEAEB2;
+  --radius: 10px; --radius-lg: 14px;
+  --shadow: 0 2px 12px rgba(0,0,0,0.06);
+  --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  --header-h: 56px;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; background: var(--bg); color: var(--text); font-family: var(--font); font-size: 14px; line-height: 1.5; overflow-x: hidden; }
+a { color: var(--accent); text-decoration: none; }
+button { cursor: pointer; border: none; font-family: inherit; }
+input, select, textarea { font-family: inherit; }
+.page { min-height: 100vh; display: flex; flex-direction: column; }
+.main-content { flex: 1; padding: 24px; max-width: 1440px; margin: 0 auto; width: 100%; }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 20px; box-shadow: var(--shadow); }
+.section-title { font-size: 15px; font-weight: 700; margin-bottom: 16px; }
+
+/* TAB NAV */
+.tab-bar { display: flex; gap: 4px; margin-bottom: 24px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 4px; width: fit-content; }
+.tab-btn { padding: 8px 20px; border-radius: 7px; font-size: 13px; font-weight: 600; background: transparent; color: var(--text-muted); transition: all 0.15s; }
+.tab-btn.active { background: var(--accent); color: #fff; }
+.tab-btn:hover:not(.active) { background: var(--surface-2); color: var(--text); }
+.tab-pane { display: none; }
+.tab-pane.active { display: block; }
+
+/* KPI ROW */
+.kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
+.kpi-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 18px 20px; box-shadow: var(--shadow); }
+.kpi-label { font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px; }
+.kpi-val { font-size: 24px; font-weight: 700; color: var(--text); font-variant-numeric: tabular-nums; }
+.kpi-sub { font-size: 11px; color: var(--text-muted); margin-top: 3px; }
+
+/* FILTER BAR */
+.filter-bar { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 20px; align-items: center; }
+.filter-select { padding: 7px 12px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface); color: var(--text); font-size: 13px; outline: none; cursor: pointer; }
+.filter-select:focus { border-color: var(--accent); }
+.filter-label { font-size: 12px; font-weight: 600; color: var(--text-muted); }
+.btn-refresh { display: inline-flex; align-items: center; gap: 6px; padding: 7px 16px; border-radius: 8px; font-size: 12px; font-weight: 600; background: var(--accent); color: #fff; margin-left: auto; }
+.btn-refresh:hover { background: var(--accent-hover); }
+
+/* LISTINGS GRID */
+.listings-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 16px; }
+.listing-card {
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg);
+  padding: 18px; box-shadow: var(--shadow); transition: all 0.2s; position: relative;
+}
+.listing-card:hover { border-color: var(--accent); box-shadow: 0 4px 20px rgba(0,113,227,0.12); transform: translateY(-1px); }
+.lc-source { position: absolute; top: 14px; right: 14px; font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 10px; background: var(--surface-2); color: var(--text-muted); border: 1px solid var(--border); }
+.lc-street { font-size: 11px; font-weight: 600; color: var(--accent); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 5px; }
+.lc-address { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 10px; padding-right: 70px; line-height: 1.3; }
+.lc-price { font-size: 20px; font-weight: 800; color: var(--text); font-variant-numeric: tabular-nums; margin-bottom: 4px; }
+.lc-price-m2 { font-size: 12px; color: var(--text-muted); margin-bottom: 12px; }
+.lc-specs { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 12px; }
+.lc-spec { display: flex; align-items: center; gap: 4px; font-size: 12px; color: var(--text-muted); }
+.lc-spec strong { color: var(--text); font-weight: 600; }
+.lc-desc { font-size: 12px; color: var(--text-muted); line-height: 1.5; margin-bottom: 12px; border-top: 1px solid var(--border); padding-top: 10px; }
+.lc-ceiling { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; padding: 3px 8px; border-radius: 8px; font-weight: 600; }
+.lc-ceiling.high { background: rgba(52,199,89,0.12); color: var(--green); }
+.lc-ceiling.unknown { background: var(--surface-2); color: var(--text-dim); }
+.lc-actions { display: flex; gap: 8px; margin-top: 10px; }
+.lc-btn { flex: 1; padding: 7px 10px; border-radius: 7px; font-size: 12px; font-weight: 600; text-align: center; }
+.lc-btn-primary { background: var(--accent); color: #fff; }
+.lc-btn-primary:hover { background: var(--accent-hover); }
+.lc-btn-secondary { background: var(--surface-2); border: 1px solid var(--border); color: var(--text-muted); }
+.lc-btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
+.lc-btn-dismiss { background: transparent; border: 1px solid rgba(255,59,48,0.25); color: var(--red); flex: 0 0 auto; padding: 7px 12px; }
+.lc-btn-dismiss:hover { background: rgba(255,59,48,0.08); border-color: var(--red); }
+@keyframes lcDismiss { to { opacity:0; transform:scale(0.93) translateY(-6px); } }
+.lc-dismissing { animation: lcDismiss 0.22s ease forwards; pointer-events:none; }
+.dismissed-bar { display:flex; align-items:center; gap:10px; margin-bottom:20px; padding:10px 14px; background:rgba(255,59,48,0.06); border:1px solid rgba(255,59,48,0.18); border-radius:10px; font-size:12px; color:var(--text-muted); }
+.dismissed-bar strong { color:var(--red); }
+.dismissed-bar button { margin-left:auto; padding:5px 12px; border-radius:7px; font-size:11px; font-weight:600; background:var(--surface); border:1px solid var(--border); color:var(--text-muted); cursor:pointer; }
+.dismissed-bar button:hover { border-color:var(--red); color:var(--red); }
+
+/* TABLE VIEW */
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+thead th { text-align: left; padding: 10px 12px; color: var(--text-muted); font-weight: 600; border-bottom: 1px solid var(--border); white-space: nowrap; font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em; }
+tbody td { padding: 10px 12px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+tbody tr:hover { background: rgba(0,113,227,0.03); }
+.sort-active { color: var(--accent); }
+thead th { cursor: pointer; user-select: none; }
+thead th:hover { color: var(--text); }
+
+/* BADGE */
+.badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 600; }
+.badge-green { background: rgba(52,199,89,0.12); color: var(--green); }
+.badge-blue { background: rgba(0,113,227,0.1); color: var(--accent); }
+.badge-grey { background: var(--surface-2); color: var(--text-muted); border: 1px solid var(--border); }
+
+/* VIEW TOGGLE */
+.view-toggle { display: flex; gap: 4px; }
+.view-btn { width: 32px; height: 32px; border-radius: 6px; display: flex; align-items: center; justify-content: center; background: var(--surface-2); border: 1px solid var(--border); color: var(--text-muted); font-size: 14px; }
+.view-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+/* PLATFORMS (tab 2) */
+.platforms-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
+.platform-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 20px; text-align: center; transition: all 0.2s; }
+.platform-card.connected { border-color: rgba(52,199,89,0.4); }
+.platform-card.disconnected { opacity: 0.6; }
+.platform-icon { font-size: 28px; margin-bottom: 8px; }
+.platform-name { font-size: 13px; font-weight: 700; margin-bottom: 6px; }
+.platform-status { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 11px; font-weight: 600; margin-bottom: 10px; }
+.status-active { background: rgba(52,199,89,0.15); color: var(--green); }
+.status-inactive { background: rgba(239,68,68,0.15); color: var(--red); }
+.platform-toggle { display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 8px; }
+.toggle-switch { position: relative; width: 40px; height: 22px; background: var(--surface2); border-radius: 11px; border: 1px solid var(--border); cursor: pointer; transition: all 0.2s; }
+.toggle-switch.on { background: var(--green); border-color: var(--green); }
+.toggle-switch::after { content: ''; position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; border-radius: 50%; background: #fff; transition: transform 0.2s; }
+.toggle-switch.on::after { transform: translateX(18px); }
+.btn-connect { padding: 6px 14px; border-radius: 6px; font-size: 12px; font-weight: 600; background: var(--accent); color: #fff; transition: all 0.15s; margin-top: 8px; }
+
+/* FORM */
+.layout-2col { display: grid; grid-template-columns: 1.5fr 1fr; gap: 24px; margin-bottom: 24px; }
+.form-group { margin-bottom: 14px; }
+.form-label { display: block; font-size: 12px; font-weight: 600; color: var(--text-muted); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.03em; }
+.input, .select-input { background: var(--surface-2); border: 1px solid var(--border); color: var(--text); padding: 8px 12px; border-radius: 8px; font-size: 13px; outline: none; transition: border 0.15s; width: 100%; }
+.input:focus, .select-input:focus { border-color: var(--accent); }
+textarea.input { resize: vertical; min-height: 80px; }
+.char-count { font-size: 11px; color: var(--text-dim); text-align: right; margin-top: 2px; }
+.checkbox-row { display: flex; gap: 16px; flex-wrap: wrap; }
+.checkbox-item { display: flex; align-items: center; gap: 6px; font-size: 13px; cursor: pointer; }
+.checkbox-item input[type="checkbox"] { accent-color: var(--accent); width: 16px; height: 16px; }
+.file-input-wrap { background: var(--surface2); border: 1px dashed var(--border); border-radius: 8px; padding: 12px; text-align: center; color: var(--text-muted); font-size: 12px; cursor: pointer; transition: border-color 0.15s; }
+.file-input-wrap:hover { border-color: var(--accent); }
+.btn { display: inline-flex; align-items: center; gap: 6px; padding: 10px 20px; border-radius: 8px; font-size: 13px; font-weight: 600; transition: all 0.15s; }
+.btn-primary { background: var(--accent); color: #fff; }
+.btn-primary:hover { background: var(--accent-hover); }
+.chart-card { padding: 16px; }
+.chart-title { font-size: 13px; font-weight: 600; margin-bottom: 12px; }
+.chart-wrap { position: relative; height: 180px; }
+.chart-wrap canvas { width: 100% !important; height: 100% !important; }
+.metric-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
+.metric-label { color: var(--text-muted); }
+.metric-value { font-weight: 700; }
+.btn-sm { padding: 5px 10px; border-radius: 6px; font-size: 11px; font-weight: 600; background: var(--surface2); color: var(--text-muted); border: 1px solid var(--border); cursor: pointer; transition: all 0.15s; }
+.btn-sm:hover { color: var(--text); border-color: var(--accent); }
+.btn-sm.danger { color: var(--red); }
+.btn-sm.danger:hover { border-color: var(--red); }
+
+/* EMPTY STATE */
+.empty-state { text-align: center; padding: 48px 24px; color: var(--text-muted); }
+.empty-state .es-icon { font-size: 40px; margin-bottom: 12px; }
+
+/* TOAST */
+.toast { position: fixed; bottom: 24px; right: 24px; background: var(--green); color: #fff; padding: 12px 20px; border-radius: 10px; font-size: 13px; font-weight: 600; box-shadow: 0 8px 24px rgba(0,0,0,0.2); transform: translateY(100px); opacity: 0; transition: all 0.3s ease; z-index: 9999; }
+.toast.show { transform: translateY(0); opacity: 1; }
+
+/* FOOTER */
+.footer { text-align: center; padding: 20px; border-top: 1px solid var(--border); font-size: 12px; color: var(--text-dim); margin-top: auto; }
+.footer a { color: var(--text-muted); }
+.footer a:hover { color: var(--accent); }
+
+/* DARK MODE */
+[data-theme="dark"] { --bg: #1C1C1E; --surface: #2C2C2E; --surface-2: #3A3A3C; --surface-3: #48484A; --border: rgba(255,255,255,0.10); --text: #F5F5F7; --text-muted: #AEAEB2; --text-dim: #636366; --accent: #0A84FF; --shadow: 0 2px 12px rgba(0,0,0,0.3); }
+
+/* HEADER NAV */
+.ib-header-wrap { position:sticky; top:0; z-index:200; }
+.ib-header-top { display:flex; align-items:center; justify-content:space-between; padding:0 20px; height:48px; background:rgba(255,255,255,0.92); border-bottom:1px solid rgba(0,0,0,0.06); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px); }
+.ib-header-nav { display:flex; align-items:center; justify-content:center; flex-wrap:wrap; gap:2px; padding:4px 16px; background:rgba(255,255,255,0.85); border-bottom:1px solid rgba(0,0,0,0.08); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px); }
+[data-theme="dark"] .ib-header-top, [data-theme="dark"] .ib-header-nav { background:rgba(28,28,30,0.92); border-color:rgba(255,255,255,0.08); }
+
+@media (max-width: 1024px) { .kpi-row { grid-template-columns: repeat(2, 1fr); } .platforms-grid { grid-template-columns: repeat(2, 1fr); } .layout-2col { grid-template-columns: 1fr; } }
+@media (max-width: 600px) { .kpi-row { grid-template-columns: 1fr 1fr; } .listings-grid { grid-template-columns: 1fr; } .main-content { padding: 16px; } .filter-bar { flex-direction: column; align-items: stretch; } .btn-refresh { margin-left: 0; } }
+</style>
+<link rel="stylesheet" href="libs/ib-design-system.css">
+</head>
+<body>
+<div class="page">
+
+  <!-- HEADER -->
+  <div class="ib-header-wrap">
+    <div class="ib-header-top">
+      <div style="display:flex;align-items:center;gap:10px;flex-shrink:0;">
+        <div style="width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,#0071E3,#0055B3);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#fff;letter-spacing:-0.5px;flex-shrink:0;">IB</div>
+        <div>
+          <div style="font-size:14px;font-weight:700;color:#1D1D1F;letter-spacing:-0.02em;line-height:1.2;">IB Expro</div>
+          <div style="font-size:10px;color:#6E6E73;letter-spacing:0.03em;line-height:1.2;">Figyelő Platform</div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
+        <button style="width:32px;height:32px;border-radius:8px;background:#F5F5F7;border:1px solid rgba(0,0,0,0.08);color:#6E6E73;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all 0.15s;" data-theme-toggle aria-label="Téma váltás" onmouseover="this.style.borderColor='#0071E3';this.style.color='#0071E3'" onmouseout="this.style.borderColor='rgba(0,0,0,0.08)';this.style.color='#6E6E73'">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        </button>
+      </div>
+    </div>
+    <nav class="ib-header-nav" id="main-nav">
+      <a href="index.html" class="ib-nav-link">Dashboard</a>
+      <a href="simulator.html" class="ib-nav-link">Szimulátor</a>
+      <a href="development.html" class="ib-nav-link">Fejlesztés</a>
+      <a href="property_mgmt.html" class="ib-nav-link">Kezelés</a>
+      <a href="occupancy.html" class="ib-nav-link">Kihasználtság</a>
+      <a href="investor.html" class="ib-nav-link">Befektetők</a>
+      <a href="investment_calculator.html" class="ib-nav-link">Kalkulátor</a>
+      <a href="apartment_converter.html" class="ib-nav-link">Diáklakás</a>
+      <a href="student_intel.html" class="ib-nav-link">Diák Intel</a>
+      <a href="parking_intel.html" class="ib-nav-link">Parkoló</a>
+      <a href="property_managers.html" class="ib-nav-link">Kezelők</a>
+      <a href="crm.html" class="ib-nav-link">CRM</a>
+      <a href="memo.html" class="ib-nav-link">Memo</a>
+      <a href="listings.html" class="ib-nav-link active">Hirdetések</a>
+      <a href="adatkozpont.html" class="ib-nav-link">Adatközpont</a>
+    </nav>
+  </div>
+
+  <div class="main-content">
+
+    <!-- PAGE HEADER -->
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px;">
+      <div>
+        <h1 style="font-size:22px;font-weight:800;letter-spacing:-0.02em;color:var(--text);">Hirdetések</h1>
+        <p style="font-size:13px;color:var(--text-muted);margin-top:2px;">Felszerzési figyelő · Hirdetés kezelő</p>
+      </div>
+      <div style="font-size:12px;color:var(--text-muted);background:var(--surface);border:1px solid var(--border);padding:6px 12px;border-radius:8px;">
+        Frissítve: <strong id="lastUpdated">2026-03-20</strong>
+      </div>
+    </div>
+
+    <!-- TABS -->
+    <div class="tab-bar">
+      <button class="tab-btn active" onclick="switchTab(0)">🔍 Felszerzési Figyelő</button>
+      <button class="tab-btn" onclick="switchTab(1)">📤 Hirdetés Kezelő</button>
+    </div>
+
+    <!-- TAB 0: ACQUISITION MONITOR -->
+    <div class="tab-pane active" id="tab-0">
+
+      <!-- KPI ROW -->
+      <div class="kpi-row">
+        <div class="kpi-card">
+          <div class="kpi-label">Találatok</div>
+          <div class="kpi-val" id="kpi-total">–</div>
+          <div class="kpi-sub">Szűrt utcák, min. 100 m²</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Medián ár</div>
+          <div class="kpi-val" id="kpi-median">–</div>
+          <div class="kpi-sub">Ft (szűrési eredmény)</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Átlag Ft/m²</div>
+          <div class="kpi-val" id="kpi-avg-m2">–</div>
+          <div class="kpi-sub">Teljes lista</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Forrás</div>
+          <div class="kpi-val" style="font-size:14px;" id="kpi-sources">–</div>
+          <div class="kpi-sub">Portál</div>
+        </div>
+      </div>
+
+      <!-- FILTER BAR -->
+      <div class="filter-bar">
+        <span class="filter-label">Szűrők:</span>
+        <select class="filter-select" id="filterStreet" onchange="applyFilters()">
+          <option value="">Összes utca</option>
+        </select>
+        <select class="filter-select" id="filterSource" onchange="applyFilters()">
+          <option value="">Összes forrás</option>
+          <option value="ingatlan.com">ingatlan.com</option>
+          <option value="zenga.hu">zenga.hu</option>
+          <option value="dunahouse.com">dunahouse.com</option>
+        </select>
+        <select class="filter-select" id="filterMaxPrice" onchange="applyFilters()">
+          <option value="">Max ár (bármely)</option>
+          <option value="100000000">100M Ft alatt</option>
+          <option value="150000000">150M Ft alatt</option>
+          <option value="200000000">200M Ft alatt</option>
+          <option value="250000000">250M Ft alatt</option>
+        </select>
+        <select class="filter-select" id="filterMinM2" onchange="applyFilters()">
+          <option value="">Min m² (bármely)</option>
+          <option value="100">100 m²+</option>
+          <option value="110">110 m²+</option>
+          <option value="130">130 m²+</option>
+          <option value="150">150 m²+</option>
+        </select>
+        <select class="filter-select" id="filterSort" onchange="applyFilters()">
+          <option value="ar_asc">Ár: növekvő</option>
+          <option value="ar_desc">Ár: csökkenő</option>
+          <option value="m2_desc">m²: legnagyobb</option>
+          <option value="m2_asc">m²: legkisebb</option>
+          <option value="arm2_asc">Ft/m²: legolcsóbb</option>
+        </select>
+        <div style="margin-left:auto;display:flex;align-items:center;gap:8px;">
+          <div class="view-toggle">
+            <button class="view-btn active" id="btnGrid" onclick="setView('grid')" title="Kártyák">⊞</button>
+            <button class="view-btn" id="btnTable" onclick="setView('table')" title="Táblázat">☰</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- GRID VIEW -->
+      <div id="gridView">
+        <div class="listings-grid" id="listingsGrid"></div>
+      </div>
+
+      <!-- TABLE VIEW -->
+      <div id="tableView" style="display:none;">
+        <div class="card">
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Cím</th>
+                  <th>Utca</th>
+                  <th onclick="sortTable('ar_ft')">Ár ↕</th>
+                  <th onclick="sortTable('terulet_m2')">m² ↕</th>
+                  <th onclick="sortTable('ar_m2')">Ft/m² ↕</th>
+                  <th>Szobák</th>
+                  <th>Emelet</th>
+                  <th>Belmagasság</th>
+                  <th>Forrás</th>
+                  <th>Link</th>
+                </tr>
+              </thead>
+              <tbody id="listingsTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- INFO NOTE -->
+      <div style="margin-top:20px;padding:14px 16px;background:rgba(0,113,227,0.06);border:1px solid rgba(0,113,227,0.15);border-radius:10px;font-size:12px;color:var(--text-muted);">
+        <strong style="color:var(--accent);">ℹ️ Adatforrás:</strong> ingatlan.com, zenga.hu, dunahouse.com — kizárólag a megadott célutcák, min. 100 m², eladó lakás. Belmagasság adat ahol a hirdetésben feltüntetve volt. Frissítés: <strong>2026-03-20</strong>.
+      </div>
+    </div>
+
+    <!-- TAB 1: LISTING MANAGER -->
+    <div class="tab-pane" id="tab-1">
+      <h2 class="section-title">Platformok státusza</h2>
+      <div class="platforms-grid" id="platformsGrid"></div>
+
+      <div class="layout-2col">
+        <div class="card">
+          <h3 class="section-title">Új hirdetés létrehozása</h3>
+          <form id="listingForm" onsubmit="return handleSubmit(event)">
+            <div class="form-group">
+              <label class="form-label">Ingatlan kiválasztása</label>
+              <select class="select-input" id="propertySelect" onchange="autofillProperty()">
+                <option value="">— Válasszon ingatlant —</option>
+                <option value="0">VIII. Rákóczi út 17. — 19 ágyas</option>
+                <option value="1">VIII. Bródy Sándor u. 23. — 12 ágyas</option>
+                <option value="2">IX. Baross u. 10. — 11 ágyas</option>
+              </select>
+            </div>
+            <div id="autoFields" style="display:none;">
+              <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:14px;">
+                <div><label class="form-label">Kerület</label><input class="input" id="fieldDistrict" readonly></div>
+                <div><label class="form-label">Típus</label><input class="input" id="fieldType" readonly></div>
+                <div><label class="form-label">Alapterület (m²)</label><input class="input" id="fieldArea" readonly></div>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Hirdetés szöveg</label>
+              <textarea class="input" id="adText" maxlength="500" placeholder="Írja le az ingatlant..." oninput="updateCharCount()"></textarea>
+              <div class="char-count"><span id="charCount">0</span> / 500</div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Bérleti díj (Ft/hó)</label>
+              <input class="input" type="number" id="rentPrice" placeholder="pl. 185000">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Platform kiválasztás</label>
+              <div class="checkbox-row">
+                <label class="checkbox-item"><input type="checkbox" name="platform" value="alberlet" checked> albérlet.hu</label>
+                <label class="checkbox-item"><input type="checkbox" name="platform" value="ingatlan" checked> ingatlan.com</label>
+                <label class="checkbox-item"><input type="checkbox" name="platform" value="facebook" disabled> Facebook</label>
+              </div>
+            </div>
+            <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;margin-top:8px;">📤 Hirdetés közzététele</button>
+          </form>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:16px;">
+          <div class="card chart-card">
+            <div class="chart-title">Megtekintések platformonként</div>
+            <div class="chart-wrap"><canvas id="chartViewsByPlatform"></canvas></div>
+          </div>
+          <div class="card" style="padding:20px;">
+            <div class="chart-title">Konverziós mutatók</div>
+            <div class="metric-row"><span class="metric-label">albérlet.hu konverzió</span><span class="metric-value" style="color:var(--green);">5.1%</span></div>
+            <div class="metric-row"><span class="metric-label">ingatlan.com konverzió</span><span class="metric-value" style="color:var(--gold);">4.5%</span></div>
+            <div class="metric-row" style="border:none;"><span class="metric-label">Átl. idő első érdeklődőig</span><span class="metric-value">3.2 nap</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom:24px;">
+        <h3 class="section-title">Aktív hirdetések</h3>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Ingatlan</th><th>Platform</th><th>Megtekintések</th><th>Érdeklődők</th><th>Feladva</th><th>Státusz</th><th>Műveletek</th></tr></thead>
+            <tbody id="listingsTable"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <footer class="footer">
+    © 2026 IB Exproconsult Kft. · 
+  </footer>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// =============================================================
+// ACQUISITION DATA — from acquisition_listings.json (inline)
+// =============================================================
+const ACQUISITION_DATA = {"meta":{"last_updated":"2026-03-20","total":20,"sources":["ingatlan.com","zenga.hu","dunahouse.com"],"search_params":{"tipus":"eladó lakás","terulet_min_m2":100,"belmagassag_note":"Minimum 380 cm belmagasságú ingatlanok előnyben; ahol az adat nem elérhető: 'nem ismert'","target_streets":["Kálvin tér","Duna-part","Baross utca","Orczy út","Népszínház utca","Rákóczi út","Múzeum utca","Bródy Sándor utca","Király utca","Vámház körút","Fővám tér","Blaha Lujza tér","Nagyvárad tér","Bécsi út","Pacsirtamező utca","Víziváros","Szentlélek tér","Flórián tér","Lajos utca","Budafoki út"]}},"listings":[{"cim":"Budapest VIII. ker., Baross utca 121.","ar_ft":89000000,"terulet_m2":100,"szobak":"nem ismert","emelet":"nem ismert","belmagassag":"nem ismert","leiras":"100 m²-es eladó lakás a Baross utca 121. szám alatt.","url":"https://ingatlan.com/34729476","utca":"Baross utca","forras":"ingatlan.com","datum":"2026-03","id":1,"ar_m2":890000},{"cim":"Budapest VIII. ker., Baross utca","ar_ft":95000000,"terulet_m2":101,"szobak":"3","emelet":"nem ismert","belmagassag":"nem ismert","leiras":"101 m²-es, 3 szobás eladó lakás a Baross utcában.","url":"https://ingatlan.com/34602006","utca":"Baross utca","forras":"ingatlan.com","datum":"2026-03","id":2,"ar_m2":940594},{"cim":"Budapest VIII. ker., Baross utca / Magdolna-negyed","ar_ft":99000000,"terulet_m2":113,"szobak":"4","emelet":"1. emelet","belmagassag":"nem ismert","leiras":"Felújítandó, 113 m²-es polgári lakás 13 m²-es erkéllyel és két külön bejárattal, befektetésre alkalmas.","url":"https://dh.hu/property/M323317/for-sale-apartment-budapest-8-district-1082-budapest-8,-magdolna-negyed","utca":"Baross utca","forras":"dunahouse.com","datum":"2026-03","id":3,"ar_m2":876106},{"cim":"Budapest VIII. ker., Baross utca","ar_ft":107900000,"terulet_m2":110,"szobak":"nem ismert","emelet":"nem ismert","belmagassag":"nem ismert","leiras":"110 m²-es, eladó lakás a Baross utcában.","url":"https://ingatlan.com/35094222","utca":"Baross utca","forras":"ingatlan.com","datum":"2026-03","id":4,"ar_m2":980909},{"cim":"Budapest VIII. ker., Baross utca","ar_ft":112000000,"terulet_m2":108,"szobak":"3+1 fél","emelet":"nem ismert","belmagassag":"nem ismert","leiras":"108 m²-es, 3+1 félszobás eladó lakás a Baross utcában.","url":"https://ingatlan.com/35252497","utca":"Baross utca","forras":"ingatlan.com","datum":"2026-03","id":5,"ar_m2":1037037},{"cim":"Budapest VIII. ker., Baross utca","ar_ft":124000000,"terulet_m2":106,"szobak":"nem ismert","emelet":"nem ismert","belmagassag":"nem ismert","leiras":"106 m²-es, eladó lakás a Baross utcában.","url":"https://ingatlan.com/35135115","utca":"Baross utca","forras":"ingatlan.com","datum":"2026-03","id":6,"ar_m2":1169811},{"cim":"Budapest VIII. ker., Baross utca","ar_ft":124900000,"terulet_m2":108,"szobak":"4","emelet":"1. emelet","belmagassag":"3 m-nél magasabb","leiras":"Felújított, 108 m²-es, két külön bejáratú nagypolgári lakás befektetésre vagy többgenerációs használatra.","url":"https://ingatlan.com/34837819","utca":"Baross utca","forras":"ingatlan.com","datum":"2026-03","id":7,"ar_m2":1156481},{"cim":"Budapest VIII. ker., Baross utca","ar_ft":132500000,"terulet_m2":117,"szobak":"nem ismert","emelet":"nem ismert","belmagassag":"nem ismert","leiras":"117 m²-es, eladó lakás a Baross utcában.","url":"https://ingatlan.com/34008074","utca":"Baross utca","forras":"ingatlan.com","datum":"2026-03","id":8,"ar_m2":1132479},{"cim":"Budapest VIII. ker., Baross utca 125.","ar_ft":135000000,"terulet_m2":101,"szobak":"3+1","emelet":"nem ismert","belmagassag":"nem ismert","leiras":"Bérhazi lakás a Baross utca 125. alatt.","url":"https://ingatlan.com/34978187","utca":"Baross utca","forras":"ingatlan.com","datum":"2026-03","id":9,"ar_m2":1336634},{"cim":"Budapest VIII. ker., Baross utca 127.","ar_ft":149000000,"terulet_m2":166,"szobak":"nem ismert","emelet":"nem ismert","belmagassag":"nem ismert","leiras":"166 m²-es, eladó nagypolgári lakás a Baross utca 127. szám alatt.","url":"https://ingatlan.com/35242426","utca":"Baross utca","forras":"ingatlan.com","datum":"2026-03","id":10,"ar_m2":897590},{"cim":"Budapest VIII. ker., Baross utca","ar_ft":189000000,"terulet_m2":220,"szobak":"nem ismert","emelet":"nem ismert","belmagassag":"nem ismert","leiras":"220 m²-es, nagy alapterületű eladó lakás a Baross utcában.","url":"https://ingatlan.com/33393612","utca":"Baross utca","forras":"ingatlan.com","datum":"2026-03","id":11,"ar_m2":859091},{"cim":"Budapest VIII. ker., Baross utca 106.","ar_ft":215000000,"terulet_m2":153,"szobak":"nem ismert","emelet":"nem ismert","belmagassag":"nem ismert","leiras":"153 m²-es eladó nagylakás a Baross utca 106. alatt.","url":"https://ingatlan.com/34576491","utca":"Baross utca","forras":"ingatlan.com","datum":"2026-03","id":12,"ar_m2":1405229},{"cim":"Budapest VIII. ker., Baross utca 106.","ar_ft":240000000,"terulet_m2":171,"szobak":"nem ismert","emelet":"nem ismert","belmagassag":"nem ismert","leiras":"171 m²-es eladó lakás a Baross utca 106. szám alatt.","url":"https://ingatlan.com/34576486","utca":"Baross utca","forras":"ingatlan.com","datum":"2026-03","id":13,"ar_m2":1403509},{"cim":"Budapest VII. ker., Blaha Lujza tér közelében","ar_ft":152000000,"terulet_m2":108,"szobak":"3","emelet":"3. emelet","belmagassag":"nem ismert","leiras":"Teljesen felújított, déli tájolású, 3 szobás lakás két fürdőszobával, liftes ház legfelső szintjén.","url":"https://dh.hu/ingatlan/LK060429/elado-lakas-budapest-7-kerulet-blaha-lujza-ter-kozeleben/u/7840000007255","utca":"Blaha Lujza tér","forras":"dunahouse.com","datum":"2026-03","id":14,"ar_m2":1407407},{"cim":"Budapest VIII. ker., Bródy Sándor utca","ar_ft":144000000,"terulet_m2":101,"szobak":"4","emelet":"4. emelet","belmagassag":"nem ismert","leiras":"Teljes körűen felújított, 4 külön nyíló szobás lakás két fürdőszobával, liftes századelős házban.","url":"https://www.zenga.hu/ingatlan/elado-teglalakas-budapest-viii-kerulet-palotanegyed/8434584","utca":"Bródy Sándor utca","forras":"zenga.hu","datum":"2026-03","id":15,"ar_m2":1425743},{"cim":"Budapest VIII. ker., Bródy Sándor utca","ar_ft":144000000,"terulet_m2":101,"szobak":"4","emelet":"4. emelet","belmagassag":"nem ismert","leiras":"Felújított, napfényes, 101 m²-es polgári lakás a Palotanegyedben, a Bródy Sándor utcában.","url":"https://dh.hu/ingatlan/LK063426/elado-lakas-budapest-8-kerulet-brody-sandor-4-szoba-2-furdo-magasemelet/u/7350000001551","utca":"Bródy Sándor utca","forras":"dunahouse.com","datum":"2026-03","id":16,"ar_m2":1425743},{"cim":"Budapest VIII. ker., Kálvin tér közelében","ar_ft":99000000,"terulet_m2":131,"szobak":"nem ismert","emelet":"Pinceszint","belmagassag":"nem ismert","leiras":"131 m²-es befektetési ingatlan a Kálvin tér közelében, jelenleg három bérbe adott lakás működik benne.","url":"https://dh.hu/ingatlan/LK051679/elado-lakas-budapest-8-kerulet/u/7350000000180","utca":"Kálvin tér","forras":"dunahouse.com","datum":"2026-03","id":17,"ar_m2":755725},{"cim":"Budapest VIII. ker., Népszínház utca 38.","ar_ft":159990000,"terulet_m2":176,"szobak":"7","emelet":"3. emelet","belmagassag":"nem ismert","leiras":"176 m²-es, 7 szobás, részben felújított nagypolgári lakás; befektetésre, nagy családnak vagy irodai használatra alkalmas.","url":"https://www.zenga.hu/ingatlan/elado-teglalakas-budapest-viii-kerulet-nepszinhaznegyed/8934848","utca":"Népszínház utca","forras":"zenga.hu","datum":"2026-03","id":18,"ar_m2":909034},{"cim":"Budapest VII. ker., Rákóczi út","ar_ft":192000000,"terulet_m2":122,"szobak":"5","emelet":"3. emelet","belmagassag":"nem ismert","leiras":"Felújított, 5 szobás, dupla komfortos lakás a Rákóczi úton, liftes ház 3. emeletén, két fürdővel.","url":"https://www.zenga.hu/ingatlan/elado-teglalakas-budapest-vii-kerulet/8928661","utca":"Rákóczi út","forras":"zenga.hu","datum":"2026-03","id":19,"ar_m2":1573770},{"cim":"Budapest V. ker., Vámház körút / Váci utca sarok","ar_ft":259900000,"terulet_m2":122,"szobak":"3","emelet":"1. emelet","belmagassag":"nagy belmagasságú","leiras":"Műemlék, liftes házban lévő nagypolgári lakás a Vámház körúton; világos, klimatizált, nappali + 2 háló.","url":"https://www.zenga.hu/ingatlan/elado-teglalakas-budapest-v-kerulet/8656694","utca":"Vámház körút","forras":"zenga.hu","datum":"2026-03","id":20,"ar_m2":2130328}]};
+
+// =============================================================
+// STATE
+// =============================================================
+let currentView = 'grid';
+let filteredData = [...ACQUISITION_DATA.listings];
+
+// Dismissed listings — persisted in _APP_STORE
+if (typeof window._APP_STORE === 'undefined') window._APP_STORE = {};
+if (!window._APP_STORE.dismissedListings) window._APP_STORE.dismissedListings = [];
+
+function getDismissed() { return window._APP_STORE.dismissedListings || []; }
+
+function dismissListing(url, cardEl) {
+  if (!getDismissed().includes(url)) {
+    window._APP_STORE.dismissedListings.push(url);
+  }
+  // Animate card out then re-render
+  if (cardEl) {
+    cardEl.classList.add('lc-dismissing');
+    setTimeout(() => applyFilters(), 240);
+  } else {
+    applyFilters();
+  }
+  showToast('Hirdetés elvetve — nem jelenik meg többé.');
+}
+
+function restoreAllDismissed() {
+  window._APP_STORE.dismissedListings = [];
+  applyFilters();
+  showToast('Összes elvetett hirdetés visszaállítva.');
+}
+
+// =============================================================
+// INIT FILTERS
+// =============================================================
+function initFilters() {
+  const streets = [...new Set(ACQUISITION_DATA.listings.map(l => l.utca))].sort();
+  const sel = document.getElementById('filterStreet');
+  streets.forEach(s => {
+    const opt = document.createElement('option');
+    opt.value = s; opt.textContent = s;
+    sel.appendChild(opt);
+  });
+}
+
+// =============================================================
+// FILTER + SORT
+// =============================================================
+function applyFilters() {
+  const street = document.getElementById('filterStreet').value;
+  const source = document.getElementById('filterSource').value;
+  const maxPrice = parseInt(document.getElementById('filterMaxPrice').value) || 0;
+  const minM2 = parseInt(document.getElementById('filterMinM2').value) || 0;
+  const sortBy = document.getElementById('filterSort').value;
+
+  const dismissed = getDismissed();
+  filteredData = ACQUISITION_DATA.listings.filter(l => {
+    if (dismissed.includes(l.url)) return false;
+    if (street && l.utca !== street) return false;
+    if (source && l.forras !== source) return false;
+    if (maxPrice && l.ar_ft > maxPrice) return false;
+    if (minM2 && l.terulet_m2 < minM2) return false;
+    return true;
+  });
+  // Update dismissed bar
+  const dCount = dismissed.length;
+  let bar = document.getElementById('dismissedBar');
+  if (dCount > 0) {
+    if (!bar) {
+      bar = document.createElement('div');
+      bar.id = 'dismissedBar';
+      bar.className = 'dismissed-bar';
+      const grid = document.getElementById('listingsGrid');
+      grid.parentNode.insertBefore(bar, grid);
+    }
+    bar.innerHTML = `<strong>${dCount} hirdetés elvetve</strong> — nem jelenik meg a listában. <button onclick="restoreAllDismissed()">↩ Visszaállítás</button>`;
+  } else if (bar) {
+    bar.remove();
+  }
+
+  filteredData.sort((a, b) => {
+    if (sortBy === 'ar_asc') return a.ar_ft - b.ar_ft;
+    if (sortBy === 'ar_desc') return b.ar_ft - a.ar_ft;
+    if (sortBy === 'm2_desc') return b.terulet_m2 - a.terulet_m2;
+    if (sortBy === 'm2_asc') return a.terulet_m2 - b.terulet_m2;
+    if (sortBy === 'arm2_asc') return a.ar_m2 - b.ar_m2;
+    return 0;
+  });
+
+  updateKPIs();
+  renderGrid();
+  renderTableBody();
+}
+
+// =============================================================
+// KPIs
+// =============================================================
+function updateKPIs() {
+  const total = filteredData.length;
+  document.getElementById('kpi-total').textContent = total + ' db';
+
+  const prices = filteredData.map(l => l.ar_ft).sort((a,b) => a-b);
+  const median = prices.length ? prices[Math.floor(prices.length/2)] : 0;
+  document.getElementById('kpi-median').textContent = median ? (median/1000000).toFixed(0) + ' M Ft' : '–';
+
+  const avgM2 = total ? Math.round(filteredData.reduce((s,l) => s + l.ar_m2, 0) / total) : 0;
+  document.getElementById('kpi-avg-m2').textContent = avgM2 ? avgM2.toLocaleString('hu-HU') + ' Ft' : '–';
+
+  const srcs = [...new Set(filteredData.map(l => l.forras))];
+  document.getElementById('kpi-sources').textContent = srcs.join(', ') || '–';
+}
+
+// =============================================================
+// SOURCE BADGE COLOR
+// =============================================================
+function srcColor(s) {
+  if (s === 'ingatlan.com') return '#FF9500';
+  if (s === 'zenga.hu') return '#5AC8FA';
+  if (s === 'dunahouse.com') return '#34C759';
+  return '#AEAEB2';
+}
+
+// =============================================================
+// RENDER GRID
+// =============================================================
+function renderGrid() {
+  const grid = document.getElementById('listingsGrid');
+  if (!filteredData.length) {
+    grid.innerHTML = '<div class="empty-state" style="grid-column:1/-1;"><div class="es-icon">🔍</div><div>Nincs találat a szűrési feltételek alapján.</div></div>';
+    return;
+  }
+  grid.innerHTML = filteredData.map(l => {
+    const ceilBadge = (l.belmagassag && l.belmagassag !== 'nem ismert')
+      ? `<span class="lc-ceiling high">✓ ${l.belmagassag}</span>`
+      : `<span class="lc-ceiling unknown">Belmagasság: nem ismert</span>`;
+    const specs = [];
+    if (l.terulet_m2) specs.push(`<span class="lc-spec"><strong>${l.terulet_m2} m²</strong></span>`);
+    if (l.szobak && l.szobak !== 'nem ismert') specs.push(`<span class="lc-spec"><strong>${l.szobak}</strong> szoba</span>`);
+    if (l.emelet && l.emelet !== 'nem ismert') specs.push(`<span class="lc-spec"><strong>${l.emelet}</strong></span>`);
+    return `
+    <div class="listing-card">
+      <span class="lc-source" style="border-color:${srcColor(l.forras)}20;color:${srcColor(l.forras)};">${l.forras}</span>
+      <div class="lc-street">${l.utca}</div>
+      <div class="lc-address">${l.cim}</div>
+      <div class="lc-price">${l.ar_ft.toLocaleString('hu-HU')} Ft</div>
+      <div class="lc-price-m2">${l.ar_m2.toLocaleString('hu-HU')} Ft/m²</div>
+      <div class="lc-specs">${specs.join('')}</div>
+      ${l.leiras ? `<div class="lc-desc">${l.leiras}</div>` : ''}
+      ${ceilBadge}
+      <div class="lc-actions">
+        <a href="${l.url}" target="_blank" rel="noopener" class="lc-btn lc-btn-primary">🔗 Hirdetés</a>
+        <button class="lc-btn lc-btn-secondary" onclick="openInSimulator(${l.ar_ft}, ${l.terulet_m2})">📊 Szimulátor</button>
+        <button class="lc-btn lc-btn-dismiss" onclick="dismissListing('${l.url}', this.closest('.listing-card'))" title="Elvet — nem jelenik meg többé">✕ Elvet</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// =============================================================
+// RENDER TABLE
+// =============================================================
+function renderTableBody() {
+  const tbody = document.getElementById('listingsTableBody');
+  if (!filteredData.length) {
+    tbody.innerHTML = '<tr><td colspan="11" style="text-align:center;padding:24px;color:var(--text-muted);">Nincs találat</td></tr>';
+    return;
+  }
+  tbody.innerHTML = filteredData.map((l, i) => `
+    <tr>
+      <td style="color:var(--text-muted);font-size:12px;">${i+1}</td>
+      <td style="font-weight:600;max-width:200px;">${l.cim}</td>
+      <td><span class="badge badge-blue">${l.utca}</span></td>
+      <td style="font-variant-numeric:tabular-nums;font-weight:700;">${(l.ar_ft/1000000).toFixed(1)} M Ft</td>
+      <td style="font-variant-numeric:tabular-nums;">${l.terulet_m2} m²</td>
+      <td style="font-variant-numeric:tabular-nums;">${l.ar_m2.toLocaleString('hu-HU')}</td>
+      <td>${l.szobak !== 'nem ismert' ? l.szobak : '–'}</td>
+      <td style="color:var(--text-muted);">${l.emelet !== 'nem ismert' ? l.emelet : '–'}</td>
+      <td>${l.belmagassag !== 'nem ismert' ? `<span class="badge badge-green">${l.belmagassag}</span>` : '<span style="color:var(--text-dim);font-size:12px;">–</span>'}</td>
+      <td><span style="font-size:11px;font-weight:600;color:${srcColor(l.forras)};">${l.forras}</span></td>
+      <td style="white-space:nowrap;">
+        <a href="${l.url}" target="_blank" rel="noopener" style="font-size:12px;">↗ Link</a>
+        <button onclick="dismissListing('${l.url}')" style="margin-left:6px;padding:3px 8px;border-radius:5px;font-size:11px;font-weight:600;background:transparent;border:1px solid rgba(255,59,48,0.3);color:var(--red);cursor:pointer;" title="Elvet">✕</button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+// =============================================================
+// VIEW TOGGLE
+// =============================================================
+function setView(v) {
+  currentView = v;
+  document.getElementById('gridView').style.display = v === 'grid' ? 'block' : 'none';
+  document.getElementById('tableView').style.display = v === 'table' ? 'block' : 'none';
+  document.getElementById('btnGrid').classList.toggle('active', v === 'grid');
+  document.getElementById('btnTable').classList.toggle('active', v === 'table');
+}
+
+// =============================================================
+// SIMULATOR LINK
+// =============================================================
+function openInSimulator(ar, m2) {
+  const url = `simulator.html?price=${ar}&area=${m2}`;
+  window.open(url, '_blank');
+  showToast('Megnyitva a Szimulátorban');
+}
+
+// =============================================================
+// TABLE SORT
+// =============================================================
+function sortTable(field) {
+  const cur = document.getElementById('filterSort').value;
+  const ascending = cur !== field + '_asc';
+  document.getElementById('filterSort').value = ascending ? field + '_asc' : field + '_desc';
+  applyFilters();
+}
+
+// =============================================================
+// TAB SWITCH
+// =============================================================
+function switchTab(idx) {
+  document.querySelectorAll('.tab-btn').forEach((b,i) => b.classList.toggle('active', i === idx));
+  document.querySelectorAll('.tab-pane').forEach((p,i) => p.classList.toggle('active', i === idx));
+  if (idx === 1 && !window._chartsInit) { initCharts(); window._chartsInit = true; }
+}
+
+// =============================================================
+// TAB 1 — LISTING MANAGER
+// =============================================================
+const PLATFORMS = [
+  { id:'alberlet', name:'albérlet.hu', icon:'🏠', color:'#0071E3', connected:true },
+  { id:'ingatlan', name:'ingatlan.com', icon:'🏢', color:'#FF9500', connected:true },
+  { id:'facebook', name:'Facebook Marketplace', icon:'📘', color:'#1877f2', connected:false },
+];
+const PROPERTIES = [
+  { name:'VIII. Rákóczi út 17.', district:'VIII.', type:'Diáklakás (19 ágyas)', area:212, rent:650000 },
+  { name:'VIII. Bródy Sándor u. 23.', district:'VIII.', type:'Diáklakás (12 ágyas)', area:128, rent:420000 },
+  { name:'IX. Baross u. 10.', district:'IX.', type:'Diáklakás (11 ágyas)', area:129, rent:430000 },
+];
+let managedListings = [
+  { property:'VIII. Rákóczi út 17.', platforms:['albérlet.hu','ingatlan.com'], views:341, inquiries:18, posted:'5 napja', status:'active' },
+  { property:'IX. Baross u. 10.', platforms:['ingatlan.com'], views:89, inquiries:4, posted:'2 hete', status:'active' },
+];
+
+function renderPlatforms() {
+  const grid = document.getElementById('platformsGrid');
+  grid.innerHTML = PLATFORMS.map(p => `
+    <div class="platform-card ${p.connected ? 'connected' : 'disconnected'}">
+      <div class="platform-icon">${p.icon}</div>
+      <div class="platform-name">${p.name}</div>
+      <span class="platform-status ${p.connected ? 'status-active' : 'status-inactive'}">${p.connected ? '✓ Aktív' : '✗ Nem csatlakoztatva'}</span>
+      ${p.connected
+        ? `<div class="platform-toggle"><span style="font-size:12px;color:var(--text-muted)">Engedélyezve</span><div class="toggle-switch on" onclick="this.classList.toggle('on');this.previousElementSibling.textContent=this.classList.contains('on')?'Engedélyezve':'Letiltva'"></div></div>`
+        : `<br><button class="btn-connect" onclick="showToast('Ez a funkció valós API-integrációt igényel.')">Csatlakoztatás</button>`
+      }
+    </div>`).join('');
+}
+
+function autofillProperty() {
+  const sel = document.getElementById('propertySelect');
+  const fields = document.getElementById('autoFields');
+  if (sel.value === '') { fields.style.display='none'; return; }
+  fields.style.display='block';
+  const p = PROPERTIES[parseInt(sel.value)];
+  document.getElementById('fieldDistrict').value = p.district;
+  document.getElementById('fieldType').value = p.type;
+  document.getElementById('fieldArea').value = p.area + ' m²';
+  document.getElementById('rentPrice').value = p.rent;
+}
+
+function updateCharCount() {
+  document.getElementById('charCount').textContent = document.getElementById('adText').value.length;
+}
+
+function handleSubmit(e) {
+  e.preventDefault();
+  const sel = document.getElementById('propertySelect');
+  if (!sel.value) { showToast('Kérem válasszon ingatlant!', true); return false; }
+  const checked = document.querySelectorAll('input[name="platform"]:checked');
+  if (!checked.length) { showToast('Kérem válasszon platformot!', true); return false; }
+  const p = PROPERTIES[parseInt(sel.value)];
+  managedListings.push({ property:p.name, platforms:Array.from(checked).map(c=>PLATFORMS.find(pl=>pl.id===c.value)?.name||c.value), views:0, inquiries:0, posted:'Most', status:'active' });
+  renderManagedListings();
+  showToast('Hirdetés sikeresen elküldve! (szimulált)');
+  document.getElementById('listingForm').reset();
+  document.getElementById('autoFields').style.display='none';
+  document.getElementById('charCount').textContent='0';
+  return false;
+}
+
+function renderManagedListings() {
+  document.getElementById('listingsTable').innerHTML = managedListings.map((l,i) => `
+    <tr>
+      <td style="font-weight:600;">${l.property}</td>
+      <td style="font-size:12px;color:var(--text-muted);">${l.platforms.join(', ')}</td>
+      <td style="font-variant-numeric:tabular-nums;">${l.views.toLocaleString('hu-HU')}</td>
+      <td>${l.inquiries}</td>
+      <td style="color:var(--text-muted);">${l.posted}</td>
+      <td><span class="badge badge-green">Aktív</span></td>
+      <td>
+        <button class="btn-sm" onclick="showToast('Szüneteltetve (szimulált)')">⏸</button>
+        <button class="btn-sm danger" onclick="managedListings.splice(${i},1);renderManagedListings();" style="margin-left:4px;">✕</button>
+      </td>
+    </tr>`).join('');
+}
+
+function initCharts() {
+  new Chart(document.getElementById('chartViewsByPlatform'), {
+    type:'doughnut',
+    data:{ labels:['albérlet.hu','ingatlan.com'], datasets:[{ data:[341,89], backgroundColor:['rgba(0,113,227,0.8)','rgba(249,115,22,0.8)'], borderWidth:0 }] },
+    options:{ responsive:true, maintainAspectRatio:false, cutout:'60%', plugins:{ legend:{ display:true, position:'bottom', labels:{ color:'#6E6E73', font:{size:11}, padding:12, usePointStyle:true } } } }
+  });
+}
+
+// =============================================================
+// TOAST
+// =============================================================
+function showToast(msg, isError) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.background = isError ? 'var(--red)' : 'var(--green)';
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3500);
+}
+
+// =============================================================
+// DARK MODE
+// =============================================================
+document.querySelectorAll('[data-theme-toggle]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const html = document.documentElement;
+    html.setAttribute('data-theme', html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+  });
+});
+
+// =============================================================
+// INIT
+// =============================================================
+initFilters();
+applyFilters();
+renderPlatforms();
+renderManagedListings();
+</script>
+</body>
+</html>
